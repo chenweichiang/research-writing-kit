@@ -1,0 +1,22 @@
+# The kit ships the METHOD, not anyone's drafts or data.
+# Keep personal writing, data, and generated setups out of the shared repo.
+
+# OS / editor cruft
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Never commit an author's actual work through this repo
+drafts/
+data/
+*.docx
+*.pdf
+!examples/**/*.pdf        # (none shipped, but allow if an example ever needs one)
+
+# Filled-in personal setups (these belong in the author's own project, not here)
+VOICE_PROFILE.md
+venue-notes.md
+skeleton.md
+!templates/**             # keep the blank templates
+!examples/**              # keep the worked example
