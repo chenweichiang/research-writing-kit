@@ -17,14 +17,16 @@ description: Five-layer quality check for an academic draft (any language). Use 
 Confirm (or infer): file path; language (own / second / mixed); target venue
 (affects Layer 4 rubric); which layers to run (default all; "just typos" = layers 1–2).
 
-## Layer 1 — Mechanical (tools first, if installed; else careful read)
-- **Full mode:** run the local linters set up in `setup/TOOLS.md` (spelling/grammar,
-  style, and for Traditional-Chinese-Taiwan authors the localization + AI-tic checks
-  from `setup/addons/zh-tw/`). Report, don't auto-apply; show a diff before any change.
-- **Lite mode:** do a careful mechanical pass yourself — typos, spacing/punctuation
-  consistency, agreement, article/number, tense, mixed spelling variants (US/UK).
-Collect output into a "mechanical fixes" list; filter false positives (proper nouns,
-terms of art).
+## Layer 1 — Mechanical (bundled tools first, if usable; else careful read)
+- **Bundled, zero-install (Chinese drafts):** run `tools/zh-tw/zh_localize.py` (Taiwan
+  terms + 台/臺) and `tools/zh-tw/zh_ai_style.py` (Chinese AI fingerprint) directly —
+  they need nothing installed. For the author's voice gate, `tools/zh-tw/voice_lint.py`.
+- **Bundled (English drafts):** `tools/en/lt_check.sh` (grammar + US/UK spelling) if
+  LanguageTool is installed; `tools/en/ai_style_diag.py` if the author built a corpus.
+- **Lite / nothing installed:** do a careful mechanical pass yourself — typos,
+  spacing/punctuation consistency, agreement, article/number, tense, US/UK mixing.
+Report, don't auto-apply; show a diff before any change. Collect into a "mechanical
+fixes" list; filter false positives (proper nouns, terms of art).
 
 ## Layer 2 — Semantic proofreading (Claude, strictly constrained)
 Constraints (counter LLM over-correction): **minimal edit** — change only what's

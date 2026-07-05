@@ -1,0 +1,16 @@
+{
+  "_comment": "Copy to voice_rules.json and edit. Rules are how the voice-lint tool enforces YOUR writing voice. 'hard' rules are pass/fail (fix to zero before delivery); 'soft' rules only report density. Each rule = [label, python-regex]; soft rules take an optional 3rd number = per-1000-char density threshold. Build these from YOUR own writing habits — what YOU never do (see templates/VOICE_PROFILE.template.md). Below are generic Chinese-academic defaults to start from.",
+
+  "hard": [
+    ["Em-dash / double-hyphen (should be 0 in formal zh prose)", "—|――|--|−"],
+    ["Semicolon (should be 0)", "[；;]"],
+    ["然而 starting a sentence", "(^|。|，)然而"],
+    ["Self-congratulatory verdict phrases", "恰恰是|之所在|價值所在|真正的[^，。]{0,8}(在於|重量|價值)"],
+    ["Colloquial words I don't use", "當成|看作|好像|沒辦法"],
+    ["Over-literary particles I don't use", "[乃]|抑或|此即"]
+  ],
+
+  "soft": [
+    ["一+measure-word density (too many reads AI-ish)", "一[具個種套位條場道份隻]", 4.0]
+  ]
+}

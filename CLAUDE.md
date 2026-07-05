@@ -132,7 +132,8 @@ Then stop and let them try one. Offer the full-power add-ons only if they ask.
 | `method/WORKFLOW.md` | The full 7-phase pipeline, generalized, with lite/full notes. |
 | `method/ARGUMENTATION.md` | Argument *moves* as an internal diagnostic (not a menu to sprinkle). |
 | `skills/*/SKILL.md` | De-personalized skill templates to adapt per author. |
-| `templates/*` | Scaffolds the author fills in (voice profile, venue notes, skeleton). |
+| `tools/` | Working local checkers, ready from day one. Chinese ones are zero-install (stdlib); English ones need one/two free offline programs. See `tools/README.md`. |
+| `templates/*` | Scaffolds the author fills in (voice profile, venue notes, skeleton, voice rules). |
 | `setup/INTERVIEW.md` | Suggested interview wording. |
 | `setup/LITE.md` | Zero-install path — works with just Claude + web. |
 | `setup/TOOLS.md` | Optional local power-ups + graceful-degradation map. |

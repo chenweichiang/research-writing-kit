@@ -61,7 +61,8 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | `CLAUDE.md` | **安裝器**：你的 Claude 讀這個來訪談你、生成你的專屬設定。 |
 | `method/` | **方法本體**：心法（PHILOSOPHY）、鐵則（IRON-RULES）、完整流程（WORKFLOW）、論證工法（ARGUMENTATION）。 |
 | `skills/` | 去個人化的 skill 範本（協作寫作 / 投稿前檢查 / 收文獻 / 查引用 / 排版 PDF），你的 Claude 會照你的情況改寫。 |
-| `templates/` | 你要填的空白檔（文風檔、投稿筆記、骨架）。 |
+| `tools/` | **現成的本機小工具**，第一天就能用。中文三支（陸用語／中文 AI 味／聲音硬規則）**零安裝**；英文兩支需一兩個免費離線程式。見 `tools/README.md`。 |
+| `templates/` | 你要填的空白檔（文風檔、投稿筆記、骨架、聲音規則）。 |
 | `setup/` | 簡單模式（LITE）、選配的進階工具（TOOLS）、面談問法、繁中在地化包。 |
 | `examples/` | 一份填好的骨架範例，讓 Claude 有具體參照。 |
 

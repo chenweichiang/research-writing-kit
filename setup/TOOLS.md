@@ -4,6 +4,11 @@
 > Claude + the web. Add these **one at a time, only when the author hits a real wall.**
 > For each capability: what lite mode does, and the optional upgrade. A generated
 > skill must gate every reference to these behind "if installed."
+>
+> 📦 **Already bundled in `tools/`** (no big install): the Chinese checkers
+> (`zh_localize`, `zh_ai_style`, `voice_lint` — zero-install, Python stdlib) and the
+> English `lt_check.sh` (needs `brew install languagetool pandoc`) + `ai_style_diag.py`
+> (needs a corpus you assemble). Those rows below are marked ✅bundled. See `tools/README.md`.
 
 | Capability | Lite (default, no install) | Full (optional upgrade) |
 |-----------|----------------------------|--------------------------|
@@ -11,9 +16,9 @@
 | **Fetch reference PDFs** | Open-access resolvers (Unpaywall/arXiv/author pages) | + institutional/library access (e.g. a university VPN) for paywalled full texts |
 | **Verify citations** | Claude reads OA source, checks direction | + a multi-agent adversarial pass over a local PDF library |
 | **Statistics / analysis** | Honest description + simple summaries | R (mixed models, Bayesian) / Python / a persistent Jupyter kernel — data stays local |
-| **Grammar / style linting** | Claude's by-hand passes | Offline linters (grammar, style) run locally on the draft |
-| **De-AI / voice checking** | Convergence-word + AI-syntax passes by hand | A corpus-anchored style baseline from published papers in your field (never your own drafts) |
-| **Traditional-Chinese-Taiwan** | Claude checks by hand | The `addons/zh-tw/` pack: Taiwan-term, official-terminology, and Chinese AI-tic checks |
+| **Grammar / style linting** | Claude's by-hand passes | ✅bundled `tools/en/lt_check.sh` (LanguageTool, offline) — `brew install languagetool pandoc` |
+| **De-AI / voice checking** | Convergence-word + AI-syntax passes by hand | ✅bundled `tools/en/ai_style_diag.py` (percentiles vs a corpus you assemble — published papers only, never your own drafts) |
+| **Traditional-Chinese-Taiwan** | Claude checks by hand | ✅bundled `tools/zh-tw/` (zero install): `zh_localize` (Taiwan terms), `zh_ai_style` (Chinese AI-tic), `voice_lint` (your voice rules). Official-term DB check = bring-your-own DB. |
 | **PDF / typesetting** | Cleanest export + "layout still needs a pass" | Typst or Quarto/LaTeX with the venue's template and embedded fonts |
 
 ## Principles for the installer
