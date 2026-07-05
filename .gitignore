@@ -9,7 +9,8 @@
 
 # Never commit an author's actual work through this repo
 drafts/
-data/
+data/*                    # ignore author data dropped under data/ ...
+!data/academic-vocab/     # ... but keep the shipped third-party word lists
 *.docx
 *.pdf
 !examples/**/*.pdf        # (none shipped, but allow if an example ever needs one)

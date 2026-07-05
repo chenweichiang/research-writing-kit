@@ -39,8 +39,11 @@ author; put the total edit count at the top.
    notably, crucial, pivotal, multifaceted, underscore, leverage, comprehensive, realm,
    landscape, testament, seamless, robust* (when overused) — and the equivalents in the
    author's language. Suggest more natural replacements.
-2. Anchor key wording (contribution sentences, method verbs) to **real corpus
-   frequency** where a corpus is available (full mode) — otherwise judge by venue norms.
+2. Anchor key wording (contribution sentences, method verbs) to real academic
+   frequency. **Bundled:** grep `data/academic-vocab/` — `avl_core_words.tsv` /
+   `awl_families.tsv` for single-word diction (informal word not in the list + has an
+   academic synonym → suggest upgrading), `acl_collocations.tsv` for phrase
+   collocations. With a field corpus (full mode) also check real frequency there.
    🔴 Word lists are anchors, not auto-replace: the final call is Claude reading the
    context, minimal-edit, with a quote.
 3. Term consistency across the whole draft.
