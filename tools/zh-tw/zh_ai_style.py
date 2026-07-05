@@ -66,7 +66,7 @@ def extract(path: Path) -> str:
 def profile(text: str):
     han = re.findall(HAN, text)
     n = len(han)
-    if n < 200:
+    if n < 120:  # section drafts are often short; below this, rates are too noisy
         return None
     k = lambda c: round(c / n * 1000, 1)
     emdash = text.count("——") + len(re.findall(r"(?<!—)—(?!—)", text))
@@ -100,7 +100,12 @@ def personal_baseline(authored: Path, rebuild=False):
             return json.loads(cache.read_text(encoding="utf-8"))
         except Exception:
             pass
-    files = sorted(authored.glob("*.txt"))
+    # 🔴 Hygiene: the baseline is YOUR OWN writing only. Skip anything that looks like
+    # an AI/co-authored draft (草稿/draft/ai) — including those would let the tool treat
+    # AI tics as "your real words" and cancel the diagnosis out.
+    _DRAFTY = ("草稿", "draft", "ai", "gpt", "claude", "generated")
+    files = sorted(p for p in authored.glob("*.txt")
+                   if not any(d in p.name.lower() for d in _DRAFTY))
     if not files:
         return {"_n": 0, "_files": 0}
     total = "\n".join(f.read_text(encoding="utf-8", errors="ignore") for f in files)
@@ -122,7 +127,9 @@ def personal_baseline(authored: Path, rebuild=False):
 def report(text: str, authored: Path) -> str:
     p = profile(text)
     if not p:
-        return "Fewer than 200 Han chars — statistics unstable."
+        return ("Fewer than 120 Han chars — too short for stable rates. For a short "
+                "section draft, use voice_lint.py / zh_localize.py instead; run this on "
+                "a fuller draft.")
     L = [f"Draft: {p['n']} Han chars | metrics = per 1000 Han (heuristic, not percentile)",
          f"{'em-dash':<22}{p['emdash']:>7}/k{flag('emdash', p['emdash'])}  (raw {p['emdash_raw']})",
          f"{'semicolon':<22}{p['semi']:>7}/k{flag('semi', p['semi'])}",

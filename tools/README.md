@@ -20,6 +20,10 @@ out of the box. The English tools need one or two free offline programs.
 
 - `zh_ai_style.py` gets sharper if you point `--authored <folder>` at a folder of your
   own `.txt` writing — then words *you* genuinely use aren't flagged as AI tells.
+  🔴 Point it at a folder holding **only your own writing** (keep a `voice-samples/`
+  folder separate from your working drafts) — mixing AI drafts into the baseline
+  cancels the diagnosis out. As a guard, files named with 草稿/draft/ai/claude/gpt are
+  auto-skipped. Needs ~120+ Han chars to compute; for a short section use `voice_lint`.
 - `voice_lint.py` ships generic defaults. Copy `templates/voice_rules.template.json`
   → `voice_rules.json`, edit it to match your own habits (what *you* never write), and
   pass `--rules voice_rules.json`. Build it from your `VOICE_PROFILE` (see `templates/`).

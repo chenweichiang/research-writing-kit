@@ -73,11 +73,19 @@ Do not block on perfect answers.
 ### Phase B — Build a voice profile (only if they gave you samples)
 
 If they provided their own writing:
+- 🔴 **Put the samples in a dedicated `voice-samples/` folder** (in their project or
+  home), holding **only their own writing** — never AI/co-authored drafts. The
+  style tools' `--authored` flag points *here*, not at the project folder (a project
+  folder also holds AI drafts, which would poison the baseline — the same corpus-
+  hygiene rule as the English style tool). Name their files plainly; the tools also
+  auto-skip anything containing "草稿/draft/ai/claude/gpt" as a second guard.
 - Read the samples. Extract *observable* habits into a filled-in copy of
   `templates/VOICE_PROFILE.template.md`: typical sentence length and rhythm,
   favored connectives, punctuation habits, register, words they reach for,
   words they never use. Quote 3–5 real phrases as anchors.
 - **Describe patterns, don't invent a persona.** If you can't tell, say so.
+- Encourage 2–4 samples for a fuller profile; if they gave one short piece, note the
+  profile is thin and will sharpen as they add writing.
 - Save it where their Claude will find it (see Phase C for location).
 
 If they gave no samples: skip. The generated skills will target "clear, strong
@@ -103,8 +111,15 @@ you write?"). Then, **generate — do not copy verbatim** — from the templates
   tool they haven't installed as if it exists — gate it behind "if installed").
 
 Also write them a short **their-own CLAUDE.md** (or a section in it) that records:
-their field, language, venues, where the voice profile lives, and which mode
-(lite/full) is active. This is what their Claude reads next time.
+their field, language, venues, where the voice profile lives, which mode (lite/full)
+is active, **and the path where this kit is cloned** (the `KIT PATH`).
+
+🔴 **Record the kit path in exactly one place — their CLAUDE.md — and nowhere else.**
+Their CLAUDE.md is auto-loaded, so their Claude always knows it. In the generated
+skills, refer to kit tools as "the kit's `tools/zh-tw/...` (kit path is in CLAUDE.md)"
+rather than pasting an absolute path into every skill. That way, if they move or
+re-clone the kit, they fix one line, not five files. When you actually run a tool,
+resolve the path from CLAUDE.md at call time.
 
 Every generated skill MUST preserve the five iron ideas above. You may simplify
 wording for a non-technical author, but you may not drop: no-fabricated-citations,
