@@ -70,6 +70,47 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 
 ---
 
+## 會用到哪些工具
+
+> 一句話版本：**只要 Claude Code 就能開始**。其他都是「有了更好」，而且 Claude 會在
+> 你真的需要時才建議裝，一次一個。
+
+### 一定需要的
+
+| 工具 | 用途 | 怎麼取得 |
+|------|------|----------|
+| **Claude Code** | 整套方法的執行者：訪談你、找文獻、架骨架、寫稿、自我檢查 | [claude.com/claude-code](https://claude.com/claude-code)（需 Claude 訂閱） |
+| **Python 3** | 跑隨包附的中文檢查工具 | macOS／Linux 內建，不用裝 |
+
+### 隨包附贈的本機檢查工具（在 `tools/`，詳見 `tools/README.md`）
+
+| 工具 | 檢查什麼 | 額外要裝什麼 |
+|------|----------|--------------|
+| `zh_localize.py` | 陸用語→台灣用語、台／臺一致性 | 不用 |
+| `zh_ai_style.py` | 中文 AI 句法指紋（破折號、三連並列、趨同詞、句長節奏） | 不用 |
+| `voice_lint.py` | 你自己的聲音硬規則（交稿前守門，不乾淨不放行） | 不用 |
+| `lt_check.sh` | 英文文法＋美英拼字一致性（離線 LanguageTool） | `brew install languagetool pandoc` |
+| `ai_style_diag.py` | 英文 AI 指紋（對照你領域已發表論文的百分位） | 自備語料；PDF 輸入才需 `pdftotext` |
+
+### Claude 自己會上網用的（免費、不用裝、不用註冊）
+
+| 服務 | 用在哪 |
+|------|--------|
+| Crossref／OpenAlex／Semantic Scholar | 找文獻、驗證 DOI 與書目資料、查撤稿 |
+| Unpaywall／arXiv | 抓開放取用的論文 PDF |
+
+### 之後想升級再裝的（選配；能力對照表在 `setup/TOOLS.md`）
+
+| 想要的能力 | 裝什麼 |
+|------------|--------|
+| 本機統計分析（混合模型、貝氏） | R 或 Python（資料全程留在你電腦） |
+| 可重跑的分析筆記本 | Jupyter |
+| 付費牆內的文獻全文 | 你機構的圖書館 VPN |
+| 自己文獻庫的語意檢索（哪篇、哪頁） | 本機 RAG（`setup/TOOLS.md` 有方向） |
+| 排版成投稿 PDF | Typst 或 Quarto／LaTeX（用場域官方模板） |
+
+---
+
 ## 給進階使用者
 所有 skill 都是純 Markdown 的 `SKILL.md`，Claude Code 會自動辨識。想手動掛成全域 skill，
 把 `skills/<name>/` 複製或 symlink 到 `~/.claude/skills/` 即可——但建議還是讓 `CLAUDE.md`
