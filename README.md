@@ -34,8 +34,11 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 
 ### 情況 A ｜ 你電腦上已經有 Claude Code
 
-1. **拿到這個資料夾**：被分享這個 repo 後，用 Git 下載（`git clone <repo 網址>`），
-   或在它的 GitHub 頁面按綠色 **Code → Download ZIP** 解壓。放哪裡都行。
+1. **拿到這個資料夾**：這是**私人 repo**，第一次下載要先登入 GitHub。最省事的方式是裝
+   **GitHub CLI**（macOS `brew install gh`，或到 [cli.github.com](https://cli.github.com)
+   抓安裝檔），裝好跑 `gh auth login`（選 GitHub.com、HTTPS、用瀏覽器登入），再用
+   `gh repo clone <owner>/<repo>` 下載。不想裝也可以在 GitHub 頁面按綠色 **Code →
+   Download ZIP** 解壓，只是之後沒辦法一鍵更新。放哪裡都行。
 2. **在資料夾裡打開 Claude Code**：開終端機，`cd` 進到這個資料夾，輸入 `claude`。
 3. **貼這一句話**：
    > **「讀 CLAUDE.md，幫我設定。」**（英文：`Read CLAUDE.md and set me up.`）
