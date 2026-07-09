@@ -1,7 +1,13 @@
 # CLAUDE.md — Bootstrap Protocol for the Research Writing Kit
 
-> You (Claude) are reading this because a human opened Claude Code inside this
-> repository and wants to set up an AI-assisted academic-writing workflow.
+> You (Claude) are reading this because a human opened this kit in Claude and wants to
+> set up an AI-assisted academic-writing workflow. **The workflow runs on the author's
+> own machine, in Claude Code** — that's the only place it can read/write their files,
+> run the tools, and keep drafts private. If you are in **Claude Code**, install here.
+> If you are on **claude.ai** (web/desktop) with this repo connected, the author is not
+> yet where the work happens: your first job is to walk this (likely non-technical)
+> person onto Claude Code — follow `setup/WEB.md` — optionally interviewing them first
+> so they arrive ready. claude.ai is the on-ramp, not the destination.
 > **This file is not the workflow. It is the installer.** Your job is to
 > interview this person, then generate a *personalized* set of skills and a
 > CLAUDE.md tailored to them — so that from now on their own Claude can help
@@ -42,6 +48,21 @@ The whole thing rests on five ideas. Read `method/PHILOSOPHY.md` and
 ---
 
 ## BOOTSTRAP — run these phases in order
+
+### Phase 0 — Where is the author running you? (check this first, silently)
+
+- **Claude Code** (you can read/write local files and run shell commands) → you're in
+  the right place. Continue to Phase A and install here.
+- **claude.ai web/desktop** (a GitHub connector lets you *read* this repo, but you
+  cannot write to their disk or run programs) → the author is **not yet where the work
+  happens**. The whole method depends on a machine that can hold files and run the
+  tools privately — that's Claude Code. Your job here is to **walk them onto Claude
+  Code**: follow `setup/WEB.md`. You *may* run the Phase A interview first (the answers
+  carry over so they arrive ready), but the actual install happens in Claude Code, not
+  in the web app. Do not fake a file-writing install from the browser.
+
+If you can't tell which you are, ask one plain line: "Are you using Claude in a terminal
+or a code editor, or on the claude.ai website/app?"
 
 ### Phase A — Interview (ask in the human's language, one at a time)
 
@@ -92,6 +113,10 @@ If they gave no samples: skip. The generated skills will target "clear, strong
 academic prose in <their venue's> register" instead of "sounds like them."
 
 ### Phase C — Generate their personalized setup
+
+> **This phase runs in Claude Code.** If the author is on claude.ai, you should have
+> sent them to `setup/WEB.md` in Phase 0 to get onto Claude Code first — come back here
+> once they're in a terminal inside the cloned kit.
 
 Decide *where* to install based on how they answered Q5 and their comfort:
 
@@ -150,6 +175,7 @@ Then stop and let them try one. Offer the full-power add-ons only if they ask.
 | `tools/` | Working local checkers, ready from day one. Chinese ones are zero-install (stdlib); English ones need one/two free offline programs. See `tools/README.md`. |
 | `templates/*` | Scaffolds the author fills in (voice profile, venue notes, skeleton, voice rules). |
 | `setup/INTERVIEW.md` | Suggested interview wording. |
+| `setup/WEB.md` | On-ramp for authors who start on claude.ai — how to move them onto Claude Code. |
 | `setup/LITE.md` | Zero-install path — works with just Claude + web. |
 | `setup/TOOLS.md` | Optional local power-ups + graceful-degradation map. |
 | `setup/addons/zh-tw/` | Traditional-Chinese-Taiwan localization pack (optional). |

@@ -27,6 +27,11 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 
 ## 怎麼用（三步）
 
+> **現在人在 claude.ai 網頁版、還沒有 Claude Code？** 沒關係——把這個 repo 連給網頁版的
+> Claude，跟它說「讀 CLAUDE.md，幫我設定」，它會**一步步帶你把 Claude Code 裝起來、搬過去**
+> （細節見 [`setup/WEB.md`](setup/WEB.md)）。真正的寫作工作都在你自己電腦的 Claude Code 上跑，
+> 資料才留在本機、工具才跑得動。裝好後就接著下面三步。
+
 ### 1. 拿到這個資料夾
 朋友把 repo 分享給你後，用 Git 下載，或直接下載 ZIP 解壓。放哪裡都行。
 
