@@ -1,6 +1,6 @@
 ---
 name: paper-review
-description: Five-layer quality check for an academic draft (any language). Use when the author says "check this paper", "proofread", "catch typos", "look at this as a reviewer", "paper review", or "check before I submit". Mechanical layers run local tools when available; semantic and logic layers are done by Claude under an anti-bias rubric. Unpublished drafts never leave the machine.
+description: Five-layer quality check for an academic draft (any language). Use when the author says "check this paper", "proofread", "catch typos", "look at this as a reviewer", "paper review", "check before I submit", or asks whether the reported statistics are self-consistent / the numbers look suspicious. Mechanical layers run local tools when available (statistics = statcheck + scrutiny recomputation, not hand-rolled, when R is installed); semantic and logic layers are done by Claude under an anti-bias rubric. Unpublished drafts never leave the machine.
 ---
 
 # Paper Review — five-layer quality check
@@ -23,8 +23,19 @@ Confirm (or infer): file path; language (own / second / mixed); target venue
   they need nothing installed. For the author's voice gate, `tools/zh-tw/voice_lint.py`.
 - **Bundled (English drafts):** `tools/en/lt_check.sh` (grammar + US/UK spelling) if
   LanguageTool is installed; `tools/en/ai_style_diag.py` if the author built a corpus.
+- **Quantitative drafts (if R + the packages are installed — see `setup/TOOLS.md`):**
+  reported statistics get *recomputed*, not eyeballed. `statcheck` re-derives each
+  APA-style test report (`t(28)=2.20, p=.03`) and flags rows where the p value doesn't
+  match — `decision_error=TRUE` (the significance conclusion flips) is the serious kind.
+  `scrutiny`'s GRIM test checks whether a reported mean is mathematically possible given
+  N (integer scales) — `consistency=FALSE` means ask for the raw data. Limits: statcheck
+  only parses APA-style reporting; mixed-model / CLMM tables escape it, so check those
+  by hand against the stated method. **Don't hand-roll the recomputation when the
+  packages are available.**
 - **Lite / nothing installed:** do a careful mechanical pass yourself — typos,
   spacing/punctuation consistency, agreement, article/number, tense, US/UK mixing.
+  For statistics, recompute what you can from the reported numbers and mark the
+  verdicts lower-confidence than a package-verified pass.
 Report, don't auto-apply; show a diff before any change. Collect into a "mechanical
 fixes" list; filter false positives (proper nouns, terms of art).
 

@@ -13,10 +13,13 @@
 | Capability | Lite (default, no install) | Full (optional upgrade) |
 |-----------|----------------------------|--------------------------|
 | **Find literature** | WebSearch + Semantic Scholar / OpenAlex / Crossref | + a local full-text RAG over PDFs you hold (semantic search "which paper, which page") |
+| **Citation snowballing** (who cites X / what X cites / similar work) | ✅bundled `tools/refs/snowball.py` — Python stdlib only, free keyless APIs, works day one | (already full-strength; `--email` is optional politeness) |
 | **Fetch reference PDFs** | Open-access resolvers (Unpaywall/arXiv/author pages) | + institutional/library access (e.g. a university VPN) for paywalled full texts |
-| **Verify citations** | Claude reads OA source, checks direction | + a multi-agent adversarial pass over a local PDF library |
+| **Verify citations** | Claude reads OA source, checks direction | + a multi-agent adversarial pass over a local PDF library (skeptic template: `agents/citation-skeptic.md`) |
+| **Scanned / CJK PDF extraction** | Render pages to images and read visually (slow) | **MinerU** (`uv tool install mineru` or `pipx install mineru`) — scans, CJK layouts, tables, formulas → clean markdown |
 | **Statistics / analysis** | Honest description + simple summaries | R (mixed models, Bayesian) / Python / a persistent Jupyter kernel — data stays local |
-| **Grammar / style linting** | Claude's by-hand passes | ✅bundled `tools/en/lt_check.sh` (LanguageTool, offline) — `brew install languagetool pandoc` |
+| **Statistical-consistency check of a draft** | Recompute reported numbers by hand, mark lower-confidence | R packages **statcheck** (recompute APA-style p values) + **scrutiny** (GRIM: is that mean possible given N) — `install.packages(c("statcheck","scrutiny"))` |
+| **Grammar / style linting** | Claude's by-hand passes | ✅bundled `tools/en/lt_check.sh` (LanguageTool, offline) — `brew install languagetool pandoc`; optional LanguageTool n-gram data (~15 GB, auto-detected at `~/Corpora/lt-ngrams`) adds statistical confusable-pair detection (affect/effect) |
 | **De-AI / voice checking** | Convergence-word + AI-syntax passes by hand | ✅bundled `tools/en/ai_style_diag.py` (percentiles vs a corpus you assemble — published papers only, never your own drafts) |
 | **Traditional-Chinese-Taiwan** | Claude checks by hand | ✅bundled `tools/zh-tw/` (zero install): `zh_localize` (Taiwan terms), `zh_ai_style` (Chinese AI-tic), `voice_lint` (your voice rules). Official-term DB check = bring-your-own DB. |
 | **PDF / typesetting** | Cleanest export + "layout still needs a pass" | Typst or Quarto/LaTeX with the venue's template and embedded fonts |

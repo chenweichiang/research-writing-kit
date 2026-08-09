@@ -21,13 +21,23 @@ For each "claim + citation" pair in the draft:
    ❓unverifiable**, each with a quoted line from the source.
 
 ## Adversarial pass (recommended)
-For anything flagged, run a second, skeptical check (a fresh pass told to default
-to "unsupported" unless the source clearly backs the claim). This catches
-plausible-but-wrong citations that a single pass rationalizes.
+For anything flagged, run a second review with **fresh context** — the kit ships
+a subagent template for exactly this: `agents/citation-skeptic.md` (a *calibrated*
+skeptic that presumes the citation correct and upholds only on verbatim
+contradiction in the source). If subagents aren't set up, do the same thing
+manually as a separate pass under the same calibration. Two failure modes, one
+guard each: the first pass rationalizes plausible-but-wrong citations (→ this
+second look), and an *uncalibrated* skeptic convicts standard citations of
+foundational works (→ the presumption-of-correctness rules in the template).
 
 ## Rules
 - ⚠️ Couldn't get the full text (paywall/Cloudflare) → `❓unverifiable`, never
   "confirmed."
+- **Scanned PDFs with no text layer, and CJK-heavy PDFs:** if MinerU is installed
+  (see `setup/TOOLS.md`), prefer `mineru -p <pdf> -o <outdir> [-s start -e end]` and
+  read the produced markdown — it handles scans, CJK layouts, complex tables and
+  formulas well. Fallback: render pages to images (`pdftoppm`) and read them visually
+  (slower). For books, extract only the intro / relevant chapters.
 - Names/dates/spellings are checked even in "fact-locked" existing drafts — an old
   typo protected as "don't rewrite" otherwise propagates.
 - Never upload the unpublished draft to a cloud service to do this.

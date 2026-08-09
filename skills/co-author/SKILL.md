@@ -63,6 +63,10 @@ description: Collaborative long-form academic writing — papers AND grant/fundi
   de-AI, independent back-translation for sign-off.
 - **Phase 6 — Whole-draft verification (you do all of it):** re-verify every citation,
   final format check, toolchain clean, clean second-pass review, verification report.
+  English (or other second-language) delivery: statistical style tools staying green
+  is necessary but not sufficient — run a **de-cadencing pass with clean context**
+  (subagent template: `agents/de-cadencing-scholar.md`; give it the file path only)
+  to catch the rhythm tics a human eye reads as "AI-polished".
 - **Phase 7 — Iterate:** author reacts; substantive changes written back to
   `skeleton.md`; swap evidence per node without rebuilding the argument; finish with
   `paper-review`.

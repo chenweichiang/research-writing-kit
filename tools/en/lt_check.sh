@@ -12,6 +12,12 @@
 #
 # Requires: languagetool + pandoc  (macOS: brew install languagetool pandoc)
 #   Override the binary with:  LT=/path/to/languagetool  lt_check.sh ...
+# Optional n-gram data: if $LT_NGRAMS (default ~/Corpora/lt-ngrams) contains an
+#   `en/` folder, it is auto-mounted via --languagemodel — statistical detection of
+#   confusable pairs (affect/effect, their/there) that rule-based checking misses.
+#   Download "ngram data" from languagetool.org (~15 GB unpacked; the Lucene index
+#   is lazily loaded, so it does not eat RAM). Entirely optional — without it the
+#   script runs exactly as before.
 #
 # Usage:
 #   lt_check.sh <file> [--variant en-US|en-GB|en-CA|en-AU] [--json] [--keep]
@@ -23,6 +29,8 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FILTER="$HERE/lt_strip_noprose.lua"
 # LanguageTool binary: env override, else whatever's on PATH.
 LT="${LT:-$(command -v languagetool || true)}"
+# Optional n-gram data dir: mounted only if it exists; absent = run as before.
+NGRAMS="${LT_NGRAMS:-$HOME/Corpora/lt-ngrams}"
 
 VARIANT="en-US"; JSON=0; KEEP=0; FILE=""
 while [[ $# -gt 0 ]]; do
@@ -61,9 +69,14 @@ else
 fi
 [[ "$KEEP" -eq 1 ]] && echo "[intermediate plain text: $TMP]" >&2
 
+# macOS ships bash 3.2, where expanding an empty array under `set -u` errors out —
+# hence the ${arr[@]+...} guard.
+NGRAM_OPT=()
+[[ -d "$NGRAMS/en" ]] && NGRAM_OPT=(--languagemodel "$NGRAMS")
+
 if [[ "$JSON" -eq 1 ]]; then
-  "$LT" -l "$VARIANT" --json "$TMP"
+  "$LT" -l "$VARIANT" ${NGRAM_OPT[@]+"${NGRAM_OPT[@]}"} --json "$TMP"
 else
   echo "== LanguageTool ($VARIANT) == $FILE"
-  "$LT" -l "$VARIANT" "$TMP"
+  "$LT" -l "$VARIANT" ${NGRAM_OPT[@]+"${NGRAM_OPT[@]}"} "$TMP"
 fi

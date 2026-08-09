@@ -28,11 +28,21 @@ out of the box. The English tools need one or two free offline programs.
   → `voice_rules.json`, edit it to match your own habits (what *you* never write), and
   pass `--rules voice_rules.json`. Build it from your `VOICE_PROFILE` (see `templates/`).
 
+## References (`tools/refs/`) — zero installs
+
+| Tool | What it does | Run |
+|------|--------------|-----|
+| `snowball.py` | Citation snowballing: forward ("who cites X"), backward ("what X cites"), related. Multi-seed aggregation — papers hitting more seeds (`seed_hits`) are the most likely should-have-read literature. OpenAlex primary, Semantic Scholar fallback on quota; free keyless APIs, stdlib only. | `python3 snowball.py --doi <doi> --direction forward` |
+
+- A 429 from OpenAlex is a **daily quota wall** (resets midnight UTC), not "no
+  results" — rerun later. `--email you@example.org` is optional but gets you the
+  polite (faster) pool.
+
 ## English (`tools/en/`) — one or two free installs
 
 | Tool | What it does | Needs |
 |------|--------------|-------|
-| `lt_check.sh` | Offline grammar + US/UK spelling-consistency (LanguageTool), markup stripped by the bundled pandoc filter. | `brew install languagetool pandoc` |
+| `lt_check.sh` | Offline grammar + US/UK spelling-consistency (LanguageTool), markup stripped by the bundled pandoc filter. Auto-mounts optional LanguageTool n-gram data (~15 GB, `~/Corpora/lt-ngrams` or `$LT_NGRAMS`) for statistical confusable-pair detection (affect/effect); runs fine without it. | `brew install languagetool pandoc` |
 | `ai_style_diag.py` | English AI fingerprint as **percentiles** vs a baseline corpus of published papers in your field. | a corpus you assemble; `pdftotext` only for PDF input |
 
 ```bash

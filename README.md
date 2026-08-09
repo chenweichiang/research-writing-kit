@@ -1,6 +1,6 @@
 # 研究寫作套件 · Research Writing Kit
 
-**版本 `v1.0.0`**（2026-07）
+**版本 `v1.1.0`**（2026-08）
 
 > ⚠️ **私人分享，請勿轉傳** — 你受個別邀請才看得到；請勿把內容散布給未受邀者。詳見 [`NOTICE.md`](NOTICE.md)。想邀請別人請直接找擁有者。
 
@@ -90,6 +90,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | `CLAUDE.md` | **安裝器**：你的 Claude 讀這個來訪談你、生成你的專屬設定。 |
 | `method/` | **方法本體**：心法（PHILOSOPHY）、鐵則（IRON-RULES）、完整流程（WORKFLOW）、論證工法（ARGUMENTATION）。 |
 | `skills/` | 去個人化的 skill 範本（協作寫作 / 投稿前檢查 / 收文獻 / 查引用 / 排版 PDF），你的 Claude 會照你的情況改寫。 |
+| `agents/` | 兩個 subagent 範本：英文交付前的去 AI 節奏複查（de-cadencing-scholar）、引用查驗二審（citation-skeptic）。 |
 | `tools/` | **現成的本機小工具**，第一天就能用。中文三支（陸用語／中文 AI 味／聲音硬規則）**零安裝**；英文兩支需一兩個免費離線程式。見 `tools/README.md`。 |
 | `templates/` | 你要填的空白檔（文風檔、投稿筆記、骨架、聲音規則）。 |
 | `setup/` | 簡單模式（LITE）、選配的進階工具（TOOLS）、面談問法、繁中在地化包。 |
@@ -116,8 +117,9 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | `zh_localize.py` | 陸用語→台灣用語、台／臺一致性 | 不用 |
 | `zh_ai_style.py` | 中文 AI 句法指紋（破折號、三連並列、趨同詞、句長節奏） | 不用 |
 | `voice_lint.py` | 你自己的聲音硬規則（交稿前守門，不乾淨不放行） | 不用 |
-| `lt_check.sh` | 英文文法＋美英拼字一致性（離線 LanguageTool） | `brew install languagetool pandoc` |
+| `lt_check.sh` | 英文文法＋美英拼字一致性（離線 LanguageTool；有裝 n-gram 資料會自動加掛易混詞統計偵測） | `brew install languagetool pandoc` |
 | `ai_style_diag.py` | 英文 AI 指紋（對照你領域已發表論文的百分位） | 自備語料；PDF 輸入才需 `pdftotext` |
+| `snowball.py` | 引用滾雪球：誰引用了這篇／這篇引了誰／相近研究，多種子聚合排序 | 不用（免金鑰免註冊） |
 
 ### Claude 自己會上網用的（免費、不用裝、不用註冊）
 
@@ -131,6 +133,8 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | 想要的能力 | 裝什麼 |
 |------------|--------|
 | 本機統計分析（混合模型、貝氏） | R 或 Python（資料全程留在你電腦） |
+| 查稿件裡的統計數字自不自洽（重算 p 值、GRIM） | R 套件 `statcheck`＋`scrutiny` |
+| 掃描檔／中文 PDF 抽成乾淨文字 | MinerU（`uv tool install mineru`） |
 | 可重跑的分析筆記本 | Jupyter |
 | 付費牆內的文獻全文 | 你機構的圖書館 VPN |
 | 自己文獻庫的語意檢索（哪篇、哪頁） | 本機 RAG（`setup/TOOLS.md` 有方向） |

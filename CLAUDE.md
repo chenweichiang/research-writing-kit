@@ -133,7 +133,10 @@ you write?"). Then, **generate — do not copy verbatim** — from the templates
 - their **writing language** and the matching language toolchain (lite or full),
 - their **voice profile** path (or "no voice profile — aim for venue register"),
 - the **degraded vs full** tool references per `setup/TOOLS.md` (never reference a
-  tool they haven't installed as if it exists — gate it behind "if installed").
+  tool they haven't installed as if it exists — gate it behind "if installed"),
+- for authors who write English or will verify citations: also adapt and install
+  the two **subagent templates** from `agents/` (into `~/.claude/agents/` or the
+  project's `.claude/agents/`, matching the skills' scope).
 
 Also write them a short **their-own CLAUDE.md** (or a section in it) that records:
 their field, language, venues, where the voice profile lives, which mode (lite/full)
@@ -172,7 +175,8 @@ Then stop and let them try one. Offer the full-power add-ons only if they ask.
 | `method/WORKFLOW.md` | The full 7-phase pipeline, generalized, with lite/full notes. |
 | `method/ARGUMENTATION.md` | Argument *moves* as an internal diagnostic (not a menu to sprinkle). |
 | `skills/*/SKILL.md` | De-personalized skill templates to adapt per author. |
-| `tools/` | Working local checkers, ready from day one. Chinese ones are zero-install (stdlib); English ones need one/two free offline programs. See `tools/README.md`. |
+| `agents/*.md` | Subagent templates: `de-cadencing-scholar` (pre-delivery English rhythm pass) and `citation-skeptic` (calibrated second review of flagged citations). Install alongside the skills for authors who write English or verify citations — adapt, as with skills. |
+| `tools/` | Working local checkers, ready from day one. Chinese ones and `tools/refs/snowball.py` are zero-install (stdlib); English ones need one/two free offline programs. See `tools/README.md`. |
 | `templates/*` | Scaffolds the author fills in (voice profile, venue notes, skeleton, voice rules). |
 | `setup/INTERVIEW.md` | Suggested interview wording. |
 | `setup/WEB.md` | On-ramp for authors who start on claude.ai — how to move them onto Claude Code. |
