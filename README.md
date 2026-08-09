@@ -68,6 +68,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | **「幫我寫這篇論文／提案」** | 協作寫作：找文獻、架論證骨架、寫成稿、自己檢查 |
 | **「幫我檢查這篇再投」** | 投稿前的品質與格式檢查 |
 | **「幫我把這些引用的 PDF 收齊」** | 收集並查證參考文獻 |
+| **「誰引用了這篇？有沒有我漏掉的後續研究」** | 引用滾雪球：從一篇（或整份書目）長出該讀而未讀的文獻清單 |
 
 > 預設走**最簡單的模式**：只要 Claude ＋ 網路，什麼都不用安裝。之後真的需要更強的工具
 > （本機統計、文獻庫、語言檢查）再一次加一個就好。
@@ -91,7 +92,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | `method/` | **方法本體**：心法（PHILOSOPHY）、鐵則（IRON-RULES）、完整流程（WORKFLOW）、論證工法（ARGUMENTATION）。 |
 | `skills/` | 去個人化的 skill 範本（協作寫作 / 投稿前檢查 / 收文獻 / 查引用 / 排版 PDF），你的 Claude 會照你的情況改寫。 |
 | `agents/` | 兩個 subagent 範本：英文交付前的去 AI 節奏複查（de-cadencing-scholar）、引用查驗二審（citation-skeptic）。 |
-| `tools/` | **現成的本機小工具**，第一天就能用。中文三支（陸用語／中文 AI 味／聲音硬規則）**零安裝**；英文兩支需一兩個免費離線程式。見 `tools/README.md`。 |
+| `tools/` | **現成的本機小工具**，第一天就能用。中文三支（陸用語／中文 AI 味／聲音硬規則）與引用滾雪球（`tools/refs/`）**零安裝**；英文兩支需一兩個免費離線程式。見 `tools/README.md`。 |
 | `templates/` | 你要填的空白檔（文風檔、投稿筆記、骨架、聲音規則）。 |
 | `setup/` | 簡單模式（LITE）、選配的進階工具（TOOLS）、面談問法、繁中在地化包。 |
 | `examples/` | 一份填好的骨架範例，讓 Claude 有具體參照。 |
@@ -144,5 +145,17 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 
 ## 給進階使用者
 所有 skill 都是純 Markdown 的 `SKILL.md`，Claude Code 會自動辨識。想手動掛成全域 skill，
-把 `skills/<name>/` 複製或 symlink 到 `~/.claude/skills/` 即可。但還是建議讓 `CLAUDE.md`
+把 `skills/<name>/` 複製或 symlink 到 `~/.claude/skills/` 即可；`agents/` 的兩個 subagent
+範本同理，掛到 `~/.claude/agents/`（或專案的 `.claude/agents/`）。但還是建議讓 `CLAUDE.md`
 的安裝流程幫你客製，不要照抄原版。
+
+---
+
+## 版本紀錄
+
+- **v1.1.0**（2026-08）：投稿前檢查加入統計數字重算（statcheck 重算 p 值＋GRIM 查
+  平均數可能性，裝了 R 才啟用，沒裝就退回手算）；新增引用滾雪球工具 `tools/refs/snowball.py`
+  （零安裝）；查引用支援掃描檔／中文 PDF（選配 MinerU）；英文文法檢查可自動加掛 n-gram
+  易混詞偵測（選配）；新增 `agents/` 兩個 subagent 範本：英文交付前的去 AI 節奏複查、
+  引用查驗二審。
+- **v1.0.0**（2026-07）：初版——方法本體、五個 skill 範本、中英文檢查工具、自我安裝流程。
