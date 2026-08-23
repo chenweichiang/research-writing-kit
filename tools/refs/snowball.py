@@ -159,9 +159,24 @@ def main():
     agg, errors = {}, []
     for doi in seeds:
         seed, err = resolve_seed(doi, a.email)
+        # 🔴 429 is a DAILY QUOTA wall, and when you hit it the very FIRST OpenAlex
+        #    call — seed resolution — already returns 429. This used to `continue`
+        #    past the whole seed, which meant the Semantic Scholar fallback below was
+        #    **never reached even once** (measured: 0 S2 calls). forward_s2 only needs
+        #    the DOI, not OpenAlex's seed id, so skip resolution and go straight to it.
         if seed is None:
-            errors.append(f"{doi}: seed resolution failed ({err})"); continue
-        if a.direction == "forward":
+            if err == "429" and a.direction == "forward":
+                print(f"  OpenAlex 429 (seed resolution) → Semantic Scholar fallback ({doi})",
+                      file=sys.stderr)
+                rows, err = forward_s2(doi, doi, a.limit, a.email)
+                if err:
+                    errors.append(f"{doi}: fallback also failed ({err}) (got {len(rows)} rows)")
+            else:
+                # backward/related need OpenAlex itself — there is no fallback for them.
+                why = "OpenAlex daily quota wall — NOT 'no results'" if err == "429" else err
+                errors.append(f"{doi}: seed resolution failed ({why})")
+                continue
+        elif a.direction == "forward":
             rows, err = forward_oa(seed["id"], doi, a.limit, a.email)
             if err == "429":
                 print(f"  OpenAlex 429 → Semantic Scholar fallback ({doi})", file=sys.stderr)
@@ -169,6 +184,8 @@ def main():
         else:
             fld = "referenced_works" if a.direction == "backward" else "related_works"
             rows, err = backward_or_related(seed, doi, a.email, fld)
+            if err == "429":
+                err = "OpenAlex daily quota wall — NOT 'no results' (no fallback for backward/related)"
         if err:
             errors.append(f"{doi}: {err} (got {len(rows)} rows)")
         for r in rows:
