@@ -69,6 +69,10 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | **「幫我檢查這篇再投」** | 投稿前的品質與格式檢查 |
 | **「幫我把這些引用的 PDF 收齊」** | 收集並查證參考文獻 |
 | **「誰引用了這篇？有沒有我漏掉的後續研究」** | 引用滾雪球：從一篇（或整份書目）長出該讀而未讀的文獻清單 |
+| **「審稿意見回來了，幫我回」** | 逐點回應：拆解意見→逐點裁定→修訂對照→回應信→交付前完整性驗證 |
+| **「我這篇短文要擴寫成期刊全文」** | 逆向盤點入線，並盤點文字回收與揭露措辭（擴寫本質上就是重用） |
+| **「我要再投一個地方，可以吧？」** | 查投稿狀態表，確認同一份稿件沒有同時在別處審查中 |
+| **「這張圖印成黑白會不會看不懂？」** | 圖表色覺可及性：色盲模擬＋灰階對比，並產生模擬圖給你看 |
 
 > 預設走**最簡單的模式**：只要 Claude ＋ 網路，什麼都不用安裝。之後真的需要更強的工具
 > （本機統計、文獻庫、語言檢查）再一次加一個就好。
@@ -90,9 +94,9 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 |------|------|
 | `CLAUDE.md` | **安裝器**：你的 Claude 讀這個來訪談你、生成你的專屬設定。 |
 | `method/` | **方法本體**：心法（PHILOSOPHY）、鐵則（IRON-RULES）、完整流程（WORKFLOW）、論證工法（ARGUMENTATION）。 |
-| `skills/` | 去個人化的 skill 範本（協作寫作 / 投稿前檢查 / 收文獻 / 查引用 / 排版 PDF），你的 Claude 會照你的情況改寫。 |
+| `skills/` | 去個人化的 skill 範本（協作寫作 / 投稿前檢查 / 收文獻 / 查引用 / **審稿回應** / 排版 PDF），你的 Claude 會照你的情況改寫。 |
 | `agents/` | 兩個 subagent 範本：英文交付前的去 AI 節奏複查（de-cadencing-scholar）、引用查驗二審（citation-skeptic）。 |
-| `tools/` | **現成的本機小工具**，第一天就能用。中文三支（陸用語／中文 AI 味／聲音硬規則）與引用滾雪球（`tools/refs/`）**零安裝**；英文兩支需一兩個免費離線程式。見 `tools/README.md`。 |
+| `tools/` | **現成的本機小工具**，第一天就能用。中文三支（陸用語／中文 AI 味／聲音硬規則）、引用滾雪球、審稿回應驗證、投稿狀態表皆**零安裝**；英文兩支需一兩個免費離線程式，圖表可及性需 numpy 與 Pillow。見 `tools/README.md`。 |
 | `templates/` | 你要填的空白檔（文風檔、投稿筆記、骨架、聲音規則）。 |
 | `setup/` | 簡單模式（LITE）、選配的進階工具（TOOLS）、面談問法、繁中在地化包。 |
 | `examples/` | 一份填好的骨架範例，讓 Claude 有具體參照。 |
@@ -121,6 +125,9 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | `lt_check.sh` | 英文文法＋美英拼字一致性（離線 LanguageTool；有裝 n-gram 資料會自動加掛易混詞統計偵測） | `brew install languagetool pandoc` |
 | `ai_style_diag.py` | 英文 AI 指紋（對照你領域已發表論文的百分位） | 自備語料；PDF 輸入才需 `pdftotext` |
 | `snowball.py` | 引用滾雪球：誰引用了這篇／這篇引了誰／相近研究，多種子聚合排序 | 不用（免金鑰免註冊） |
+| `check_response.py` | 回應信完整性：每點都答了嗎／說要改的真的改了嗎／不接受的有沒有依據 | 不用 |
+| `check_submissions.py` | 一稿多投防護：同一份稿件有沒有同時在兩個地方審查中 | 不用 |
+| `figure_a11y.py` | 圖表色覺可及性：色盲模擬＋灰階對比，輸出模擬圖供目檢 | `pip install numpy pillow`（PDF 另需 pymupdf） |
 
 ### Claude 自己會上網用的（免費、不用裝、不用註冊）
 
@@ -153,6 +160,16 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 
 ## 版本紀錄
 
+- **v1.2.0**（2026-08-24）：**修掉一批會給錯數字的量測 bug**——文風診斷工具（中英文四支）
+  把 markdown 版面語法當成散文標點在數：YAML frontmatter 與表格分隔列被當破折號、HTML
+  註解裡的字被當正文、pandoc 多鍵引用的分號被當文風、粗體標題讓斷句規則失效而把兩三句
+  黏成一句。實測一份真實投稿：平均句長 44.22 詞（第 99 百分位）→ 26.52 詞（第 53 百分位）
+  ——**照舊版數字去修，會把本來正常的句子改壞**。剝除規則抽成 `tools/common/md_prose.py`
+  中英共用。另修 `snowball.py` 的 Semantic Scholar 後備線從未被觸發（撞每日額度時，
+  第一個呼叫就 429，整顆種子被跳過）。
+  新增：`rebuttal` skill（審稿回應逐點裁定＋修訂對照＋完整性驗證）、投稿狀態表與一稿多投
+  防護、圖表色覺可及性檢查；協作寫作補 Phase 8「接受之後」（校樣／版權／傳播）、文字回收
+  揭露、預印本政策查核。
 - **v1.1.0**（2026-08）：投稿前檢查加入統計數字重算（statcheck 重算 p 值＋GRIM 查
   平均數可能性，裝了 R 才啟用，沒裝就退回手算）；新增引用滾雪球工具 `tools/refs/snowball.py`
   （零安裝）；查引用支援掃描檔／中文 PDF（選配 MinerU）；英文文法檢查可自動加掛 n-gram

@@ -1,0 +1,13 @@
+# Reviewer points, split to the smallest answerable unit.
+# One sentence containing two demands is TWO rows - merging them is how you end up
+# answering only half of something the reviewer remembers asking in full.
+# id        R<reviewer>.<n>; the editor's own letter is E.<n>
+# type      substantive | addition | clarity | format | misread
+# severity  BLOCK (rejection risk) | MAJOR (affects evaluation) | MINOR (polish)
+# verdict   ACCEPT | PARTIAL | DECLINE   <- decide ALL of these BEFORE editing the paper
+# conflict  id of a point from another reviewer that contradicts this one (say so in the letter)
+id	reviewer	type	severity	verdict	summary	conflict
+R1.1	R1	clarity	MAJOR	ACCEPT	inclusion/exclusion criteria not visible in S4.2	
+R1.2	R1	addition	BLOCK	PARTIAL	asks for a full control condition	
+R2.1	R2	misread	MAJOR	ACCEPT	read the paper as claiming causation (we claim association)	
+R2.2	R2	substantive	BLOCK	DECLINE	asks us to switch analytic framework entirely	R1.2

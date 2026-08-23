@@ -39,6 +39,23 @@ Confirm (or infer): file path; language (own / second / mixed); target venue
 Report, don't auto-apply; show a diff before any change. Collect into a "mechanical
 fixes" list; filter false positives (proper nouns, terms of art).
 
+### 1e — Figure colour accessibility (run whenever there are figures)
+
+```bash
+python3 tools/figures/figure_a11y.py figures/*.png
+```
+
+Journals are mostly printed in black and white, and ~8% of men have a red-green colour
+vision deficiency — a figure that separates series by hue alone collapses for both.
+Most venues' figure guidelines say outright that colour must not be the only carrier.
+
+- **FAIL** = two colours collapse under a CVD simulation while being far apart in the
+  original → that pair is carried by hue alone. Add shape/linestyle/direct labels, or
+  change palette.
+- **WARN** = contrast ratio below 1.4:1 in print (WCAG suggests ≥3:1 for graphical objects).
+- 🔴 **Open the simulated images it writes.** The simulation is a linear approximation:
+  "these two collapse" is reliable, "this figure is fine" is not a guarantee.
+
 ## Layer 2 — Semantic proofreading (Claude, strictly constrained)
 Constraints (counter LLM over-correction): **minimal edit** — change only what's
 wrong, don't rewrite or alter the author's register; output `before → after` per

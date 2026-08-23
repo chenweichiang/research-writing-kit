@@ -1,0 +1,19 @@
+# Submission ledger - the single source of truth for duplicate-submission checking.
+# Keep ONE of these, somewhere above all your project folders. Putting a copy inside
+# each project defeats the entire point: the risk is cross-project.
+# Check with: python3 check_submissions.py --ledger /path/to/SUBMISSIONS.tsv
+#
+# manuscript_id  stable id for THE SAME manuscript. Do NOT change it when you retarget
+#                to another venue - changing it is exactly how the guard stops working.
+# project        folder name (relative to this file) or an absolute path
+# venue          journal / conference, with the submission id once you have one
+# status         drafting | submitted | under_review | revision | accepted | published
+#                | rejected | withdrawn | unknown
+#                submitted/under_review/revision = UNDER REVIEW; only one per manuscript_id
+# submitted      YYYY-MM-DD
+# updated        YYYY-MM-DD you last confirmed the status (>120 days triggers a nudge)
+# note           submission id, editor's message, why it was withdrawn or retargeted
+#
+# 'unknown' provides NO protection - resolve those before they matter.
+manuscript_id	project	venue	status	submitted	updated	note
+example-paper	2026-01-example	Journal of Examples	drafting			not sent yet

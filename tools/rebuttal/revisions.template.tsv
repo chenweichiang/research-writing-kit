@@ -1,0 +1,12 @@
+# What actually changed in the manuscript, per point.
+# location  be specific: "S4.2, 2nd paragraph". "the Method section" is not findable.
+#           DECLINE rows use "-".
+# evidence  REQUIRED for DECLINE (where the manuscript already answers it, or the
+#           methodological reason). Optional for ACCEPT.
+# If the manuscript is in git: one commit per point, message starting with the point id,
+# and this table can be generated from the log.
+point_id	location	evidence	before	after
+R1.1	S4.2, 2nd paragraph	
+R1.2	S6, limitations	did X only; a full control arm needs re-recruitment, stated in limitations and future work
+R2.1	S1 3rd para, S5 1st para		"led to"	"was associated with"
+R2.2	-	S3.1 already states why this framework was chosen (ordinal, nested data); the requested one violates its distributional assumptions

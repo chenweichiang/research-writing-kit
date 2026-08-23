@@ -32,6 +32,24 @@ Before writing a single new word:
    research value from filenames, file counts, or folder structure. Sample-read
    3–5 items across the quality spectrum first.
 
+> **Before a journal/conference submission, check the ledger.** Simultaneous
+> submission is forbidden almost everywhere and is a *cross-project* problem: the same
+> manuscript, retitled and sent to a second venue, looks clean from inside either
+> project folder. Keep one `SUBMISSIONS.tsv` above all projects
+> (`tools/submissions/check_submissions.py`), never change a `manuscript_id` when you
+> retarget, and update the row the day a status changes — a stale "under review" from
+> eight months ago guards nothing.
+
+> **Inventory text recycling when onboarding an existing draft.** Every onboarding case
+> *is* reuse: a short paper being extended, a talk becoming an article, last year's
+> proposal, a student report. Reuse is legitimate — **not disclosing it is not**, and
+> similarity software matches you against your own earlier work. Method and background
+> can be reused within reason; **results and discussion cannot**. Rewrite what you can,
+> cite yourself for what you can't, and state the extension in the cover letter.
+> Conference-to-journal extension is the normal case and usually welcome, but venues
+> state how much new material they expect. If the source is student work, the authorship
+> and consent questions are separate from the recycling one — settle both.
+
 ## Phase 1 — Two-track scouting
 
 ### Track A — Literature & prior work (classics + recent hot)
@@ -49,6 +67,13 @@ attachments/templates, blind-review rules, and what reviewers actually weigh.
 Grab the official template (or, absent one, measure the format of the author's
 past submitted PDFs). Save findings to `venue-notes.md` in the project folder —
 you'll write to it and tick against it at final check.
+
+**Record the preprint policy while you are there.** Venues differ sharply: most accept
+preprints, a few treat them as prior publication and will desk-reject, and some require
+the preprint link and version to be declared at submission. Note whether you may post,
+when, any embargo after acceptance, and whether the accepted manuscript and the version
+of record are treated differently. ⚠️ A preprint server is **not** a submission — but
+two journals at once is; keep the two questions apart.
 
 ## Phase 1.5 — Direction summary (non-blocking by default)
 
@@ -131,3 +156,38 @@ The author reads the complete draft and says what to change.
 - Every iteration is re-formatted and re-delivered, not a markdown diff.
 - After big changes, re-run the affected checks (citations / format / and if the
   core claim's structure changed, Phase 4.5). Finish with a full `paper-review`.
+
+## Phase 8 — After acceptance (submission is not the end)
+
+The most error-prone stage, because by now everyone has relaxed — and a proof, once
+signed off, is printed.
+
+### 8.1 Reviews came back
+→ the `rebuttal` skill: split the reviews into smallest units, decide every verdict
+*before* editing, map each accepted point to a real location in the manuscript, then
+verify completeness mechanically. **Declining is legitimate**; declining without
+evidence is not, and neither is accepting something that makes the paper worse.
+
+### 8.2 Proofs
+Typically a 48–72 hour window, and **for errors only** — substantive changes at this
+stage get refused or trigger re-review.
+
+Check: author names and order · funder/grant ids · figure numbers still matching their
+in-text references · no table row dropped in typesetting · references not mangled by
+the production system · DOIs resolving · and, for non-Latin names and institutions,
+that the typesetter did not substitute characters or break the encoding. If any number
+changed, re-run your numbers ledger.
+
+### 8.3 Rights and licence — read before signing
+CC-BY vs a traditional transfer is a real choice. ⚠️ **A funder may mandate open
+access**; discovering that after signing a transfer is an expensive mistake. Decide
+what you need to keep: repository deposit, classroom use, reuse in a future book. Every
+co-author, students included, must know and agree to the terms.
+
+### 8.4 Dissemination and closing the loop
+Post the preprint or repository copy according to the embargo you recorded in Phase 1
+(the accepted manuscript and the version of record usually have different rules). Then
+**update the submission ledger to `published`** — a ledger that is not updated means
+the next duplicate-submission check runs on stale data. Record the DOI in the project
+README: you will need it when you cite yourself, and it is the evidence behind any
+future text-recycling disclosure.

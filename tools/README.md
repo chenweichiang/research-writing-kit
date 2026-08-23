@@ -28,6 +28,42 @@ out of the box. The English tools need one or two free offline programs.
   → `voice_rules.json`, edit it to match your own habits (what *you* never write), and
   pass `--rules voice_rules.json`. Build it from your `VOICE_PROFILE` (see `templates/`).
 
+## Rebuttal (`tools/rebuttal/`) — zero installs
+
+| Tool | What it does | Run |
+|------|--------------|-----|
+| `check_response.py` | Completeness check for a response-to-reviewers letter: every point answered, every promised change mapped to a real location, every DECLINE carrying evidence, no orphan point numbers. | `python3 check_response.py --points points.tsv --revisions revisions.tsv --letter letter.md` |
+
+- Templates for all three files are in the same folder. It checks **completeness, not
+  quality** — every point being answered doesn't mean it's answered well.
+- The three failures it exists to stop: a point never answered, a change promised but
+  never made, and point numbers renumbered without updating the letter.
+
+## Submissions (`tools/submissions/`) — zero installs
+
+| Tool | What it does | Run |
+|------|--------------|-----|
+| `check_submissions.py` | Duplicate-submission guard + status overview from one central ledger. Flags the same manuscript under review in two places, stale statuses, and moved project folders. | `python3 check_submissions.py --ledger SUBMISSIONS.tsv` |
+
+- 🔴 **Keep ONE ledger, above all your project folders.** Simultaneous submission is a
+  *cross-project* problem — a retitled manuscript sent to a second venue looks clean
+  from inside either folder. A copy per project defeats the whole point.
+- Never change a `manuscript_id` when you retarget to another venue; that id is what
+  makes the guard work. Rows marked `unknown` provide **no** protection.
+
+## Figures (`tools/figures/`) — needs numpy + Pillow
+
+| Tool | What it does | Run |
+|------|--------------|-----|
+| `figure_a11y.py` | Colour-vision accessibility: simulates three CVD types plus greyscale, flags colour pairs that collapse, and writes the simulated images for you to look at. | `python3 figure_a11y.py figures/*.png` |
+
+- Journals are mostly printed in black and white and ~8% of men have a red-green colour
+  vision deficiency; a figure separating series by hue alone fails for both. This shows
+  up in review as "the figure is hard to read" without the author learning why.
+- 🔴 **Open the simulated images.** "These two collapse" is reliable; "this figure is
+  fine" is not a guarantee — the simulation is a linear approximation, not a model of
+  vision. Add `pymupdf` if you want to check PDF figures.
+
 ## References (`tools/refs/`) — zero installs
 
 | Tool | What it does | Run |
