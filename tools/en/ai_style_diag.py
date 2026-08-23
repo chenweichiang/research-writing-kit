@@ -36,6 +36,13 @@ import re
 import statistics
 import sys
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "common"))
+from md_prose import strip_markup   # same stripping rules for every diagnostic
+
+# Only sentence-length burstiness is bad when LOW (low variance = monotone = AI-ish).
+# Every other metric is a tic density where low is simply good.
+LOW_IS_BAD = {"burst"}
+
 METRICS = [
     ("emdash", "em-dash /1k"), ("notbut", "not..but /1k"),
     ("neither", "neither..nor /1k"), ("rather", "rather than /1k"),
@@ -60,6 +67,14 @@ def extract_text(path: pathlib.Path) -> str:
 
 
 def clean(txt: str) -> str:
+    """Strip everything that is not prose, then drop review line numbers and
+    anything after References.
+
+    🔴 The stripping rules live in `../common/md_prose.py` — layout syntax
+    (frontmatter, table separators, HTML comments, citation keys) otherwise gets
+    counted as punctuation and inflates every number. See that module for the
+    measured damage."""
+    txt = strip_markup(txt)
     lines = [l for l in txt.split("\n") if not re.fullmatch(r"\s*\d+\s*", l)]
     body = "\n".join(lines)
     m = re.search(r"\bREFERENCES\b|\bReferences\s*\n", body)
@@ -80,7 +95,10 @@ def profile(text: str, name: str, min_words: int = 800):
     mean = statistics.mean(slens)
     return dict(
         name=name, words=n,
-        emdash=per1k(text.count("—") + text.count("---")),
+        # `---` counts only as a WORD-INTERNAL dash (word---word), which is how an
+        # ASCII em-dash is written. Decorative `---` is already stripped in clean();
+        # this is the second line of defence.
+        emdash=per1k(text.count("—") + len(re.findall(r"(?<=\w)---(?=\w)", text))),
         notbut=per1k(len(re.findall(r"\bnot\b[^.;:?]{1,60}\bbut\b", text, re.I))),
         neither=per1k(len(re.findall(r"\bneither\b[^.;:?]{1,60}\bnor\b", text, re.I))),
         rather=per1k(len(re.findall(r"\brather than\b", text, re.I))),
@@ -143,7 +161,10 @@ def main():
         vals = sorted(b[key] for b in base)
         rank = sum(1 for v in vals if v < target[key]) / len(vals) * 100
         med = vals[len(vals) // 2]
-        flag = " <<" if rank > 90 or rank < 10 else ""
+        # 🔴 A low percentile only means something for burstiness. Flagging
+        # "neither..nor appears 0 times, corpus median is also 0" is pure noise —
+        # it teaches the reader to ignore the warnings.
+        flag = " <<" if rank > 90 or (key in LOW_IS_BAD and rank < 10) else ""
         print(f"{label:<28}{target[key]:>9.2f}{med:>10.2f}{rank:>7.0f}%{flag}")
 
 
