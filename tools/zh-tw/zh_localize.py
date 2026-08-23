@@ -14,6 +14,9 @@ Usage:
 """
 import re
 import sys
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parent.parent / "common"))
+from md_prose import mask_nonprose
 from pathlib import Path
 
 # ── Mainland terms (Traditional script, but mainland usage). A value in
@@ -99,6 +102,13 @@ def main():
     arg = sys.argv[1] if len(sys.argv) > 1 else "-"
     text = sys.stdin.read() if arg == "-" else \
         Path(arg).expanduser().read_text(encoding="utf-8", errors="ignore")
+    # 🔴 Mask HTML comments and code fences: internal notes never reach the
+    #    submitted paper, so flagging terms inside them is a false alarm.
+    #    MASK rather than delete — this tool reports line numbers, and deleting
+    #    lines would shift every one of them.
+    #    ⚠️ Deliberately does NOT mask tables and headings: readers see that text,
+    #    so its terminology must still be checked.
+    text = mask_nonprose(text)
     print(report(text))
 
 

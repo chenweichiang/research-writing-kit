@@ -28,7 +28,7 @@ import re
 __all__ = ["strip_markup", "mask_nonprose"]
 
 
-def mask_nonprose(txt: str) -> str:
+def mask_nonprose(txt: str, *, layout: bool = False) -> str:
     """把「不進交付版」的內容換成等長空白,**保留行數與行內位移**。
 
     給**逐行報行號**的工具用(`zh_localize` / `zh_term_check` / `voice_lint`):
@@ -45,6 +45,14 @@ def mask_nonprose(txt: str) -> str:
         return "".join("\n" if c == "\n" else " " for c in m.group(0))
     txt = re.sub(r"<!--.*?-->", blank, txt, flags=re.S)
     txt = re.sub(r"```.*?```", blank, txt, flags=re.S)
+    # `layout=True` additionally masks pure layout syntax that a STYLE tool must not
+    # count: YAML frontmatter and table separator rows. The reader sees a rule line,
+    # not text — but `---` and `:---:` read as em-dashes to a punctuation counter.
+    # (Measured: a draft with frontmatter + one table reported 5 em-dashes, all fake.)
+    # Terminology tools keep layout=False: table CONTENT is delivered text.
+    if layout:
+        txt = re.sub(r"\A\s*---\n.*?\n---[ \t]*(?=\n)", blank, txt, flags=re.S)
+        txt = re.sub(r"(?m)^[ \t]*\|[\s:|-]+\|[ \t]*$", blank, txt)
     return txt
 
 

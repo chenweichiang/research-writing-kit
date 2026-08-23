@@ -18,6 +18,9 @@ Exit code 1 if any hard-rule flags remain (usable in a pre-delivery gate).
 """
 import json
 import re
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parent.parent / "common"))
+from md_prose import mask_nonprose
 import sys
 from pathlib import Path
 
@@ -69,6 +72,11 @@ def main():
         del args[i:i + 2]
     src = args[0] if args else "-"
     raw = sys.stdin.read() if src == "-" else Path(src).expanduser().read_text(encoding="utf-8")
+    # 🔴 Mask HTML comments and code fences before linting. The two comment markers
+    #    themselves (`<!--` `-->`) contain `--`, which this tool was reporting as
+    #    em-dashes — 4 false flags on a real draft. Masked, not deleted, so the
+    #    line numbers reported below stay correct.
+    raw = mask_nonprose(raw, layout=True)
     hard, soft = load_rules(rules_path)
 
     prose = [(i + 1, l) for i, l in enumerate(raw.split("\n")) if is_prose(l)]

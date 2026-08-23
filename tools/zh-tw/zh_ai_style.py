@@ -23,6 +23,9 @@ Usage:
 """
 import json
 import re
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parent.parent / "common"))
+from md_prose import strip_markup
 import statistics
 import sys
 from pathlib import Path
@@ -57,10 +60,13 @@ def extract(path: Path) -> str:
     if path.suffix.lower() == ".tex":
         txt = re.sub(r"(?m)%.*$", "", txt)
         txt = re.sub(r"\\[a-zA-Z]+\*?(\[[^\]]*\])?(\{[^}]*\})?", " ", txt)
-    txt = re.sub(r"```.*?```", " ", txt, flags=re.S)
-    txt = re.sub(r"!?\[[^\]]*\]\([^)]*\)", " ", txt)
-    txt = re.sub(r"【[^】]*】", " ", txt)  # drop to-do markers
-    return txt
+    # 🔴 Use the shared stripping rules. The old version here stripped only code
+    #    fences / image links / 【】 and missed HTML comments, YAML frontmatter,
+    #    tables, headings and emphasis markers. Differential test upstream: adding
+    #    only comments and tables (content that never reaches the submitted paper)
+    #    moved em-dash 4.7 → 11.8, semicolon 14.2 → 27.5, rule-of-three 0 → 3.9.
+    #    Same judgements as the English side; change them once, in md_prose.py.
+    return strip_markup(txt, tex=str(path).lower().endswith(".tex"))
 
 
 def profile(text: str):
