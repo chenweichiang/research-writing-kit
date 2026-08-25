@@ -14,11 +14,23 @@
 用這套方法與工具，為你自己的論文／提案生成的稿件、骨架、聲音檔、客製 skill——
 **那些都是你的**，不受本須知限制。本須知只約束「再散布這個 repo 本身」與第三方資料。
 
+## 授權（兩種內容、兩種授權）
+
+| 內容 | 授權 | 全文 |
+|------|------|------|
+| **程式碼**：`tools/` 下的 `.py`／`.sh`／`.lua`、規則與設定模板 | **MIT** | [`LICENSE`](LICENSE) |
+| **方法與文件**：`method/`、`skills/`、`agents/`、`templates/`、`setup/`、`examples/`、`README.md`、`CLAUDE.md` | **CC BY 4.0**（姓名標示） | [`LICENSE-DOCS`](LICENSE-DOCS) |
+| **第三方詞表**：`data/academic-vocab/` | 各清單原授權（見下） | — |
+
+白話：程式隨便用、隨便改、可商用，保留版權聲明即可；方法文件也可以改寫、翻譯、拿去教、
+拿去做自己的版本，**唯一條件是標示出處**（作者 Chiang Chenwei 與 repo 網址），改寫版請註明改自本專案。
+
 ## 引用與致謝
 
-在論文、教材或衍生工具裡用到本方法時，請註明出處（repo 網址與作者）。
-方法本身脫胎於作者的寫作實務，`method/` 內的文件保留著作權；歡迎改寫成你的版本自用，
-公開再散布改寫版時請保留來源說明。
+在論文、教材或衍生工具裡用到本方法時，請註明出處，例如：
+
+> Chiang, C. (2026). *Research Writing Kit* (v1.3.0) [Method and toolkit].
+> https://github.com/chenweichiang/research-writing-kit
 
 ## 第三方資料的授權（對所有人都有效）
 
@@ -29,7 +41,7 @@
 - **AVL**（Academic Vocabulary List, Gardner & Davies 2014）與 **ACL**（Academic Collocation List,
   Ackermann & Chen 2013）：研究／教育用途免費，使用請標示出處（見 `data/academic-vocab/README.md`）。
 
-**商業用途、或要把這些詞表另行散布時，請自行確認各清單的授權條款**；本專案不代為授權。
+**這三份詞表不在 MIT／CC BY 的範圍內**。商業用途、或要把詞表另行散布時，請自行確認各清單的授權條款；本專案不代為授權。
 
 ---
 

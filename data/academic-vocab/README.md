@@ -32,7 +32,8 @@ grep -iP "^analyse\t" "$AV/awl_families.tsv"
 ## Sources & licensing
 
 Redistributed here for **non-commercial, educational** use, with attribution.
-These are third-party lists — not part of the kit's own code.
+These are third-party lists — not part of the kit's own code, and **not covered by the
+kit's MIT / CC BY licences**.
 
 - **ACL** — Academic Collocation List, Ackermann & Chen (2013), from the Pearson
   International Corpus of Academic English (~25M words). Source: eapfoundation.com /
