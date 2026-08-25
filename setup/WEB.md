@@ -52,23 +52,16 @@ Offer the desktop app first to anyone terminal-averse:
 Type `claude` and press Enter. It opens the browser to sign in with their Claude account.
 Back in the terminal, a `>` prompt means they're in. (Login is remembered next time.)
 
-### 5. Get the kit onto their machine (it's a private repo — log in first)
-This kit is **private**, so their computer has to prove it's them before it can download
-it. Plain `git clone` will just fail with an auth error and confuse them. The friendliest
-route is **GitHub CLI (`gh`)** — it logs in through the browser, no tokens to fiddle with:
+### 5. Get the kit onto their machine
+The kit is a public repository, so downloading it needs no account and no login:
 
-1. **Install `gh`:**
-   - **macOS:** `brew install gh`, or download the installer from <https://cli.github.com>.
-   - **Windows:** `winget install --id GitHub.cli`, or the installer from the same site.
-2. **Log in once:** run `gh auth login` → choose **GitHub.com** → **HTTPS** → **Login with
-   a web browser**. It shows a one-time code; press Enter, paste the code in the browser
-   that opens, and approve. (This also sets up `git` to authenticate automatically.)
-3. **Download the kit:** `gh repo clone <owner>/<repo>` — owner/repo is wherever they were
-   shared this kit; the person who invited them has it.
-
-**No-install alternative:** signed in to github.com in the browser, open the kit's page →
-green **Code** button → **Download ZIP** → unzip anywhere (e.g. Downloads). Simpler, but
-there's no easy way to pull updates later.
+1. **With git** (comes with Xcode Command Line Tools on macOS; on Windows install
+   [Git for Windows](https://git-scm.com/download/win)):
+   `git clone https://github.com/chenweichiang/research-writing-kit.git`
+   Later, `git pull` inside that folder picks up updates.
+2. **Without git:** open the repository page in the browser → green **Code** button →
+   **Download ZIP** → unzip anywhere (e.g. Downloads). Simpler, but there's no easy way
+   to pull updates later.
 
 ### 6. Open the kit folder in Claude Code — and hand off
 - In Terminal, `cd` into the kit folder, then start Claude Code:

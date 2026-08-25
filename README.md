@@ -2,8 +2,6 @@
 
 **版本 `v1.3.0`**（2026-08）
 
-> ⚠️ **私人分享，請勿轉傳** — 你受個別邀請才看得到；請勿把內容散布給未受邀者。詳見 [`NOTICE.md`](NOTICE.md)。想邀請別人請直接找擁有者。
-
 > 一套用 AI 協助寫**研究論文與計畫提案**的方法，而且它會**自己安裝、自己客製**。
 > 你不用懂 AI、不用會設定。把資料夾交給你的 Claude，它會問你幾個問題，再幫你把
 > 適合你的工具建好。
@@ -34,11 +32,10 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 
 ### 情況 A ｜ 你電腦上已經有 Claude Code
 
-1. **拿到這個資料夾**：這是**私人 repo**，第一次下載要先登入 GitHub。最省事的方式是裝
-   **GitHub CLI**（macOS `brew install gh`，或到 [cli.github.com](https://cli.github.com)
-   抓安裝檔），裝好跑 `gh auth login`（選 GitHub.com、HTTPS、用瀏覽器登入），再用
-   `gh repo clone <owner>/<repo>` 下載。不想裝也可以在 GitHub 頁面按綠色 **Code →
-   Download ZIP** 解壓，只是之後沒辦法一鍵更新。放哪裡都行。
+1. **拿到這個資料夾**：這是公開 repo，不用登入。有 git 的話
+   `git clone https://github.com/chenweichiang/research-writing-kit.git`；
+   不想裝 git 也可以在 GitHub 頁面按綠色 **Code → Download ZIP** 解壓，只是之後沒辦法
+   `git pull` 一鍵更新。放哪裡都行。
 2. **在資料夾裡打開 Claude Code**：開終端機，`cd` 進到這個資料夾，輸入 `claude`。
 3. **貼這一句話**：
    > **「讀 CLAUDE.md，幫我設定。」**（英文：`Read CLAUDE.md and set me up.`）
@@ -88,7 +85,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 
 ## 隱私
 
-- 這是**私人 repo**，只分享給你信任的人。裡面只有**方法**，沒有任何人的稿件或資料。
+- 這個 repo 裡只有**方法與工具**，沒有任何人的稿件或資料；使用與第三方詞表的授權見 [`NOTICE.md`](NOTICE.md)。
 - 方法本身要求：**未發表的稿件與研究原始資料永遠留在你自己的電腦**，不上傳雲端、不丟公開的
   AI 偵測器。你生成的個人設定（文風檔、投稿筆記、骨架）也不會被這個 repo 收走
   （見 `.gitignore`）。
@@ -207,7 +204,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 |------|------|----------|
 | **Claude Code** | 整套方法的執行者：訪談你、找文獻、架骨架、寫稿、自我檢查 | [claude.com/claude-code](https://claude.com/claude-code)（需付費 Claude 方案：Pro／Max／Team 或 API 計費） |
 | **Python 3** | 跑隨包附的本機檢查工具 | macOS 要先裝 Xcode Command Line Tools（`xcode-select --install`）或 `brew install python`；Linux 多數發行版內建；Windows 到 python.org 抓安裝檔 |
-| **git**（或 GitHub CLI `gh`） | 下載與更新這個私人 repo | `brew install gh` → `gh auth login`；或用 GitHub 頁面的 Download ZIP（之後無法一鍵更新） |
+| **git** | 下載與更新這個 repo（`git clone` / `git pull`） | macOS 裝 Xcode Command Line Tools 就有；或用 GitHub 頁面的 Download ZIP（之後無法一鍵更新） |
 
 ### 選配的本機程式（哪個功能用到、怎麼裝）
 

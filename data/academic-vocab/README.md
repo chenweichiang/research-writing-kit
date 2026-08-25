@@ -31,7 +31,7 @@ grep -iP "^analyse\t" "$AV/awl_families.tsv"
 
 ## Sources & licensing
 
-Redistributed here for **private, non-commercial, educational** use, with attribution.
+Redistributed here for **non-commercial, educational** use, with attribution.
 These are third-party lists — not part of the kit's own code.
 
 - **ACL** — Academic Collocation List, Ackermann & Chen (2013), from the Pearson
@@ -45,5 +45,5 @@ These are third-party lists — not part of the kit's own code.
   here is a re-formatting for local grep; treat the word data as the original list and
   cite Coxhead (2000).
 
-If you plan to share this kit beyond a private, non-commercial circle, review these
-licenses (especially AWL's ND term) before redistributing the data.
+If you plan to use these lists commercially, or redistribute them on their own, review
+the licenses (especially AWL's ND term) first — the kit does not sub-license them.
