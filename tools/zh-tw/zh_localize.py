@@ -40,6 +40,8 @@ TERMS = {
 WHITELIST = (
     # established academic renderings / correct Taiwan usage (avoid false hits)
     "演算法", "演算", "數據庫",
+    # generic academic terms whose 智能/卸載 are NOT the mainland software senses
+    "認知卸載", "智能障礙",
     # generic Taiwan "item/procedure" (not project/program)
     "評分項目", "申請程序", "程序正義", "送審程序",
     # brand / institution names that officially use 台 (add your own here)
@@ -99,6 +101,9 @@ def report(text: str) -> str:
 
 
 def main():
+    if any(a in ("-h", "--help") for a in sys.argv[1:]):
+        print(__doc__.strip() if __doc__ else "usage: see the header of this file")
+        return
     arg = sys.argv[1] if len(sys.argv) > 1 else "-"
     text = sys.stdin.read() if arg == "-" else \
         Path(arg).expanduser().read_text(encoding="utf-8", errors="ignore")

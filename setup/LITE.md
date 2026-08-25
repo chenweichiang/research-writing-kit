@@ -18,6 +18,11 @@
 - **Formatting:** Claude produces the cleanest export it can and, if there's no
   typesetting toolchain, is explicit that a final layout pass is still needed. For a
   proper PDF, a minimal Typst/Quarto install is the first upgrade worth making.
+- **Pre-delivery scans still run in lite mode:** the bundled retraction scan
+  (`tools/refs/retraction_scan.py`), uncited-claims scan
+  (`tools/claims/uncited_claims_scan.py`), and document-regression checks
+  (`tools/regress/`, via the `doc-regress` skill) need only Python 3 and, for the
+  retraction scan, the network — no install. Lite mode is not an excuse to skip them.
 
 ## The one honesty caveat in lite mode
 Lite mode can't run local statistical tests or a corpus-anchored style baseline. That's

@@ -1,6 +1,6 @@
 # The Method — The Full Pipeline
 
-> The 7-phase pipeline, generalized and language-neutral. This is what the
+> The 8-phase pipeline, generalized and language-neutral. This is what the
 > `co-author` skill orchestrates. Each phase notes what it needs in **lite mode**
 > (Claude + web only) versus **full mode** (optional local tools from
 > `setup/TOOLS.md`). Nothing here requires the full tools; they only make it faster
@@ -59,6 +59,13 @@ Before writing a single new word:
 - 🔴 Whatever you hold locally is a *convenience sample*, not "what the field's
   classics are." "Not in my library" ≠ "doesn't exist." Let the citation graph,
   not your shelf, decide what should be cited. Never invent a citation to fill a gap.
+- **Phase 1A — leave a search trail.** Record *how* the literature was found, in
+  `venue-notes.md` or a `search-log.md`: which databases (OpenAlex / Semantic
+  Scholar / web / your own library), the query strings, the date, inclusion and
+  exclusion criteria, hit counts per step. Why: a reviewer asking "why is X
+  missing?" gets an answer about the strategy's boundary rather than a shrug;
+  retargeting the paper six months later doesn't start from zero; and any paper
+  with a review component may be asked for this table outright (PRISMA-style).
 
 ### Track B — Venue format & review norms (do this every time, for the current cycle)
 Standards and formats change yearly — memory and last-cycle impressions are traps.
@@ -97,12 +104,45 @@ is out; in skeleton mode, wait for the nod.
 
 Decide whether this paper needs to *design a method* (collecting new data) or
 *analyze existing data*.
-- **Design:** follow the venue's methodological playbook; estimate power/sample.
+- **Design:** follow the venue's methodological playbook. **First diagnose whether
+  the design can answer the question** (bias and coverage, not only power — see
+  Phase 3.5); *then* estimate sample size. High power with low coverage is a biased
+  design, and adding participants makes it worse. A single-group pre/post cannot
+  separate the intervention from testing / maturation effects: add a control
+  (waitlist, stepped) or downgrade the claim to non-causal in the text. Pre-register
+  here if you will — this is the moment the hypotheses and analysis plan exist and
+  the data doesn't.
 - **Analyze — lite:** describe the design honestly and state what analysis is
   appropriate; do simple summaries carefully. **Full:** run it in R/Python/Jupyter.
 - Iron rules: **data stays local; effect sizes + CIs; Likert → ordinal models,
   not means; seeds fixed.** Fold results (numbers + effect sizes) back into the
-  skeleton nodes that need them.
+  skeleton nodes that need them — and into the **numbers ledger** (Iron Rule 8;
+  format from `skills/doc-regress`, template `tools/regress/numbers-ledger.template.md`).
+  Every number that will appear in prose gets a row: value, where it came from, the
+  script/command, seed. This is the only defense once the draft starts iterating.
+
+### Phase 3.5 — Design diagnosis (only when new data will be collected *and* an effect claimed)
+
+Phase 3 answers "given this design, which test?" This step asks the prior
+question: **can this design answer the question at all?** A correctly chosen test
+on a biased design still returns a confident wrong answer.
+- **Full:** declare the design (model / inquiry / data strategy / answer strategy)
+  and run a Monte-Carlo diagnosis (R `DeclareDesign`). Read **coverage** (the share
+  of CIs that contain the true value; should be ≈.95), not just power. Power ≈1
+  with coverage ≈0 means the design guarantees a significant result whether or not
+  the intervention works. Compare "add participants" against "add a control" —
+  the control usually wins.
+- **Lite:** reason it through in words — what besides the intervention could move
+  the outcome, and does the design let you tell them apart? State the claim's
+  ceiling honestly.
+- Output goes back into the skeleton's `load-bearing-assumptions / open-rebuttals`
+  field and into the limitations section — as numbers where you have them.
+- Skip for purely descriptive, qualitative, or research-through-design papers;
+  forcing it there manufactures false precision.
+- Same honesty ceiling as Phase 4.5: the diagnosis is only as good as the
+  data-generating process you declared. Wrong declaration → confident wrong
+  diagnosis. The declaration itself is human-reviewed; it is an internal
+  diagnostic, not a deliverable.
 
 ## Phase 4 — Build the argument skeleton
 
@@ -112,7 +152,10 @@ author hasn't read) / so-what**, plus flags: `⚠needs-method`, `⚠needs-analys
 `❓citation-unverified`. Core causal/eliminative nodes also get a
 `load-bearing-assumptions / open-rebuttals` field.
 🔴 The skeleton lives as `skeleton.md` **in the project folder**, not in the chat —
-any new session reads `skeleton.md` + `venue-notes.md` before doing anything.
+any new session (or any session after a context compaction) reads `skeleton.md` +
+`venue-notes.md` + the numbers ledger before doing anything, and every phase ends
+by writing its progress back into `skeleton.md` (Iron Rule 8: files are the only
+authority; the conversation is not).
 
 ### Phase 4.5 — Formalize the core claim (optional; only if there's one core causal claim)
 For a paper with a single core causal or eliminative claim, you can stress-test it
@@ -138,11 +181,46 @@ anti-homogenization point). Follow `venue-notes.md` for structure and format.
 
 ## Phase 6 — Whole-draft verification (before handing back — you do all of it)
 
-1. Re-verify **every** in-text citation against the source.
+1. Re-verify **every** in-text citation against the source (`verify-citations`:
+   clause-level verdicts, quotes grounded in the source text, severity-weighted).
+   1a. **Retraction scan** — the whole bibliography against Crossref update
+       relations + OpenAlex (`tools/refs/retraction_scan.py`). Retractions keep
+       happening; a clean scan last submission proves nothing today. Hits are
+       hand-checked, then the reference is replaced and the skeleton node updated.
+   1b. **Uncited-claims scan** — citation checking only sees sentences that carry a
+       citation; quantitative / causal / superlative claims *without* one are its
+       blind spot, and in design and practice-based papers those are the main
+       evidence (`tools/claims/uncited_claims_scan.py`). Each hit is dispositioned
+       one of three ways: cite it, point to your own data (ledger row), or soften
+       the wording. Nothing undispositioned ships.
+   1c. **Numbers-ledger reconciliation** — run the `doc-regress` checks, then walk
+       it by hand: every number in the draft has a ledger row, every ledger row has
+       a place in the draft. A mismatch is a number with no provenance or an orphan
+       from an earlier edit.
+   1d. **Figure and table provenance** — each figure/table → the script and data file
+       that made it (logged in the ledger); each caption claim → visible in the
+       figure; no truncated axes that mislead. Figures are evidence, not decoration.
 2. Final format check against `venue-notes.md`, every official hard rule.
-3. Language toolchain clean (per language).
-4. **A clean second-pass review** with no drafting context, reviewer's eyes.
-5. Produce the **verification report** (citations / format tick-sheet / toolchain /
+   2a. **The six submission declarations**, each marked "written" or "not
+       applicable + why" — never blank: generative-AI use disclosure (**always** —
+       this pipeline drafts with an AI, so say which tools did which tasks, and that
+       the authors take responsibility); research ethics (IRB approval or exemption
+       id, consent, identifiable-data handling); data & code availability (and it
+       must agree with the ledger — rows marked "raw file not in repo" are exactly
+       what a reviewer will ask about); author contributions (CRediT); competing
+       interests & funding; pre-registration (link it if it exists; never imply one
+       that doesn't). The first two are written even when the venue doesn't ask.
+   2b. If the venue names a **reporting guideline** (COREQ / SRQR / TREND / CONSORT /
+       STROBE / PRISMA / GRAMMS), the completed checklist is an attachment.
+3. Language toolchain clean (per language); for English, the de-cadencing pass
+   (`agents/de-cadencing-scholar.md`) after the fingerprint tools are green.
+4. **A clean second-pass review** with no drafting context, reviewer's eyes — and
+   hand it the project's `ADJUDICATED.md` (decisions already made, with reasons), or
+   it will re-raise settled questions as discoveries. Re-opening an adjudicated item
+   requires new evidence. This is a judgement task: use the main model, don't
+   downgrade.
+5. Produce the **verification report** (citations / retraction & uncited scans /
+   ledger reconciliation / format tick-sheet incl. declarations / toolchain /
    `❓unverified` list).
 6. Deliver = the formatted document + the report (+ back-translation if second-lang).
 
@@ -154,6 +232,15 @@ The author reads the complete draft and says what to change.
 - If the author says "this citation feels off" → go back to Phase 1–2, swap the
   evidence in that node only; don't rebuild the argument.
 - Every iteration is re-formatted and re-delivered, not a markdown diff.
+- 🔴 **Numbers: ledger first, prose second.** Re-run the analysis → update the
+  ledger → *then* edit the draft → run `doc-regress`. The order is not optional:
+  editing the prose first hides the stale value from the recurrence check.
+- **Any newly written paragraph → re-run the uncited-claims scan.** New prose almost
+  always brings new uncited claims; the waivers you added last round only cover the
+  old sentences.
+- **Close every round by writing back** to `skeleton.md`'s `## Progress` block —
+  what changed, why, what's left. Phase 7 has the most rounds and the most session
+  boundaries; this is where drift accumulates (Iron Rule 8).
 - After big changes, re-run the affected checks (citations / format / and if the
   core claim's structure changed, Phase 4.5). Finish with a full `paper-review`.
 
@@ -176,7 +263,8 @@ Check: author names and order · funder/grant ids · figure numbers still matchi
 in-text references · no table row dropped in typesetting · references not mangled by
 the production system · DOIs resolving · and, for non-Latin names and institutions,
 that the typesetter did not substitute characters or break the encoding. If any number
-changed, re-run your numbers ledger.
+changed, reconcile it against the numbers ledger (`skills/doc-regress`;
+`tools/regress/numbers-ledger.template.md`) before signing off.
 
 ### 8.3 Rights and licence — read before signing
 CC-BY vs a traditional transfer is a real choice. ⚠️ **A funder may mandate open
