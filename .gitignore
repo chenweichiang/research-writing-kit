@@ -11,15 +11,21 @@ __pycache__/
 
 # Never commit an author's actual work through this repo
 drafts/
-data/*                    # ignore author data dropped under data/ ...
-!data/academic-vocab/     # ... but keep the shipped third-party word lists
+# ignore author data dropped under data/ ...
+data/*
+# ... but keep the shipped third-party word lists (AVL, ACL)
+!data/academic-vocab/
+# AWL is CC BY-NC-ND (no derivatives): fetched locally by tools/vocab/fetch_awl.py, never committed
+data/academic-vocab/awl_families.tsv
 *.docx
 *.pdf
-!examples/**/*.pdf        # (none shipped, but allow if an example ever needs one)
+# (none shipped, but allow if an example ever needs one)
+!examples/**/*.pdf
 
 # Filled-in personal setups (these belong in the author's own project, not here)
 VOICE_PROFILE.md
 venue-notes.md
 skeleton.md
-!templates/**             # keep the blank templates
-!examples/**              # keep the worked example
+# keep the blank templates and the worked example
+!templates/**
+!examples/**

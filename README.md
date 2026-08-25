@@ -2,6 +2,8 @@
 
 **版本 `v1.3.0`**（2026-08）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
+**English → [README.en.md](README.en.md)**
+
 > 一套用 AI 協助寫**研究論文與計畫提案**的方法，而且它會**自己安裝、自己客製**。
 > 你不用懂 AI、不用會設定。把資料夾交給你的 Claude，它會問你幾個問題，再幫你把
 > 適合你的工具建好。
@@ -91,7 +93,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 
 - **程式碼**（`tools/`）：MIT——隨便用、隨便改、可商用，保留版權聲明即可（[`LICENSE`](LICENSE)）。
 - **方法與文件**（`method/`、`skills/`、`agents/`、`templates/`、`setup/`、README）：CC BY 4.0——可改寫、翻譯、教學、做自己的版本，**唯一條件是標示出處**（[`LICENSE-DOCS`](LICENSE-DOCS)）。
-- **第三方詞表**（`data/academic-vocab/`）：各清單原授權，AWL 為 CC BY-NC-ND；不在上面兩種授權範圍內。
+- **第三方詞表**（`data/academic-vocab/`）：隨包的 AVL、ACL 為研究／教學免費使用、需標示出處；AWL 是 CC BY-NC-ND（不得改作），**不隨包**，由你用 `tools/vocab/fetch_awl.py` 自行抓取到本機。都不在上面兩種授權範圍內。
 - 引用格式與細則見 [`NOTICE.md`](NOTICE.md)。
 - 方法本身要求：**未發表的稿件與研究原始資料永遠留在你自己的電腦**，不上傳雲端、不丟公開的
   AI 偵測器。你生成的個人設定（文風檔、投稿筆記、骨架）也不會被這個 repo 收走
@@ -108,9 +110,9 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | `method/` | **方法本體**四份：`PHILOSOPHY.md`（心法）、`IRON-RULES.md`（鐵則）、`WORKFLOW.md`（八個 Phase 的完整流程）、`ARGUMENTATION.md`（論證工法，內部診斷用）。 |
 | `skills/` | 七個 skill 範本（見下表）。 |
 | `agents/` | 兩個 subagent 範本（見下表）。 |
-| `tools/` | 十五支本機腳本＋輔助檔＋模板（見下表），說明在 `tools/README.md`。 |
+| `tools/` | 十六支本機腳本＋輔助檔＋模板（見下表），說明在 `tools/README.md`。 |
 | `templates/` | 四份空白檔：`VOICE_PROFILE.template.md`（文風檔）、`venue-notes.template.md`（投稿場域筆記）、`skeleton.template.md`（論證骨架）、`voice_rules.template.json`（聲音硬規則）。 |
-| `data/academic-vocab/` | 三份開放學術詞表（`awl_families.tsv`、`avl_core_words.tsv`、`acl_collocations.tsv`），投稿前檢查的用字層拿來當錨點，不是自動替換；授權見 `NOTICE.md`。 |
+| `data/academic-vocab/` | 開放學術詞表：隨包兩份（`avl_core_words.tsv`、`acl_collocations.tsv`），第三份 `awl_families.tsv` 由 `tools/vocab/fetch_awl.py` 在你電腦上產生（授權不允許隨包）。投稿前檢查的用字層拿來當錨點，不是自動替換；授權見 `NOTICE.md`。 |
 | `examples/skeleton.example.md` | 一份填好的骨架範例，讓 Claude 有具體參照。 |
 | `setup/` | `LITE.md`（零安裝模式）、`TOOLS.md`（選配工具與降級對照）、`INTERVIEW.md`（面談問法）、`WEB.md`（從 claude.ai 網頁版上手）、`addons/zh-tw/README.md`（繁中在地化包）。 |
 
@@ -157,6 +159,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | `rebuttal/points.template.tsv`、`revisions.template.tsv`、`response-letter.template.md` | 審稿意見拆點表、修訂對照表、回應信模板 | — |
 | `submissions/check_submissions.py` | 一稿多投防護＋投稿狀態總覽（同一份稿件不得同時在兩處審查） | 不用 |
 | `submissions/SUBMISSIONS.template.tsv` | 投稿狀態表模板 | — |
+| `vocab/fetch_awl.py` | 從 Victoria University of Wellington 官方頁面抓 Coxhead 的 AWL 詞表，轉成 `data/academic-vocab/awl_families.tsv`（AWL 授權不得改作，所以 kit 不隨包、請你自己抓；跑一次即可） | 不用（需網路） |
 
 ---
 
@@ -281,7 +284,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
   查引用補逐子句判定、引述接地、嚴重度加權、撤稿；收文獻補三條；審稿回應掛英文去節奏複查；
   繁中包補 Typst。文風工具（中英四支）同步修正一批量測 bug。方法文件同步：流程改為 8 phase、
   鐵則補統計細則（ART 只限連續 DV、單題 Likert 走序數模型、SESOI 設計期宣告、貝氏三路分流）、
-  論證工法每招補「何時別用」與實證論文手藝、`setup/TOOLS.md` 補數值雷區與 Harper／autocorrect。README 改成完整清單：七個 skill 的名字與觸發句、`tools/` 全部檔案、安裝後電腦上會多出什麼、論文專案裡會長出哪些檔案、外部程式與線上服務各自被誰用到、送出什麼資料。
+  論證工法每招補「何時別用」與實證論文手藝、`setup/TOOLS.md` 補數值雷區與 Harper／autocorrect。AWL 詞表不再隨包（CC BY-NC-ND 的 ND 條款），改由 `tools/vocab/fetch_awl.py` 抓取。README 改成完整清單：七個 skill 的名字與觸發句、`tools/` 全部檔案、安裝後電腦上會多出什麼、論文專案裡會長出哪些檔案、外部程式與線上服務各自被誰用到、送出什麼資料。
 - **v1.2.0**（2026-08-24）：**修掉一批會給錯數字的量測 bug**——文風診斷工具（中英文四支）
   把 markdown 版面語法當成散文標點在數：YAML frontmatter 與表格分隔列被當破折號、HTML
   註解裡的字被當正文、pandoc 多鍵引用的分號被當文風、粗體標題讓斷句規則失效而把兩三句

@@ -81,7 +81,7 @@ author; put the total edit count at the top.
    author's language. Suggest more natural replacements.
 2. Anchor key wording (contribution sentences, method verbs) to real academic
    frequency. **Bundled:** grep `data/academic-vocab/` — `avl_core_words.tsv` /
-   `awl_families.tsv` for single-word diction (informal word not in the list + has an
+   `awl_families.tsv` (not shipped — if absent, run `tools/vocab/fetch_awl.py` once; it is git-ignored) for single-word diction (informal word not in the list + has an
    academic synonym → suggest upgrading), `acl_collocations.tsv` for phrase
    collocations. With a field corpus (full mode) also check real frequency there.
    🔴 Word lists are anchors, not auto-replace: the final call is Claude reading the
