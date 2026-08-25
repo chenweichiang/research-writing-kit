@@ -85,7 +85,14 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 
 ## 隱私
 
-- 這個 repo 裡只有**方法與工具**，沒有任何人的稿件或資料；使用與第三方詞表的授權見 [`NOTICE.md`](NOTICE.md)。
+- 這個 repo 裡只有**方法與工具**，沒有任何人的稿件或資料。
+
+## 授權
+
+- **程式碼**（`tools/`）：MIT——隨便用、隨便改、可商用，保留版權聲明即可（[`LICENSE`](LICENSE)）。
+- **方法與文件**（`method/`、`skills/`、`agents/`、`templates/`、`setup/`、README）：CC BY 4.0——可改寫、翻譯、教學、做自己的版本，**唯一條件是標示出處**（[`LICENSE-DOCS`](LICENSE-DOCS)）。
+- **第三方詞表**（`data/academic-vocab/`）：各清單原授權，AWL 為 CC BY-NC-ND；不在上面兩種授權範圍內。
+- 引用格式與細則見 [`NOTICE.md`](NOTICE.md)。
 - 方法本身要求：**未發表的稿件與研究原始資料永遠留在你自己的電腦**，不上傳雲端、不丟公開的
   AI 偵測器。你生成的個人設定（文風檔、投稿筆記、骨架）也不會被這個 repo 收走
   （見 `.gitignore`）。
