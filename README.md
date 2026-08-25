@@ -1,6 +1,6 @@
 # 研究寫作套件 · Research Writing Kit
 
-**版本 `v1.3.0`**（2026-08）
+**版本 `v1.3.0`**（2026-08）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
 > 一套用 AI 協助寫**研究論文與計畫提案**的方法，而且它會**自己安裝、自己客製**。
 > 你不用懂 AI、不用會設定。把資料夾交給你的 Claude，它會問你幾個問題，再幫你把
