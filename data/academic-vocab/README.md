@@ -1,7 +1,9 @@
 # Academic vocabulary lists (word/phrase anchoring)
 
 Reference word lists for `paper-review` Layer 3 (wording / academic diction). Three
-open academic vocabulary lists, normalized to TSV — grep them locally. They are
+open academic vocabulary lists, normalized to TSV — grep them locally. Two ship with
+the kit (ACL, AVL); the third (AWL) is **fetched by you** with `tools/vocab/fetch_awl.py`
+because its licence forbids redistributing derivatives. They are
 **anchors, not auto-replace**: a word not in a list *may* be informal, but the final
 call is always Claude reading the context, minimal-edit, with a quote.
 
@@ -14,7 +16,7 @@ Three complementary levels: **phrase templates** (a phrasebank, not bundled) / *
 |------|---------|------|---------|
 | `acl_collocations.tsv` | Academic **collocations** (phrasing) | 2,474 | `headword`, `collocation` |
 | `avl_core_words.tsv` | Academic **core words** (diction), COCA academic sub-corpus | 3,014 | `rank`, `word`, `pos`, `coca_acad_freq`, `acad_ratio` (>1 = over-represented in academic text) |
-| `awl_families.tsv` | Academic **word families** (Coxhead) | 570 | `headword`, `sublist` (1 = highest frequency), `related_forms` |
+| `awl_families.tsv` | Academic **word families** (Coxhead) — **not shipped**; run `python3 tools/vocab/fetch_awl.py` once to create it here (git-ignored) | 570 | `headword`, `sublist` (1 = highest frequency), `related_forms` |
 
 ## Usage (paper-review Layer 3)
 
@@ -42,9 +44,10 @@ kit's MIT / CC BY licences**.
   sub-corpus (~120M words). Source: academicvocabulary.info (Mark Davies, BYU). Free
   for research/educational use.
 - **AWL** — Academic Word List, Coxhead (2000), Victoria University of Wellington.
-  Licensed **CC BY-NC-ND 3.0** — attribution, non-commercial, no derivatives. The TSV
-  here is a re-formatting for local grep; treat the word data as the original list and
-  cite Coxhead (2000).
+  Licensed **CC BY-NC-ND 3.0** — attribution, non-commercial, no derivatives. Because of
+  the ND term the kit does **not** redistribute it: `tools/vocab/fetch_awl.py` downloads the
+  official "AWL Sublist Families" document from the VUW site and writes the TSV on your
+  machine, for your own non-commercial use. Cite Coxhead (2000).
 
 If you plan to use these lists commercially, or redistribute them on their own, review
 the licenses (especially AWL's ND term) first — the kit does not sub-license them.

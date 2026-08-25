@@ -37,7 +37,9 @@
 `data/academic-vocab/` 收錄的學術詞表為第三方資料，非本專案原創，各有自己的授權：
 
 - **AWL**（Academic Word List, Coxhead 2000）：**CC BY-NC-ND 3.0**——需標示出處、限非商業、
-  不得改作。本 repo 的 TSV 只是為了本機 grep 的重新排版，詞資料本身請視為原始清單並引用 Coxhead (2000)。
+  不得改作。因為 ND 條款，**本 repo 不隨包附上 AWL**：你執行 `tools/vocab/fetch_awl.py` 從
+  Victoria University of Wellington 官方頁面下載並在自己電腦上轉成 TSV（該檔已列入 .gitignore，
+  不會被提交）。引用請寫 Coxhead (2000)。
 - **AVL**（Academic Vocabulary List, Gardner & Davies 2014）與 **ACL**（Academic Collocation List,
   Ackermann & Chen 2013）：研究／教育用途免費，使用請標示出處（見 `data/academic-vocab/README.md`）。
 

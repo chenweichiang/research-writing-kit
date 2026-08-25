@@ -18,6 +18,7 @@ out of the box. The English tools need one or two free offline programs.
 | `claims/` | `uncited_claims_scan.py` | sentences that claim (numbers / causes / firsts) but cite nothing |
 | `refs/` | `snowball.py` | forward / backward / related citation snowballing |
 | `refs/` | `retraction_scan.py` | has anything you cite been retracted (Crossref + OpenAlex) |
+| `vocab/` | `fetch_awl.py` | fetch Coxhead's AWL from the official VUW site into a local TSV (not shipped: CC BY-NC-ND) |
 | `regress/` | `regress.py` + `dead_rule_check.py` | regression suite for long documents + false-green-light detector |
 | `rebuttal/` | `check_response.py` | response-to-reviewers completeness |
 | `submissions/` | `check_submissions.py` | duplicate-submission guard |
@@ -169,3 +170,17 @@ metrics that should have read above the 90th percentile.
   optional full-mode upgrades, and your Claude can help you stand up your own.
 - **Anyone's corpora or drafts**: never shipped. The kit ships methods and tools, not
   writing or data.
+
+## Vocabulary — `tools/vocab/`
+
+| Script | What it does | Needs |
+|--------|--------------|-------|
+| `fetch_awl.py` | Downloads the official "AWL Sublist Families" document (Victoria University of Wellington) and writes `data/academic-vocab/awl_families.tsv` — `headword`, `sublist`, `related_forms` — so `paper-review` Layer 3 can grep it. The AWL is CC BY-NC-ND 3.0; the ND term forbids redistributing a re-formatted copy, so the kit ships the fetcher, not the data, and the TSV is git-ignored. HTML sublist pages are the fallback source (`--source html`). | none (internet) |
+
+```bash
+python3 tools/vocab/fetch_awl.py            # once; writes data/academic-vocab/awl_families.tsv
+python3 tools/vocab/fetch_awl.py --check data/academic-vocab/awl_families.tsv   # re-verify later
+```
+
+Cite the list as Coxhead (2000), *TESOL Quarterly* 34(2). Non-commercial use only.
+
