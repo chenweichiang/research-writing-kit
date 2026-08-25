@@ -219,7 +219,8 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | **MinerU** | 掃描檔／中文 PDF 抽成乾淨文字（`verify-citations`） | `uv tool install mineru` |
 | **R**＋`statcheck`、`scrutiny` | `paper-review` 第 1 層重算 p 值、GRIM 查平均數可能性（沒裝就退回手算） | 裝 R 後 `install.packages(c("statcheck","scrutiny"))` |
 | **R**＋`DeclareDesign` | `co-author` Phase 3.5 設計診斷（看 coverage 不只看 power） | `install.packages("DeclareDesign")` |
-| **R** 或 **Python** 統計 | 本機統計分析（混合模型、貝氏：`brms`／`BayesFactor`／`nimble` 三路，見 `setup/TOOLS.md`） | 資料全程留在你電腦；數值雷區見 `setup/TOOLS.md` |
+| **R** 或 **Python** 統計 | 本機統計分析：混合模型（`lme4`／`afex`）、序數 Likert（`ordinal::clmm`）、事後比較與效果量；分流規則見 `setup/TOOLS.md` | 資料全程留在你電腦；數值雷區見 `setup/TOOLS.md` |
+| **R** 貝氏三路 | 公式寫得出的階層模型→`brms`；「無差異」結論要 BF01→`BayesFactor`；**離散潛在變數／混合模型／自訂 sampler／JAGS 舊模型移植→`nimble`**（BUGS 語法，Stan 寫不出離散參數）；三者都要報先驗與收斂診斷 | `install.packages(c("brms","BayesFactor","nimble"))`；`brms` 另需 CmdStan 或 rstan |
 | **Harper** | 英文毫秒級第一遍文法（存檔就報；LanguageTool 仍是主力） | 編輯器外掛或 CLI，離線 |
 | **autocorrect** | 中文全半形、盤古空格自動整理 | `brew install autocorrect` |
 | **Typst** 或 **Quarto**／**LaTeX** | `build-pdf` 排版；繁中走 Typst 配方（`setup/addons/zh-tw/`） | 依場域官方模板選；`latexdiff` 給 `rebuttal` 做修訂對照 |
