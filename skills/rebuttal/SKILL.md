@@ -66,6 +66,11 @@ enough); hold your ground without fighting ("we understand this concern, but…"
 than "the reviewer has misunderstood"); never promise future work to dodge something
 you should handle now.
 
+Think in the author's language, write in the venue's. **An English letter goes through
+`paper-review` Layer 3 and a de-cadencing pass** (`agents/de-cadencing-scholar.md`,
+file path only) before it ships — editors read many letters and an LLM-polished
+cadence is as visible there as in the paper.
+
 ## Phase 5 — Verify before sending 🔴
 
 ```bash
@@ -87,6 +92,10 @@ orphan point numbers (the classic renumbering slip). Non-zero exit = not ready t
   (`latexdiff old.tex new.tex > diff.tex`, or tracked changes in Word)
 
 ## Venue differences — check the current cycle, don't assume
+
+Response rules differ as much as submission rules. Look them up for the current cycle
+and **record them in the project's `venue-notes.md`** (the same file `co-author`
+Track B writes), so the next revision round doesn't rediscover them:
 
 - **ACM/IEEE conference rebuttals**: often a hard character limit, and usually **no new
   experiments** — clarification only

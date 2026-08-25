@@ -109,9 +109,16 @@ def personal_baseline(authored: Path, rebuild=False):
     # 🔴 Hygiene: the baseline is YOUR OWN writing only. Skip anything that looks like
     # an AI/co-authored draft (草稿/draft/ai) — including those would let the tool treat
     # AI tics as "your real words" and cancel the diagnosis out.
-    _DRAFTY = ("草稿", "draft", "ai", "gpt", "claude", "generated")
-    files = sorted(p for p in authored.glob("*.txt")
-                   if not any(d in p.name.lower() for d in _DRAFTY))
+    # "ai" is matched only as a whole delimiter-bounded token (`_ai`, `ai-`, `ai.txt`,
+    # or the whole stem) — plain substring matching threw away `train.txt`,
+    # `detail.txt`, `explain.txt` and every other filename containing "ai".
+    _DRAFTY = ("草稿", "draft", "gpt", "claude", "generated")
+    _AI_TOKEN = re.compile(r"(?:^|[_\-. ])ai(?=$|[_\-. ])")
+
+    def _drafty(name: str) -> bool:
+        low = name.lower()
+        return any(d in low for d in _DRAFTY) or bool(_AI_TOKEN.search(low))
+    files = sorted(p for p in authored.glob("*.txt") if not _drafty(p.name))
     if not files:
         return {"_n": 0, "_files": 0}
     total = "\n".join(f.read_text(encoding="utf-8", errors="ignore") for f in files)
@@ -181,6 +188,9 @@ def report(text: str, authored: Path) -> str:
 
 
 def main():
+    if any(a in ("-h", "--help") for a in sys.argv[1:]):
+        print(__doc__.strip() if __doc__ else "usage: see the header of this file")
+        return
     args = [a for a in sys.argv[1:]]
     authored = _authored_dir()
     if authored:

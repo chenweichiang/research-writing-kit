@@ -37,6 +37,32 @@ confidence intervals, not bare p-values. Never claim "no difference" from p > .0
 (use an equivalence/Bayesian test). **Unpublished drafts and raw data never leave
 the author's machine** — no cloud detectors, no public LLM uploads.
 
+The details that reviewers actually catch:
+- **Likert.** A single item is ordinal → cumulative-link / ordered-probit models
+  (`clmm`, `ordinal`), not means. A multi-item *summed scale* may be treated as
+  approximately continuous, but then report its reliability (Cronbach's alpha or
+  omega) — no alpha, no scale.
+- **ART only for continuous DVs.** Aligned Rank Transform is for factorial designs
+  with a continuous outcome. Feeding it Likert, ordinal, count, or binary outcomes
+  inflates Type I error (Tsandilas 2024). Those go to `clmm` (ordinal) or GLMMs
+  (Poisson / negative-binomial / binomial).
+- **Multiple comparisons.** Any correction must be named (Tukey, Holm, FDR…), with
+  the family it was applied over.
+- **SESOI is declared at design time.** Equivalence / "no meaningful difference"
+  claims need a smallest effect size of interest that was chosen *and justified*
+  before the data existed; a SESOI picked after seeing the result is not one.
+- **Bayesian: three roads, one reporting rule.** If the model is a hierarchical
+  regression you can write as a formula → `brms`. If the question is "evidence for
+  the null" (BF01) → `BayesFactor`. If the model needs discrete latent variables,
+  a custom distribution, or a custom sampler (mixtures, latent classes, HMM states,
+  a JAGS legacy model) → `nimble`. All three report priors, a prior-sensitivity
+  note, and convergence diagnostics.
+- **Design before power.** If the paper will *claim* an effect from new data, first
+  ask whether the design can answer the question at all (bias and coverage, not
+  just power — see `WORKFLOW.md` Phase 3.5). A single-group pre/post cannot separate
+  the intervention from testing/maturation: add a control, or downgrade the claim
+  to non-causal in the text.
+
 ## 5. "Sounds like the author" only where you can be sure
 
 Match the author's voice when writing in a language they write themselves and you
@@ -60,6 +86,28 @@ of the author's previously submitted documents (margins, font sizes, section
 styles, table style). Layout is itself a review item. `skeleton.md` and draft
 markdown are *internal working files*, never the thing you hand over. Don't ship
 raw markdown as if it were the paper.
+
+## 8. Files are the only authority — the conversation is not
+
+Long sessions drift: after a context compaction the model still carries a half-
+decayed story of what was decided, and it fights the files without noticing. That
+is the structural cause of "it keeps changing the wrong thing," not a memory lapse.
+So:
+- **Every phase ends by writing back** to `skeleton.md`'s `## Progress` block: what
+  is done, what's next, open questions, known risks, which files were touched. A
+  rule that only says "read" and never "write" guarantees the file falls behind.
+- **The first action of a new session, or after a compaction,** is to re-read
+  `skeleton.md`, `venue-notes.md`, and the numbers ledger — and to say so plainly
+  ("the conversation is not authoritative; the files are"). What the files don't
+  record did not happen; to continue an earlier judgement, find it in the files
+  first, and if it isn't there, redo it or ask.
+- **When they conflict, the files win**, and the conflict is reported (it usually
+  means the previous round skipped the write-back).
+- **Numbers included.** Every number in the draft traces to the computation that
+  produced it, in the numbers ledger (`skills/doc-regress`, template in
+  `tools/regress/numbers-ledger.template.md`). Re-run the analysis → update the
+  ledger → *then* edit the prose → run the regression check. Reversing the order
+  hides the stale value from the check.
 
 ---
 

@@ -43,6 +43,36 @@ from md_prose import strip_markup   # same stripping rules for every diagnostic
 # Every other metric is a tic density where low is simply good.
 LOW_IS_BAD = {"burst"}
 
+# ── Baseline-contamination guard (two tracks: filename + content) ──────────────
+# Measured case: a 164-file baseline turned out to hold 92 of the author's own
+# drafts (89 of them versions of ONE paper). Contamination 56% → the author's own
+# syntax became "the norm" and three metrics that should have read >90th
+# percentile came back at 40/64/68. Why the old guard missed it: `--exclude`
+# matches the FILENAME only, and the drafts were named `20260104_v0.0.48.txt`;
+# they were also anonymised submission versions, so the author's name never
+# appeared in the text either. Hence two tracks, and err on the side of dropping
+# a file — a baseline short by a few papers is harmless, a contaminated one is not.
+DRAFT_FILENAME_RE = re.compile(r"_v\d+\.\d+")     # versioned draft: name_v0.0.48.txt
+DRAFT_CONTENT_MARKERS = (                            # checked in the first 3000 chars
+    "ANONYMOUS AUTHOR",                 # double-blind submission version
+    "Affiliations withheld",
+    "Your Art Paper Title Here",        # venue template placeholder
+    "LATEX Class for the Association",  # acmart class documentation, not a paper
+)
+
+
+def is_draft_or_template(f: pathlib.Path, text: str, excl):
+    """Return (drop?, reason) for a baseline file. `excl` = user --exclude substrings."""
+    if any(p in f.name.lower() for p in excl):
+        return True, "--exclude"
+    if DRAFT_FILENAME_RE.search(f.stem):
+        return True, "versioned draft filename"
+    head = text[:3000].lower()
+    for mk in DRAFT_CONTENT_MARKERS:
+        if mk.lower() in head:
+            return True, f"content marker '{mk}'"
+    return False, ""
+
 METRICS = [
     ("emdash", "em-dash /1k"), ("notbut", "not..but /1k"),
     ("neither", "neither..nor /1k"), ("rather", "rather than /1k"),
@@ -140,15 +170,18 @@ def main():
     venues = [v.strip() for v in args.venues.split(",") if v.strip()]
     vdirs = ([corpus / v for v in venues] if venues
              else [d for d in corpus.iterdir() if d.is_dir()])
-    base = []
+    base, excluded = [], []
     for vdir in vdirs:
         if not vdir.is_dir():
             print(f"(skipping missing {vdir.name})", file=sys.stderr)
             continue
         for f in vdir.glob("*.txt"):
-            if any(p in f.name.lower() for p in excl):
+            raw = f.read_text(errors="ignore")
+            drop, why = is_draft_or_template(f, raw, excl)
+            if drop:
+                excluded.append((f.name, why))
                 continue
-            s = profile(clean(f.read_text(errors="ignore")), f.name)
+            s = profile(clean(raw), f.name)
             if s:
                 base.append(s)
     if len(base) < 30:
@@ -156,6 +189,11 @@ def main():
                  "Add more published full texts to the corpus.")
 
     print(f"Draft {target['words']} words | baseline {len(base)} field papers")
+    if excluded:
+        from collections import Counter
+        reasons = ", ".join(f"{w} x{c}" for w, c in
+                            Counter(w for _, w in excluded).most_common())
+        print(f"  excluded {len(excluded)} ({reasons})")
     print(f"{'metric':<28}{'draft':>9}{'median':>10}{'pctile':>8}")
     for key, label in METRICS:
         vals = sorted(b[key] for b in base)

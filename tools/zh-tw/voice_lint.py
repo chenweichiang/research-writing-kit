@@ -54,7 +54,7 @@ def load_rules(path):
 def is_prose(s):
     """Keep prose lines; drop Typst/markdown directives & figure calls."""
     s = s.strip()
-    if not s or s[0] in "=#)（(":
+    if not s or s[0] in "=#)（(|<":   # `|` table row, `<` HTML tag: not prose
         return False
     if any(k in s for k in ["cfig(", "image(", "figure(", "caption:", "numbering:",
                             "supplement:", "align(", "block(", "#set", "#show", "#let",
@@ -64,6 +64,9 @@ def is_prose(s):
 
 
 def main():
+    if any(a in ("-h", "--help") for a in sys.argv[1:]):
+        print(__doc__.strip() if __doc__ else "usage: see the header of this file")
+        return
     args = sys.argv[1:]
     rules_path = None
     if "--rules" in args:

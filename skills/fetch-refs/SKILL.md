@@ -19,11 +19,28 @@ For each reference:
    arXiv / the author's own page. Prefer the publisher's OA version, then a
    preprint.
 3. **Verify the file matches the citation** before trusting it — open it, confirm
-   title/authors/year line up (guards against "right link, wrong file").
+   title/authors/year line up (guards against "right link, wrong file"). Compare
+   **phrase sequences, not bags of words**: in HCI/design, titles are full of
+   *design / human / experience / tools*, so word overlap alone passes a completely
+   different paper that cites the right one (a book's record matched to a paper that
+   quotes it, at 67–83 % word overlap). Tiering: phrase similarity **≥ 0.85 →
+   verified**; word overlap high but phrases short → **`LOW-CONFIDENCE`, kept but
+   listed visibly for the author** — never silently passed; below that → rejected.
+   Honest limit: papers that cite each other share surnames and vocabulary and no
+   content check catches all of them; the aim is to turn silent passes into visible
+   doubt, not to claim a clean filter.
+3a. **An OA flag is not a download.** Index records (`oa_status=green`, a
+   `best_oa_location` URL) point at institutional repositories that move or shut down
+   while the index stays as it was. If the fetch fails, report "needs a browser" —
+   don't argue from the flag that it should have worked, and don't retry to timeout.
 4. File as `NN [Author Year] Title.pdf`; keep a manifest (what was found, what
-   wasn't, and why).
+   wasn't, and why; verification tier per file).
 5. Paywalled with no OA version → record it as **not obtained**; do not fabricate
    content from the abstract.
+6. **Mark the author's own works** (self-citations, co-authored prior work, an
+   anonymous poster) in the manifest. If the collection is later fed into a style
+   corpus as the "other people's writing" baseline, **remove those first** — a
+   baseline containing the author's own prose cancels out the de-AI diagnosis.
 
 ## Full mode (optional power-ups — see `setup/TOOLS.md`)
 If the author has institutional access configured (e.g. a library VPN) and helper

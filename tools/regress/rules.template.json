@@ -1,0 +1,40 @@
+{
+  "_comment": "Copy to regress.json next to your manuscript and edit. Paths are relative to --root (default: this file's directory). Keys starting with _ are ignored. Every rule that stays unconfigured is reported as INFO 'NOT guarding' — fill it or accept that it guards nothing.",
+
+  "src_dir": "content",
+  "_src_dir": "folder holding all source .md files (internal working files included)",
+
+  "deliver_globs": ["part1/*.md", "part2/*.md"],
+  "_deliver_globs": "globs (under src_dir) of the DELIVERED body only. Internal notes legitimately mention TODO and non-existent [99] — never scan them with body rules.",
+
+  "skip_sections": ["Internal notes", "Pending items"],
+  "_skip_sections": "a heading containing any of these starts a section that is dropped from the delivered approximation",
+
+  "ref_list": null,
+  "_ref_list": "numbered reference list file, lines like '[12] Author ...' — for numeric [12] citation style. null if you use BibTeX.",
+
+  "bib_files": [],
+  "_bib_files": "e.g. [\"references.bib\"] — enables the @key dangling / orphan check",
+
+  "internal_words": ["TODO", "TBD", "FIXME", "internal note", "撰寫提示", "內部備忘", "待辦"],
+
+  "pii_patterns": [
+    ["e-mail address", "[\\w.+-]+@[\\w-]+\\.[\\w.]+"],
+    ["Taiwan national ID", "\\b[A-Z][12]\\d{8}\\b"],
+    ["Taiwan mobile number", "\\b09\\d{2}[- ]?\\d{3}[- ]?\\d{3}\\b"]
+  ],
+  "pii_skip_before": "字第|立案|文號|No\\.",
+  "_pii": "adapt to your country; pii_skip_before = regex that, right before a match, marks an official document number rather than personal data",
+
+  "ledger": "numbers-ledger.md",
+  "_ledger": "ONE numbers ledger per project (markdown table or TSV; see numbers-ledger.template.md). Drives R-STALE (stale value returns -> FAIL) and R-LEDGER (current value missing -> WARN).",
+
+  "entities": {"names": [], "marks": []},
+  "_entities": "R-ATTR: e.g. names of works by others / students, marks = accepted attribution words ('supervised', 'co-created'). A paragraph naming an entity without a mark FAILs.",
+
+  "banned_claims": [],
+  "_banned_claims": "R-CORR: [[\"wrong phrase exactly as it appeared\", \"why it is wrong + where verified (date)\"], ...]",
+
+  "fact_ledger": [],
+  "_fact_ledger": "R-FACT: [{\"name\": \"founding year\", \"anchor\": \"found(ed|ing)\", \"wrong\": [[\"19(87|89)\", \"registry says 1988 (checked 2026-08-01)\"]]}]"
+}

@@ -41,6 +41,37 @@
 🔴 常見 AI 壞習慣：擅自加「此即本作的賭注／恰恰是…價值所在／真正的…在於」這類**自我吹捧收尾判語**
 ——擴寫只陳述事實與論證，**判語留給作者**。
 
+## 繁中 PDF 排版配方（Typst；接 `build-pdf` skill 的「非 LaTeX 路徑」）
+
+繁中稿走 LaTeX 常卡在 CJK 套件（`xeCJK`/`ctex`）裝不上或裝不全；Typst 對 CJK 與系統字型開箱即用，
+是成本最低的一條路（純本機、無遙測，未發表稿不出機器）。`.typ` 檔頭用這組當預設：
+
+```typ
+#set text(
+  font: ("Noto Serif CJK TC", "Noto Sans CJK TC"),   // 可攜：任何平台裝 Noto CJK 即可
+  size: 11pt, lang: "zh", region: "tw",              // 台灣斷行與標點習慣
+)
+#set par(justify: true, leading: 0.85em)
+#set page(paper: "a4", margin: 2.2cm, numbering: "1")
+#set heading(numbering: "1.1")   // 不要編號就刪這行
+
+// 正文：= 一級標題 / == 二級 / + 條列 / *粗體* / _斜體_
+// 圖片：#figure(image("figures/x.png", width: 80%), caption: [圖說])
+// 表格：#table(columns: 2, [a],[b], [c],[d])
+```
+
+- **字型 fallback 要寫成清單**：第一個字型缺字就往後找；系統若有襯線 CJK 字型（macOS 的
+  Songti TC／PingFang TC、Windows 的微軟正黑體…）可放在 Noto 前面，但**清單裡一定留 Noto CJK**，
+  換機或在伺服器上才產得出同一份 PDF（Linux 裝 `fonts-noto-cjk`；要彩色 emoji 另裝
+  `fonts-noto-color-emoji`）。`lang:"zh", region:"tw"` 不可省，否則標點與斷行會走簡中或日文習慣。
+- **有圖一定帶 `--root`**：`typst compile --root <專案根目錄> doc.typ out.pdf`，相對路徑才解析得到；
+  沒圖可省。邊改邊看用 `typst watch`。
+- **從 Markdown 轉**：`#`→`=`、`-`→`+`、`**x**`→`*x*`、`![](p)`→`#figure(image("p"))`，其餘照搬；
+  標題層級與圖片路徑逐一核對（最常出錯處）。
+- **目檢清單（交付前必看 PDF）**：① 中文無豆腐字（缺字型的方塊）② emoji 有色、沒變成方塊
+  ③ 每張圖都有出來、沒被裁掉 ④ 頁碼與斷行正常、中英混排無怪異間距。回報固定含：來源檔、
+  字型、頁數、輸出路徑。
+
 ## 給作者的 Claude 的話
 在 full 模式，可協助作者在本機建立上述三種檢查（用開源中文 NLP + 官方譯名開放資料）；
 在 lite 模式，以上三點由你（Claude）手動逐項做、每條附原文引句、最小編輯。無論哪種模式，

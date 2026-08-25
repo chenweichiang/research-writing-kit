@@ -161,6 +161,7 @@ they'll actually type, in their language. For example:
 - "Help me write this paper / proposal" → triggers **co-author**.
 - "Check this draft before I submit" → triggers **paper-review**.
 - "Get me the PDFs of these references" → triggers **fetch-refs** (if enabled).
+- "Don't make that mistake again" / "fixing A broke B" → triggers **doc-regress**.
 
 Then stop and let them try one. Offer the full-power add-ons only if they ask.
 
@@ -172,11 +173,11 @@ Then stop and let them try one. Offer the full-power add-ons only if they ask.
 |------|-----------|
 | `method/PHILOSOPHY.md` | The mindset: division of labor, why skeleton-first. Read first. |
 | `method/IRON-RULES.md` | The non-negotiables. Every generated skill must keep these. |
-| `method/WORKFLOW.md` | The full 7-phase pipeline, generalized, with lite/full notes. |
+| `method/WORKFLOW.md` | The full 8-phase pipeline, generalized, with lite/full notes. |
 | `method/ARGUMENTATION.md` | Argument *moves* as an internal diagnostic (not a menu to sprinkle). |
-| `skills/*/SKILL.md` | De-personalized skill templates to adapt per author. |
+| `skills/*/SKILL.md` | De-personalized skill templates to adapt per author: `co-author`, `paper-review`, `fetch-refs`, `verify-citations`, `rebuttal`, `doc-regress` (turn a caught error into a standing check that scans the whole document and blocks recurrence; rules live in the author's project), `build-pdf`. |
 | `agents/*.md` | Subagent templates: `de-cadencing-scholar` (pre-delivery English rhythm pass) and `citation-skeptic` (calibrated second review of flagged citations). Install alongside the skills for authors who write English or verify citations — adapt, as with skills. |
-| `tools/` | Working local checkers, ready from day one. Chinese ones and `tools/refs/snowball.py` are zero-install (stdlib); English ones need one/two free offline programs. See `tools/README.md`. |
+| `tools/` | Working local checkers, ready from day one. Chinese ones, `tools/refs/snowball.py`, `tools/refs/retraction_scan.py` (retraction scan, Crossref + OpenAlex), `tools/claims/uncited_claims_scan.py` (uncited quantitative/causal/superlative claims), and `tools/regress/` (`regress.py` document-regression runner, `dead_rule_check.py` rule-set health, `rules.template.json`, `numbers-ledger.template.md`) are zero-install (stdlib); English ones need one/two free offline programs. See `tools/README.md`. |
 | `templates/*` | Scaffolds the author fills in (voice profile, venue notes, skeleton, voice rules). |
 | `setup/INTERVIEW.md` | Suggested interview wording. |
 | `setup/WEB.md` | On-ramp for authors who start on claude.ai — how to move them onto Claude Code. |
