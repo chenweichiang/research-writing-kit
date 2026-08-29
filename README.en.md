@@ -1,6 +1,6 @@
 # Research Writing Kit · 研究寫作套件
 
-**Version `v1.3.0`** (2026-08) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
+**Version `v1.4.0`** (2026-08) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
 
 **中文版 → [README.md](README.md)**
 
@@ -80,6 +80,7 @@ Open Claude Code in the folder where your paper lives and say what you want in o
 | **"Don't make that mistake again" / "fixing A broke B"** | Document regression: turn a caught mistake into a standing check, rescan the whole project after every edit, block it if it comes back | `/doc-regress` → `tools/regress/regress.py` |
 | **"Has anything I cite been retracted?"** | Retraction scan: the whole bibliography checked against Crossref and OpenAlex, rerun before every delivery | `tools/refs/retraction_scan.py` |
 | **"This sentence has no citation. Does it hold up?"** | Uncited-claims scan: finds quantitative, causal, and superlative sentences with no citation; for each one, add a citation, point to your own data, or soften the wording | `tools/claims/uncited_claims_scan.py` |
+| **"Am I saying more than my data supports?"** | Overclaim scan: finds *all / never / the only / proves / clearly* and their Chinese equivalents — the other half of the de-AI pass | `tools/claims/overclaim_lint.py` |
 | **"Do the numbers in the draft match the analysis output?"** | Numbers ledger reconciliation: every number traced back to the computation that produced it; update the ledger before the draft, and the regression check blocks old values from coming back | `/doc-regress` §3.5 |
 | **"Typeset this as a submission PDF" / "Chinese PDF"** | Typesets in the venue's template; a second-language draft is delivered together with its back-translation | `/build-pdf` |
 | **"Which statements am I still missing before I submit?"** | The six submission statements: AI-use disclosure, ethics/IRB, data availability, CRediT author contributions, conflicts of interest, preregistration | `/co-author` Phase 6-2a, `/paper-review` item 7 |
@@ -128,7 +129,7 @@ Once installed, each one triggers either by saying what you want or by typing `/
 | skill | What it does | Tools it uses |
 |-------|--------------|---------------|
 | `co-author` | Collaborative writing from scratch (papers and proposals): skeleton → verification → drafting → pre-delivery gates. Also handles rewriting an existing draft, resubmitting elsewhere, and expanding a short paper | The three pre-delivery scans (retraction / uncited claims / regression), `check_submissions.py`, the two subagents |
-| `paper-review` | Five-layer pre-submission check: mechanical → wording → language → logic and reviewer's view → delivery completeness. Checks only; never rewrites the draft | The three Chinese tools, `lt_check.sh`, `ai_style_diag.py`, `figure_a11y.py`, `uncited_claims_scan.py`, (optional) R `statcheck` and `scrutiny` |
+| `paper-review` | Five-layer pre-submission check: mechanical → wording → language → logic and reviewer's view → delivery completeness. Checks only; never rewrites the draft | The three Chinese tools, `lt_check.sh`, `ai_style_diag.py`, `figure_a11y.py`, `uncited_claims_scan.py`, `overclaim_lint.py`, (optional) R `statcheck` and `scrutiny` |
 | `fetch-refs` | Collects the PDFs for a bibliography, confirms each file really matches its entry, files them with a manifest. Includes citation snowballing | `snowball.py`, online APIs |
 | `verify-citations` | Sentence-by-sentence check against the PDF: is the citation supported by the source, and in the right direction. Authoritative DOI check. Retraction scan | `retraction_scan.py`, `citation-skeptic` second review, (optional) MinerU |
 | `rebuttal` | Response to reviewers: split the points → decide each → carry out the revisions → response letter → completeness check | `check_response.py` plus three templates, `de-cadencing-scholar`, (optional) `latexdiff` |
@@ -139,7 +140,7 @@ Once installed, each one triggers either by saying what you want or by typing `/
 
 | agent | What it does | When it is sent in |
 |-------|--------------|--------------------|
-| `de-cadencing-scholar` | A native-speaker scholar's pass over an English draft: picks out the rhythm marks that make it "obviously AI-polished" and rewrites them | Before an English draft is delivered; before a response letter is delivered |
+| `de-cadencing-scholar` | A native-speaker scholar's pass over an English draft: picks out the rhythm marks that make it "obviously AI-polished" and rewrites them (six tics; the sixth is overclaiming) | Before an English draft is delivered; before a response letter is delivered |
 | `citation-skeptic` | A calibrated second review of any citation flagged as "possibly wrong": assumes the citation is correct, and keeps the charge only if the PDF contradicts it word for word | When `verify-citations` raises a flag |
 
 ### Bundled tools (`tools/`, all of them)
@@ -157,6 +158,7 @@ Once installed, each one triggers either by saying what you want or by typing `/
 | `refs/snowball.py` | Citation snowballing: who cited this, what it cites, related work; aggregates and ranks across several seeds | none (needs internet) |
 | `refs/retraction_scan.py` | Retraction scan: a `.bib` or a DOI list checked against Crossref update relations and OpenAlex `is_retracted`, two sources; entries without a DOI are listed separately and not counted as scanned | none (needs internet) |
 | `claims/uncited_claims_scan.py` | Quantitative / causal / superlative claims with no citation (`.md`, `.tex`, `.qmd`; English and Chinese); after you decide each one, an exemption note can be added | none |
+| `claims/overclaim_lint.py` | Overclaim candidates in four categories (absolute / intensifier / evidence-strength / superlative), English and Traditional Chinese. **Report-only** — you judge each one against your evidence | none |
 | `regress/regress.py` | Document regression: scans the whole project by the project's `regress.json`; built-in rules for dangling citations, personal data, leftover to-dos, old values coming back, and missing attribution; project rules go in `--extra my_rules.py` | none |
 | `regress/dead_rule_check.py` | Rule health check: which rules can never fire again (their anchor text has been edited away) | none |
 | `regress/rules.template.json`, `regress/numbers-ledger.template.md` | Blank templates for the regression config and the numbers ledger | — |
@@ -277,6 +279,20 @@ uncited claims, regression) need no model; just run the scripts.
 ---
 
 ## Version history
+
+- **v1.4.0** (2026-08-29): **The de-AI pass gets its missing half — removing overclaims.**
+  Adds `tools/claims/overclaim_lint.py` (English + Traditional Chinese; four categories:
+  absolute, intensifier, evidence-strength, superlative; **report-only, never edits**).
+  Why: strip the convergence words and the cadence but leave *proves*, *all*, *the only*,
+  *clearly*, and the draft still reads as machine-written — and unlike a rhythm tic, an
+  unsupported absolute is a **substantive** fault. A reviewer who reads "this proves" under
+  an n=12 study stops trusting everything else in the paper. Every hit is judged by hand:
+  evidence carries it → keep (a real 0/72 or 100% result *is* data, and softening data is
+  its own dishonesty); it doesn't → converge. **Quoted source text and object-language in
+  quotation marks are out of scope.** Wired into `/co-author` Phase 5 and 6-3 (rerun every
+  delivery — each round of new prose grows the absolutes back), `/paper-review` Layers 1
+  and 3, and `method/WORKFLOW.md` Phases 5 and 6; `de-cadencing-scholar` goes from five
+  tics to six.
 
 - **v1.3.0** (2026-08-25): **Adds the gates that are easiest to skip before delivery and hardest to fix
   afterwards.** New seventh skill `doc-regress` (a caught mistake becomes a standing check, so fixing A

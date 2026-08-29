@@ -113,6 +113,13 @@ description: Collaborative long-form academic writing — papers AND grant/fundi
 - **Phase 5 — Write the full first draft:** bound to the skeleton, into the format.
   Own language → voice-match + language toolchain. Second language → strong prose,
   de-AI, independent back-translation for sign-off.
+  **The de-AI pass has two halves, and the second is the one people skip:** the style
+  tools remove convergence words and cadence; `python3 tools/claims/overclaim_lint.py
+  <draft>` removes *saying more than the data supports*. Run it in both language
+  branches — own language after the voice gate, second language after the fingerprint
+  and grammar tools and **before** the de-cadencing pass. It reports, you judge: a real
+  0/72 or 100% result is data and stays; an unsupported absolute converges (all→most,
+  prove→show, the only→one of the few). Quoted source text is out of scope.
 - **Phase 6 — Whole-draft verification (you do all of it, before the author sees it):**
   - **6-1 Citations:** re-verify every in-text citation against the PDF (`verify-citations`;
     prose drifts past what the source says). Mismatch → fix now or downgrade to `❓`.
@@ -171,10 +178,14 @@ description: Collaborative long-form academic writing — papers AND grant/fundi
     > Rule: **"the venue didn't ask" ≠ "don't write it."** AI disclosure and ethics go in
     > even when the call is silent; the rest follow `venue-notes.md`.
   - **6-3 Language toolchain green** (per language branch; own-language drafts also pass
-    the voice gate). English (or other second-language) delivery: statistical style
-    tools staying green is necessary but not sufficient — run a **de-cadencing pass
-    with clean context** (subagent template: `agents/de-cadencing-scholar.md`; give it
-    the file path only) to catch the rhythm tics a human eye reads as "AI-polished".
+    the voice gate) **and the overclaim pass adjudicated** — every
+    `overclaim_lint.py` candidate either kept with the evidence that carries it, or
+    converged. Iterating grows overclaims back: each new paragraph brings new absolutes,
+    so this reruns on every delivery, not once. English (or other second-language)
+    delivery: statistical style tools staying green is necessary but not sufficient —
+    run a **de-cadencing pass with clean context** (subagent template:
+    `agents/de-cadencing-scholar.md`; give it the file path only) to catch the rhythm
+    tics a human eye reads as "AI-polished" (its tic #6 is this same overclaim list).
   - **6-4 Clean final review:** hand the draft to a fresh reviewer context (a subagent
     without the drafting history, or a separate pass) **together with the project's
     `ADJUDICATED.md`** — the list of "looks wrong, was checked, is right" decisions.

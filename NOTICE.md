@@ -29,7 +29,7 @@
 
 在論文、教材或衍生工具裡用到本方法時，請註明出處，例如：
 
-> Chiang, C. (2026). *Research Writing Kit* (v1.3.0) [Method and toolkit].
+> Chiang, C. (2026). *Research Writing Kit* (v1.4.0) [Method and toolkit].
 > https://github.com/chenweichiang/research-writing-kit
 
 ## 第三方資料的授權（對所有人都有效）

@@ -178,6 +178,12 @@ anti-homogenization point). Follow `venue-notes.md` for structure and format.
 - **In a second language the author doesn't write:** write strong academic prose,
   de-AI it, and produce an **independent back-translation** for the author to
   sign off on.
+- **Both branches end on the overclaim pass** (`tools/claims/overclaim_lint.py`):
+  de-AI has two halves — convergence words and cadence on one side, *saying more than
+  the data supports* on the other. Removing only the first still reads as machine-
+  written, and an unsupported absolute is a substantive fault, not a stylistic one.
+  Report-only: keep what the evidence carries (real 0/72 or 100% results are data),
+  converge the rest.
 
 ## Phase 6 — Whole-draft verification (before handing back — you do all of it)
 
@@ -212,8 +218,10 @@ anti-homogenization point). Follow `venue-notes.md` for structure and format.
        that doesn't). The first two are written even when the venue doesn't ask.
    2b. If the venue names a **reporting guideline** (COREQ / SRQR / TREND / CONSORT /
        STROBE / PRISMA / GRAMMS), the completed checklist is an attachment.
-3. Language toolchain clean (per language); for English, the de-cadencing pass
-   (`agents/de-cadencing-scholar.md`) after the fingerprint tools are green.
+3. Language toolchain clean (per language) **and every overclaim candidate
+   adjudicated** — kept with its evidence, or converged; this reruns every delivery,
+   because each round of new prose brings new absolutes. For English, the de-cadencing
+   pass (`agents/de-cadencing-scholar.md`) after the fingerprint tools are green.
 4. **A clean second-pass review** with no drafting context, reviewer's eyes — and
    hand it the project's `ADJUDICATED.md` (decisions already made, with reasons), or
    it will re-raise settled questions as discoveries. Re-opening an adjudicated item

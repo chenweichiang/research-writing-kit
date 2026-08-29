@@ -151,7 +151,9 @@ resolve the path from CLAUDE.md at call time.
 
 Every generated skill MUST preserve the five iron ideas above. You may simplify
 wording for a non-technical author, but you may not drop: no-fabricated-citations,
-skeleton-first, effect-size+CI, data-stays-local, voice-preservation, de-AI pass.
+skeleton-first, effect-size+CI, data-stays-local, voice-preservation, de-AI pass
+(**both halves** — convergence words *and* overclaims: an unsupported absolute is a
+substantive fault, not a stylistic one).
 
 ### Phase D — Teach them the 3 sentences they'll actually use
 
@@ -177,7 +179,7 @@ Then stop and let them try one. Offer the full-power add-ons only if they ask.
 | `method/ARGUMENTATION.md` | Argument *moves* as an internal diagnostic (not a menu to sprinkle). |
 | `skills/*/SKILL.md` | De-personalized skill templates to adapt per author: `co-author`, `paper-review`, `fetch-refs`, `verify-citations`, `rebuttal`, `doc-regress` (turn a caught error into a standing check that scans the whole document and blocks recurrence; rules live in the author's project), `build-pdf`. |
 | `agents/*.md` | Subagent templates: `de-cadencing-scholar` (pre-delivery English rhythm pass) and `citation-skeptic` (calibrated second review of flagged citations). Install alongside the skills for authors who write English or verify citations — adapt, as with skills. |
-| `tools/` | Working local checkers, ready from day one. Chinese ones, `tools/refs/snowball.py`, `tools/refs/retraction_scan.py` (retraction scan, Crossref + OpenAlex), `tools/claims/uncited_claims_scan.py` (uncited quantitative/causal/superlative claims), and `tools/regress/` (`regress.py` document-regression runner, `dead_rule_check.py` rule-set health, `rules.template.json`, `numbers-ledger.template.md`) are zero-install (stdlib); English ones need one/two free offline programs. See `tools/README.md`. |
+| `tools/` | Working local checkers, ready from day one. Chinese ones, `tools/refs/snowball.py`, `tools/refs/retraction_scan.py` (retraction scan, Crossref + OpenAlex), `tools/claims/uncited_claims_scan.py` (uncited quantitative/causal/superlative claims), `tools/claims/overclaim_lint.py` (bilingual overclaim scan — the second half of the de-AI pass), and `tools/regress/` (`regress.py` document-regression runner, `dead_rule_check.py` rule-set health, `rules.template.json`, `numbers-ledger.template.md`) are zero-install (stdlib); English ones need one/two free offline programs. See `tools/README.md`. |
 | `templates/*` | Scaffolds the author fills in (voice profile, venue notes, skeleton, voice rules). |
 | `setup/INTERVIEW.md` | Suggested interview wording. |
 | `setup/WEB.md` | On-ramp for authors who start on claude.ai — how to move them onto Claude Code. |

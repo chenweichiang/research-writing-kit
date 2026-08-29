@@ -35,6 +35,10 @@ Confirm (or infer): file path; language (own / second / mixed); target venue
   they need nothing installed. For the author's voice gate, `tools/zh-tw/voice_lint.py`.
 - **Bundled (English drafts):** `tools/en/lt_check.sh` (grammar + US/UK spelling) if
   LanguageTool is installed; `tools/en/ai_style_diag.py` if the author built a corpus.
+- **Bundled, zero-install (either language):** `tools/claims/overclaim_lint.py` — the
+  overclaim candidates (`all / never / the only / proves / clearly / significantly`
+  non-statistically, and the Chinese equivalents). Report-only; findings are adjudicated
+  in Layer 3, not auto-fixed.
 - **Quantitative drafts (if R + the packages are installed — see `setup/TOOLS.md`):**
   reported statistics get *recomputed*, not eyeballed. `statcheck` re-derives each
   APA-style test report (`t(28)=2.20, p=.03`) and flags rows where the p value doesn't
@@ -92,6 +96,16 @@ author; put the total edit count at the top.
    fillers; keep rhetoric doing conceptual work. Compare before/after. ⚠️ Never use a
    cloud detector — unpublished drafts stay local, and academic prose gives high false
    positives.
+5. **Overclaim pass** (`tools/claims/overclaim_lint.py` from Layer 1, judged here).
+   De-AI is not finished when the convergence words are gone: a draft that still says
+   *proves*, *all*, *the only*, *clearly* reads as machine-written **and** hands a
+   reviewer a substantive objection. Per candidate: does the reported evidence carry
+   this word? Yes → keep (a real 0/72 or 100% result is data — softening data is its
+   own error). No → converge (all→most, never→rarely, prove→show/suggest, the
+   only→one of the few, clearly→delete, the most X→a more X). **Quoted source text
+   and object-language in quotation marks are out of scope** — the scanner cannot tell
+   whose words they are, so skip them by hand. Minimal edit, with a quote, as elsewhere
+   in this layer.
 
 ## Layer 4 — Logic / argument / RQ (reviewer simulation — anti-bias rubric)
 **Anti-bias instructions (mandatory — LLM reviewers empirically inflate scores):**
