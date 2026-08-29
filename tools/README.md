@@ -16,6 +16,7 @@ out of the box. The English tools need one or two free offline programs.
 | `zh-tw/` | `zh_ai_style.py` | Chinese AI syntax fingerprint |
 | `zh-tw/` | `voice_lint.py` | your own voice rules as a hard gate |
 | `claims/` | `uncited_claims_scan.py` | sentences that claim (numbers / causes / firsts) but cite nothing |
+| `claims/` | `overclaim_lint.py` | wording that says more than the data supports (EN + zh-TW) |
 | `refs/` | `snowball.py` | forward / backward / related citation snowballing |
 | `refs/` | `retraction_scan.py` | has anything you cite been retracted (Crossref + OpenAlex) |
 | `vocab/` | `fetch_awl.py` | fetch Coxhead's AWL from the official VUW site into a local TSV (not shipped: CC BY-NC-ND) |
@@ -62,6 +63,32 @@ out of the box. The English tools need one or two free offline programs.
 - Recognises `\cite{}`, pandoc `[@key]`, numeric `[12]`, APA `(Chen, 2024)`, Chicago
   `(Dunne and Raby 2013)` and `Chen et al. (2024)`. Inline math is kept (statistics live
   there); display math, code, comments and table column specs are masked.
+
+| Tool | What it does | Run |
+|------|--------------|-----|
+| `overclaim_lint.py` | Flags wording that claims more than the evidence supports, in four categories (absolute / intensifier / evidence-strength / superlative), English and Traditional Chinese. **Report-only — never edits, never blocks.** | `python3 overclaim_lint.py draft.md [--lang auto\|en\|zh] [--json out.json]` |
+
+- Why it exists: de-AI has two halves. Style tools remove convergence words and
+  cadence; nothing else looks at *saying more than the data supports*. Strip the
+  convergence words but leave "this proves", "all participants", "the only study",
+  and the draft still reads as machine-written — and unlike a cadence tic, an
+  unsupported absolute is a **substantive** fault that costs a reviewer's trust in
+  everything else you wrote.
+- **Judge every hit; do not batch-replace.** Evidence carries it → keep. A real 0/72
+  or 100% result *is* data, and softening data is its own kind of dishonesty. Evidence
+  doesn't carry it → converge: all→most, never→rarely, prove→show/suggest, the only→one
+  of the few, clearly/obviously→delete, significantly (non-statistical)→markedly or
+  delete, the most X→a more X (Chinese: 完全→幾乎、永遠→往往、證明了→顯示、唯一→之一、最→較).
+- **Out of scope: quoted source text and object-language in quotation marks.** The
+  scanner cannot tell whose words a sentence carries, so it will flag a quotation that
+  is perfectly correct to keep verbatim. Skip those by hand.
+- Where it runs: English — after `ai_style_diag.py` / LanguageTool, before the
+  de-cadencing pass (`agents/de-cadencing-scholar.md`, whose tic #6 is this list).
+  Chinese — after `voice_lint.py` is clean, before `zh_ai_style.py`. Rerun on **every**
+  delivery: new paragraphs bring new absolutes back.
+- Exit code is 0 by design (it is a report). `--strict` exits 1 while candidates remain,
+  for a CI gate — use it only if you want delivery blocked on a list that always needs
+  a human decision.
 
 ## Rebuttal (`tools/rebuttal/`) — zero installs
 

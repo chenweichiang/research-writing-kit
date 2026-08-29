@@ -1,6 +1,6 @@
 # 研究寫作套件 · Research Writing Kit
 
-**版本 `v1.3.0`**（2026-08）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
+**版本 `v1.4.0`**（2026-08）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
 **English → [README.en.md](README.en.md)**
 
@@ -76,6 +76,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | **「別再犯同樣的錯」「改 A 又弄壞 B」** | 文件回歸：把抓到的錯寫成一條常駐檢查，改完全庫重掃，復發就擋下 | `/doc-regress` → `tools/regress/regress.py` |
 | **「有沒有哪篇被撤稿了？」** | 撤稿掃描：整份書目對 Crossref＋OpenAlex 查撤稿，每次交付前重跑 | `tools/refs/retraction_scan.py` |
 | **「這句沒掛引用，站得住嗎？」** | 無引用宣稱掃描：找出沒有引用的量化／因果／最高級句子，逐筆補引用、指出自家資料、或降級措辭 | `tools/claims/uncited_claims_scan.py` |
+| **「這句話說得太滿了嗎？」** | 過度宣稱掃描：找出「完全／永遠／唯一／證明了」這類資料撐不起的字眼；去 AI 味的另一半，中英通吃 | `tools/claims/overclaim_lint.py` |
 | **「稿裡的數字跟分析結果對得上嗎？」** | 數字帳本勾稽：每個數字回溯到產生它的運算；改數字先更帳本再改稿，回歸檢查擋舊值復發 | `/doc-regress` §3.5 |
 | **「把這篇排成投稿 PDF」「中文 PDF」** | 依場域模板排版；第二語言稿連同回譯稿成對交付 | `/build-pdf` |
 | **「投出去之前還缺哪些聲明？」** | 投稿聲明六件套：AI 使用揭露／研究倫理／資料可得性／作者貢獻／利益衝突／預註冊 | `/co-author` Phase 6-2a、`/paper-review` 第 7 項 |
@@ -123,7 +124,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | skill | 做什麼 | 會用到的工具 |
 |-------|--------|--------------|
 | `co-author` | 從無到有的協作寫作（論文與提案）：骨架→查證→寫稿→交付前關卡；也走既有稿改寫、轉投、擴寫 | 交付前掃描三支（撤稿／無引用宣稱／回歸）、`check_submissions.py`、兩個 subagent |
-| `paper-review` | 投稿前五層檢查：機械層→用字→語言→邏輯與審稿視角→交付完整性；只檢查不改稿 | 中文三支、`lt_check.sh`、`ai_style_diag.py`、`figure_a11y.py`、`uncited_claims_scan.py`、（選配）R `statcheck`＋`scrutiny` |
+| `paper-review` | 投稿前五層檢查：機械層→用字→語言→邏輯與審稿視角→交付完整性；只檢查不改稿 | 中文三支、`lt_check.sh`、`ai_style_diag.py`、`figure_a11y.py`、`uncited_claims_scan.py`、`overclaim_lint.py`、（選配）R `statcheck`＋`scrutiny` |
 | `fetch-refs` | 把書目的 PDF 收齊、逐篇確認內容真的相符、歸檔＋清單；含引用滾雪球 | `snowball.py`、線上 API |
 | `verify-citations` | 逐句對照 PDF 判定引用是否被原文支撐、方向對不對；DOI 權威查驗；撤稿掃描 | `retraction_scan.py`、`citation-skeptic` 二審、（選配）MinerU |
 | `rebuttal` | 審稿回應：拆點→裁定→落實修訂→回應信→完整性驗證 | `check_response.py`＋三份模板、`de-cadencing-scholar`、（選配）`latexdiff` |
@@ -134,7 +135,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 
 | agent | 做什麼 | 何時派 |
 |-------|--------|--------|
-| `de-cadencing-scholar` | 母語學者視角挑掉英文稿「一看就是 AI 潤過」的節奏痕跡並改寫 | 英文稿交付前；審稿回應信交付前 |
+| `de-cadencing-scholar` | 母語學者視角挑掉英文稿「一看就是 AI 潤過」的節奏痕跡並改寫（六類 tic，第六類＝過度宣稱） | 英文稿交付前；審稿回應信交付前 |
 | `citation-skeptic` | 對被標記「引用可能有問題」的判定做校準二審：預設引用正確，只有 PDF 逐字直接矛盾才維持指控 | `verify-citations` 有 flag 時 |
 
 ### 隨包工具（`tools/`，全部）
@@ -152,6 +153,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | `refs/snowball.py` | 引用滾雪球：誰引用了這篇／這篇引了誰／相近研究，多種子聚合排序 | 不用（需網路） |
 | `refs/retraction_scan.py` | 撤稿掃描：`.bib` 或 DOI 清單對 Crossref 更新關係＋OpenAlex `is_retracted` 雙源查核；無 DOI 條目另列不算已掃 | 不用（需網路） |
 | `claims/uncited_claims_scan.py` | 沒掛引用的量化／因果／最高級宣稱（`.md`／`.tex`／`.qmd`，中英通吃）；逐筆裁決後可加豁免註記 | 不用 |
+| `claims/overclaim_lint.py` | 過度宣稱候選（絕對化／程度誇大／證據強度／最高級，中英雙語詞表）；**只報不改**，每筆人判「資料撐不撐得起」 | 不用 |
 | `regress/regress.py` | 文件回歸：照專案的 `regress.json` 掃全庫；內建懸空引用、個資、待辦、舊值復發、歸屬缺漏等規則，專案自訂規則用 `--extra my_rules.py` | 不用 |
 | `regress/dead_rule_check.py` | 規則健檢：哪條規則已永遠不會觸發（錨點文字改掉了） | 不用 |
 | `regress/rules.template.json`、`regress/numbers-ledger.template.md` | 回歸規則設定檔與數字帳本的空白模板 | — |
@@ -269,6 +271,16 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 ---
 
 ## 版本紀錄
+
+- **v1.4.0**（2026-08-29）：**去 AI 味補上另一半——消過度宣稱。** 新增
+  `tools/claims/overclaim_lint.py`（中英雙語，四類：絕對化／程度誇大／證據強度／最高級；
+  **只報不改**）。原因：只拿掉趨同詞與節奏，卻留著「證明了／完全／唯一／clearly／proves」，
+  讀起來仍像模型寫的；而且不同於節奏痕跡，撐不起的絕對句是**實質**瑕疵——審稿人看到 n=12
+  的研究寫「證明了」，後面寫什麼都不會再信。處置原則是逐筆人判：資料撐得起就留
+  （真的 0/72、100% 就是資料，把資料改軟是另一種不誠實），撐不起才收斂；**引述原文與引號內
+  的對象語言不掃**。已接進 `/co-author` Phase 5 與 6-3（每次交付重跑——每輪新寫的段落都會
+  把宣稱長回來）、`/paper-review` 第 1 層與第 3 層、`method/WORKFLOW.md` Phase 5／6，
+  `de-cadencing-scholar` 的 tic 由五類擴為六類。
 
 - **v1.3.0**（2026-08-25）：**補上交付前最容易漏、事後最難救的幾道關卡。** 新增第七個 skill
   `doc-regress`（抓到一次錯就寫成一條常駐檢查，改 A 不再弄壞 B；規則隨稿版控，含數字帳本模板

@@ -34,7 +34,7 @@ second layer those tools cannot see: cadence patterns a human reader trips on.
 concepts in quotes, product/system names, quoted data — into a do-not-touch
 list. (Real incident: a camera-ready product name got "de-marketed" by mistake.)
 
-## The five cadence tics
+## The six cadence tics
 1. **Triads as refrain** — `X, Y, and Z` recurring within a section, or
    consecutive paragraphs all closing on three-part lists. → Cut to two or four
    items, or subordinate; at most one rhetorical triad per page.
@@ -47,6 +47,17 @@ list. (Real incident: a camera-ready product name got "de-marketed" by mistake.)
    honesty is shown by content, not announced.
 5. **at-once balance beams** — recurring `at once A and B` / `both A and B`
    symmetry. → Split into two sentences or pick a side.
+6. **Overclaiming** — `all / never / the only / unprecedented / prove(s) /
+   clearly / obviously / significantly` (used non-statistically) `/ the most X /
+   fundamentally / critical`. This one is not only a rhythm tic: an unsupported
+   absolute is a *substantive* fault a reviewer will hold against the whole paper.
+   → Keep it when the evidence carries it (a real 0/72 or 100% result **is** data —
+   never soften data); otherwise converge: all→most, never→rarely, prove→show/suggest,
+   the only→one of the few, clearly/obviously→delete, significantly→markedly or delete,
+   the most X→a more X. **Quoted source text and terms in quotation marks stay
+   untouched.** Run `python3 tools/claims/overclaim_lint.py <draft> --lang en` first
+   (kit path is in the author's CLAUDE.md) to get the candidate list, then judge each
+   one — the scanner reports, it never decides.
 
 ## Workflow
 1. `Read` the whole text once *without editing*; list hits: line number + tic
