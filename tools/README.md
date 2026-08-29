@@ -19,6 +19,7 @@ out of the box. The English tools need one or two free offline programs.
 | `claims/` | `overclaim_lint.py` | wording that says more than the data supports (EN + zh-TW) |
 | `refs/` | `snowball.py` | forward / backward / related citation snowballing |
 | `refs/` | `retraction_scan.py` | has anything you cite been retracted (Crossref + OpenAlex) |
+| `refs/` | `pdf_fetch.py` | fetch reference PDFs: OA resolvers → TLS impersonation → real browser (needs `curl_cffi`, `patchright`) |
 | `vocab/` | `fetch_awl.py` | fetch Coxhead's AWL from the official VUW site into a local TSV (not shipped: CC BY-NC-ND) |
 | `regress/` | `regress.py` + `dead_rule_check.py` | regression suite for long documents + false-green-light detector |
 | `rebuttal/` | `check_response.py` | response-to-reviewers completeness |
@@ -150,6 +151,7 @@ out of the box. The English tools need one or two free offline programs.
 | Tool | What it does | Run |
 |------|--------------|-----|
 | `snowball.py` | Citation snowballing: forward ("who cites X"), backward ("what X cites"), related. Multi-seed aggregation — papers hitting more seeds (`seed_hits`) are the most likely should-have-read literature. OpenAlex primary, Semantic Scholar fallback on quota; free keyless APIs, stdlib only. | `python3 snowball.py --doi <doi> --direction forward` |
+| `pdf_fetch.py` | Fetch reference PDFs in three layers: open-access resolvers (adds Europe PMC / CORE / OpenAIRE) → `curl_cffi` TLS impersonation → a real Chrome on a persistent profile, which is what actually clears Cloudflare at ACM/Wiley/SAGE/AIP/Elsevier (TLS impersonation alone does not). Misses are tagged `PAYWALL` / `CAPTCHA` / `NO-LINK` so you know which are worth another five minutes. **Not stdlib**: `pip install curl_cffi patchright`; without them it degrades to urllib + OA sources and says so. Only fetches what you are entitled to. | `python3 pdf_fetch.py --bib references.bib --out refs-pdf` |
 | `retraction_scan.py` | Retraction check for everything you cite: each DOI is asked of Crossref (Retraction Watch data arrives as `update-to` / `updated-by` relations) **and** OpenAlex (`is_retracted`); flagged if either says so. Input: a `.bib`, a one-DOI-per-line file, or DOIs on the command line. Exit 1 = retracted found, 2 = some queries failed. | `python3 retraction_scan.py --bib references.bib [--out report.json]` |
 
 - A 429 from OpenAlex is a **daily quota wall** (resets midnight UTC), not "no
