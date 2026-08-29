@@ -95,10 +95,16 @@ is out; in skeleton mode, wait for the nod.
 
 - **Lite:** open each source, read enough to confirm it says what you cite it for
   and in the right direction; check DOIs/ISBNs against Crossref / OpenLibrary.
-- **Full:** `fetch-refs` (multi-source + institutional access) to pull full texts,
-  then `verify-citations` (an agent per paper actually reads the PDF).
-- ⚠️ Some publishers block automated fetch; if you can only view in a browser,
-  mark `❓unverified` rather than treating it as confirmed.
+- **Full:** `fetch-refs` + `tools/refs/pdf_fetch.py` (open-access sources → TLS
+  impersonation → a real browser on a persistent profile, plus your institutional
+  access) to pull full texts, then `verify-citations` (an agent per paper actually
+  reads the PDF).
+- ⚠️ Cloudflare-fronted publishers do **not** need to be hand-downloaded — the
+  browser layer clears them (measured on ACM/Wiley/SAGE/AIP). What matters is that
+  every remaining miss is tagged `PAYWALL` (no entitlement) / `CAPTCHA` (clear it
+  once by hand) / `NO-LINK` (tooling gap), so you know which are worth more time.
+- ⚠️ Whatever you could not read in full stays `❓unverified` — never treat an
+  abstract, or a paper you only saw the landing page of, as confirmed.
 
 ## Phase 3 — Method / analysis (in parallel with the skeleton)
 

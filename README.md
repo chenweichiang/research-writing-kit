@@ -1,6 +1,6 @@
 # 研究寫作套件 · Research Writing Kit
 
-**版本 `v1.4.0`**（2026-08）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
+**版本 `v1.5.0`**（2026-08）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
 **English → [README.en.md](README.en.md)**
 
@@ -74,6 +74,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | **「我要再投一個地方，可以吧？」** | 查投稿狀態表，確認同一份稿件沒有同時在別處審查中 | `tools/submissions/check_submissions.py` |
 | **「這張圖印成黑白會不會看不懂？」** | 圖表色覺可及性：色盲模擬＋灰階對比，並產生模擬圖給你看 | `/paper-review` → `tools/figures/figure_a11y.py` |
 | **「別再犯同樣的錯」「改 A 又弄壞 B」** | 文件回歸：把抓到的錯寫成一條常駐檢查，改完全庫重掃，復發就擋下 | `/doc-regress` → `tools/regress/regress.py` |
+| **「把引用的 PDF 抓齊」** | 分層取檔：OA 源 → TLS 偽裝 → 真實瀏覽器；拿不到的標明原因（沒訂閱／要人過驗證／工具還沒支援） | `/fetch-refs` → `tools/refs/pdf_fetch.py` |
 | **「有沒有哪篇被撤稿了？」** | 撤稿掃描：整份書目對 Crossref＋OpenAlex 查撤稿，每次交付前重跑 | `tools/refs/retraction_scan.py` |
 | **「這句沒掛引用，站得住嗎？」** | 無引用宣稱掃描：找出沒有引用的量化／因果／最高級句子，逐筆補引用、指出自家資料、或降級措辭 | `tools/claims/uncited_claims_scan.py` |
 | **「這句話說得太滿了嗎？」** | 過度宣稱掃描：找出「完全／永遠／唯一／證明了」這類資料撐不起的字眼；去 AI 味的另一半，中英通吃 | `tools/claims/overclaim_lint.py` |
@@ -125,7 +126,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 |-------|--------|--------------|
 | `co-author` | 從無到有的協作寫作（論文與提案）：骨架→查證→寫稿→交付前關卡；也走既有稿改寫、轉投、擴寫 | 交付前掃描三支（撤稿／無引用宣稱／回歸）、`check_submissions.py`、兩個 subagent |
 | `paper-review` | 投稿前五層檢查：機械層→用字→語言→邏輯與審稿視角→交付完整性；只檢查不改稿 | 中文三支、`lt_check.sh`、`ai_style_diag.py`、`figure_a11y.py`、`uncited_claims_scan.py`、`overclaim_lint.py`、（選配）R `statcheck`＋`scrutiny` |
-| `fetch-refs` | 把書目的 PDF 收齊、逐篇確認內容真的相符、歸檔＋清單；含引用滾雪球 | `snowball.py`、線上 API |
+| `fetch-refs` | 把書目的 PDF 收齊、逐篇確認內容真的相符、歸檔＋清單；含引用滾雪球 | `pdf_fetch.py`（分層取檔＋失敗分類）、`snowball.py`、線上 API |
 | `verify-citations` | 逐句對照 PDF 判定引用是否被原文支撐、方向對不對；DOI 權威查驗；撤稿掃描 | `retraction_scan.py`、`citation-skeptic` 二審、（選配）MinerU |
 | `rebuttal` | 審稿回應：拆點→裁定→落實修訂→回應信→完整性驗證 | `check_response.py`＋三份模板、`de-cadencing-scholar`、（選配）`latexdiff` |
 | `doc-regress` | 抓到一次錯就寫成常駐檢查；數字帳本；死規則健檢 | `regress.py`、`dead_rule_check.py`＋兩份模板 |
@@ -150,6 +151,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | `en/lt_strip_noprose.lua` | `lt_check.sh` 用的 pandoc 濾鏡，剝掉非散文再送檢；不直接執行 | （隨 pandoc） |
 | `en/ai_style_diag.py` | 英文 AI 指紋：對照你領域已發表論文語料的百分位；自動排除自家草稿與模板檔以免污染基線 | 自備語料；讀 PDF 需 `pdftotext`（`brew install poppler`） |
 | `figures/figure_a11y.py` | 圖表色覺可及性：三種色盲模擬＋灰階對比，寫出模擬圖供目檢 | `pip install numpy pillow`（PDF 另需 `pymupdf`） |
+| `refs/pdf_fetch.py` | 取檔分三層：OA 源（增補 Europe PMC／CORE／OpenAIRE）→ curl_cffi TLS 偽裝 → 真實 Chrome 持久 profile。**最後一層才是 Cloudflare 出版社（ACM／Wiley／SAGE／AIP／Elsevier）能到手的原因**，只做 TLS 偽裝不夠。拿不到的一律分類成 `PAYWALL`／`CAPTCHA`／`NO-LINK` | `pip install curl_cffi patchright`（沒裝則退回 stdlib＋OA 源） |
 | `refs/snowball.py` | 引用滾雪球：誰引用了這篇／這篇引了誰／相近研究，多種子聚合排序 | 不用（需網路） |
 | `refs/retraction_scan.py` | 撤稿掃描：`.bib` 或 DOI 清單對 Crossref 更新關係＋OpenAlex `is_retracted` 雙源查核；無 DOI 條目另列不算已掃 | 不用（需網路） |
 | `claims/uncited_claims_scan.py` | 沒掛引用的量化／因果／最高級宣稱（`.md`／`.tex`／`.qmd`，中英通吃）；逐筆裁決後可加豁免註記 | 不用 |
@@ -244,6 +246,8 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | **Crossref** | `retraction_scan.py`（撤稿更新關係）、`verify-citations` DOI／書目查驗 | 只送 DOI |
 | **OpenAlex** | `retraction_scan.py`（`is_retracted`）、`snowball.py`、無 DOI 條目的標題補查 | DOI 或標題 |
 | **Semantic Scholar** | `snowball.py` 後備線、引用補查 | DOI 或標題 |
+| **Europe PMC／CORE／OpenAIRE** | `pdf_fetch.py` 的 OA 源（CORE 需免費金鑰 `CORE_API_KEY`，沒設就跳過） | DOI |
+| **出版社網站** | `pdf_fetch.py` 的瀏覽器層，用**你自己的**存取權在真實瀏覽器 session 取檔 | 就是你手動開網頁會送的東西 |
 | **Unpaywall**、**arXiv** | `fetch-refs` 抓開放取用的 PDF | DOI |
 
 **稿件內容從不送出**——線上服務只拿到 DOI、標題、作者這類書目資料；未發表稿件與研究原始資料永遠留在你的電腦。
@@ -271,6 +275,20 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 ---
 
 ## 版本紀錄
+
+- **v1.5.0**（2026-08-30）：**取檔補上真正缺的那一層，並把「拿不到」變成有下一步的結論。**
+  新增 `tools/refs/pdf_fetch.py`：OA 源（增補 Europe PMC／CORE／OpenAIRE）→ curl_cffi TLS
+  偽裝 → **真實 Chrome 持久 profile**。舊版說 Cloudflare 出版社「只能人工瀏覽器下載」，
+  觀察沒錯但結論下太早——那是在沒試過瀏覽器自動化的前提下寫的。實測：TLS 偽裝救得回 T&F
+  一類的邊緣 403，但 ACM／Wiley／SAGE／AIP／Elsevier 仍回 `cf-mitigated: challenge`；
+  真實瀏覽器則全部通過。**比命中率更重要的是分類**：拿不到的一律標成 `PAYWALL`（沒訂閱，
+  工具無解）／`CAPTCHA`（人過一次即可，且有時效）／`NO-LINK`（工具還能再改），
+  混報成一句「需瀏覽器」等於沒報。真實 46 筆書目實測 11/46 → 30/46，且 `NO-LINK` 歸零——
+  每一筆未到手都是使用者能採取行動的權限缺口。另記三件事以免重蹈：`/doi/pdf/` 常常不是
+  PDF（Wiley 回檢視器外殼，一律驗 `%PDF-` magic bytes）、Elsevier 的網址含一次性 token
+  拼不出來（要攔回應本體）、連結發現必須看 class／aria-label（圖示連結的 textContent 是空的）。
+  ❌ 並記下一條驗證過的死路：**Zotero translation-server 拿不到 PDF 連結**——metadata 全對，
+  但 `attachments` 恆為 null，它是書目服務不是取檔服務。
 
 - **v1.4.0**（2026-08-29）：**去 AI 味補上另一半——消過度宣稱。** 新增
   `tools/claims/overclaim_lint.py`（中英雙語，四類：絕對化／程度誇大／證據強度／最高級；
