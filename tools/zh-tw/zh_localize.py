@@ -22,7 +22,7 @@ from pathlib import Path
 # ── Mainland terms (Traditional script, but mainland usage). A value in
 #    parentheses = context-sensitive, judge case by case. Extend freely. ──
 TERMS = {
-    "反饋": "回饋", "落地": "實施(指 implement;landing page 之落地頁→到達頁)", "視頻": "影片", "音頻": "音訊", "屏幕": "螢幕", "默認": "預設",
+    "反饋": "回饋", "落地": "實施(指 implement;landing page 之落地頁→到達頁)", "錨定": "參照(anchoring 直譯腔,如錨定樣本→參照樣本;心理學術語「錨定效應」為例外)", "視頻": "影片", "音頻": "音訊", "屏幕": "螢幕", "默認": "預設",
     "接口": "介面", "服務器": "伺服器", "用戶": "使用者", "內存": "記憶體",
     "信息": "資訊", "信號": "訊號", "數據庫": "資料庫", "代碼": "程式碼",
     "編程": "程式設計", "調試": "除錯", "緩存": "快取", "帶寬": "頻寬",
