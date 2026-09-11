@@ -1,0 +1,239 @@
+# 台灣慣用語詞表（SSoT）——zh_localize_check／delegate.py／deck verify_deck／research-writing-kit 共用。
+# 讀取與比對規則見同目錄 zh_tw_terms.py；改完跑 server/scripts/dev/sync_zh_tw_terms.py 同步各 repo 副本。
+# 收詞判準（2026-09-12）：候選詞先用 zh_tw_terms_audit.py 掃《設計學報》台灣作者論文（120 篇，已排除 19 篇對岸作者稿）；
+#   台灣作者 3 篇以上在用＝台灣學界正常用法，不收，或用 need_near 限縮到該報的脈絡。使用者明訂的裁定（~/.claude/CLAUDE.md 對照表）照收。
+# mode：fix＝單一答案、可自動替換（只有 delegate.py 會真的替換）；flag＝看脈絡、只提示；allow＝比對前先遮掉的白名單片段。
+# 出處（source 欄）：own＝使用者裁定與原 zh_localize；deck＝deck-template verify_deck 原清單；delegate＝delegate.py 原 AUTO_FIX／FLAG_ONLY；
+#   zhtw-mcp＝sysprog21/zhtw-mcp assets/ruleset.json @cae49bb03a2a（MIT License，Copyright (c) 2026 National Cheng Kung University, Taiwan；其兩岸詞彙資料源自 OpenCC，Apache-2.0）；
+#   speak-human-tw＝Raymondhou0917/speak-human-tw references/taiwan-localization.md（MIT License，Copyright (c) 2026 Raymond Hou (雷蒙三十)）。
+cn	tw	mode	skip_near	need_near	note	source
+反饋	回饋	fix				own
+視頻	影片	fix				own
+音頻	音訊	fix				own
+屏幕	螢幕	fix				own
+默認	預設	fix				own
+落地	實施／實現／到位	flag			指 implement；landing page 之落地頁→到達頁	own
+錨定	參照	flag			anchoring 直譯腔，如錨定樣本→參照樣本；「錨定效應」為心理學術語例外	own
+接口	介面	fix				own
+服務器	伺服器	fix				own
+用戶	使用者	fix				own
+內存	記憶體	fix				own
+信息	資訊	fix				own
+信號	訊號	flag				own
+數據庫	資料庫	fix				own
+代碼	程式碼	flag		程式|函式|執行|撰寫|編譯|原始|Python|JavaScript|腳本	質性研究的編碼「代碼」為台灣正確用法	own
+編程	程式設計	fix				own
+調試	除錯	fix				own
+緩存	快取	fix				own
+帶寬	頻寬	fix				own
+硬盤	硬碟	fix				own
+激光	雷射	fix				own
+矢量	向量	fix				own
+概率	機率	fix				own
+軟件	軟體	fix				own
+硬件	硬體	fix				own
+鼠標	滑鼠	fix				own
+光標	游標	fix				own
+智能	智慧	flag			AI 脈絡	own
+卸載	解除安裝	flag			軟體脈絡	own
+網絡	網路	fix			具體網路脈絡	own
+視屏	螢幕／影片	flag				own
+缺省	預設	fix				own
+字符	字元	fix				own
+比特	位元	flag			比特幣除外	own
+默認值	預設值	fix				own
+數據	資料	flag	分析|統計|實驗|蒐集|收集|數值|量化|顯示|結果|大數據|測量|量測|感測|生理|記錄|紀錄|生長		數值脈絡可保留「數據」	own
+分辨率	解析度	fix				deck
+算法	演算法	fix				deck
+博客	部落格	fix				deck
+端口	連接埠	fix				deck
+窗口	視窗	flag				deck
+優化	最佳化／調校	flag				deck
+鐳射	雷射	fix				deck
+字符串	字串	fix				deck
+仿真	模擬	flag				deck
+變量	變數	flag			程式脈絡改變數；社會科學的「變項」另論	deck
+數組	陣列	flag		陣列|元素|索引|程式|變數|宣告	「數組受試者」為台灣正確用法	deck
+遞歸	遞迴	fix				deck
+打印機	印表機	fix				deck
+打印	列印	fix				deck
+人工智能	人工智慧	fix				deck
+實時	即時	fix				delegate
+字節	位元組	fix				delegate
+項目	專案	flag		經理|管理|團隊|啟動|推進|開發|建設|投資|招商|立項|負責	指 project 時；工作項目、評分項目等 item 義為台灣正確用法	delegate
+質量	品質	flag			若非物理質量	delegate
+魯棒	強健	fix			robust	delegate
+塑料	塑膠	fix				zhtw-mcp
+幻燈片	投影片	fix				zhtw-mcp
+質量管理	品質管理	fix				zhtw-mcp
+頭腦風暴	腦力激盪	fix				zhtw-mcp
+立馬	馬上	fix				zhtw-mcp
+民族志	民族誌	fix				zhtw-mcp
+複印	影印	fix				zhtw-mcp
+單反相機	單眼相機	fix				zhtw-mcp
+刷手機	滑手機	fix				zhtw-mcp
+哥特式	哥德式	fix				zhtw-mcp
+巴羅克	巴洛克	fix				zhtw-mcp
+畢加索	畢卡索	fix			人名依家規可寫原文	zhtw-mcp
+達芬奇	達文西	fix			人名依家規可寫原文	zhtw-mcp
+盧浮宮	羅浮宮	fix				zhtw-mcp
+福柯	傅柯	fix			人名依家規可寫原文	zhtw-mcp
+笛卡爾	笛卡兒	fix			人名依家規可寫原文	zhtw-mcp
+弗洛伊德	佛洛伊德	fix			人名依家規可寫原文	zhtw-mcp
+意大利	義大利	fix				zhtw-mcp
+新西蘭	紐西蘭	fix				zhtw-mcp
+佛羅倫薩	佛羅倫斯	fix				zhtw-mcp
+巴塞羅那	巴塞隆納	fix				zhtw-mcp
+卡內基梅隆	卡內基美隆	fix				zhtw-mcp
+喬布斯	賈伯斯	fix			人名依家規可寫原文	zhtw-mcp
+奧巴馬	歐巴馬	fix			人名依家規可寫原文	zhtw-mcp
+悉尼	雪梨	flag				zhtw-mcp
+吸引眼球	吸睛	flag				zhtw-mcp
+博取眼球	吸睛	flag				zhtw-mcp
+含金量	價值／內涵	flag				zhtw-mcp
+志願者	志工	flag				zhtw-mcp
+接地氣	親民／貼近生活	flag				zhtw-mcp
+檔次	等級	flag				zhtw-mcp
+跟蹤	追蹤	flag				zhtw-mcp
+轉折點	轉捩點	flag				zhtw-mcp
+腳手架	鷹架	flag			教育脈絡的 scaffolding	zhtw-mcp
+高大上	高級／體面	flag				zhtw-mcp
+貓膩	內情／蹊蹺	flag				zhtw-mcp
+發郵件	寄信	flag				zhtw-mcp
+帶節奏	帶風向	flag				zhtw-mcp
+蹭熱度	跟風	flag				zhtw-mcp
+有一說一	平心而論／老實說	flag				zhtw-mcp
+暴露問題	呈現問題	flag				zhtw-mcp
+定性研究	質性研究	fix				zhtw-mcp
+定量研究	量化研究	fix				zhtw-mcp
+文獻綜述	文獻探討	fix				zhtw-mcp
+博士研究生	博士生	fix				zhtw-mcp
+碩士研究生	碩士生	fix				zhtw-mcp
+網課	線上課程	fix				zhtw-mcp
+輔導班	補習班	fix				zhtw-mcp
+高等院校	大專院校	fix				zhtw-mcp
+班主任	導師	fix				zhtw-mcp
+本科生	大學生	flag				zhtw-mcp
+研究生院	研究所	flag				zhtw-mcp
+營銷	行銷	fix				zhtw-mcp
+運營	營運	fix				zhtw-mcp
+市場調研	市場調查	fix				zhtw-mcp
+簡歷	履歷	fix				zhtw-mcp
+賬號	帳號	fix				zhtw-mcp
+賬戶	帳戶	fix				zhtw-mcp
+性價比	CP 值	fix				speak-human-tw
+首席執行官	執行長	fix				zhtw-mcp
+渠道	管道／通路	flag				zhtw-mcp
+招聘	招募	flag				zhtw-mcp
+合同	合約	flag				zhtw-mcp
+方差	變異數	flag			統計脈絡改變異數	zhtw-mcp
+聚類	分群	flag				zhtw-mcp
+條形圖	長條圖	fix				zhtw-mcp
+幾率	機率	fix				zhtw-mcp
+分形	碎形	flag		幾何|維度|自相似|曼德博|圖形	「切分形態」等不是 fractal	zhtw-mcp
+坐標系	座標系	fix				zhtw-mcp
+布爾	布林	flag		代數|邏輯|運算|變數|型別|值	「布爾喬亞」等不是 Boolean	zhtw-mcp
+標量	純量	fix				zhtw-mcp
+閾值	門檻值	flag				zhtw-mcp
+納米	奈米	fix				zhtw-mcp
+硅	矽	fix				zhtw-mcp
+界面	介面	fix				zhtw-mcp
+兼容	相容	flag				zhtw-mcp
+模塊	模組	fix				zhtw-mcp
+智能手機	智慧型手機	fix				zhtw-mcp
+數碼	數位	fix				zhtw-mcp
+數字化	數位化	fix				zhtw-mcp
+數字藝術	數位藝術	fix				zhtw-mcp
+數字媒體	數位媒體	fix				zhtw-mcp
+人機交互	人機互動	fix				zhtw-mcp
+交互設計	互動設計	fix				zhtw-mcp
+虛擬現實	虛擬實境	fix				zhtw-mcp
+增強現實	擴增實境	fix				zhtw-mcp
+雲計算	雲端運算	fix				zhtw-mcp
+互聯網	網際網路	fix				zhtw-mcp
+移動端	行動裝置	fix				speak-human-tw
+程序員	程式設計師	fix				zhtw-mcp
+顯卡	顯示卡	fix				zhtw-mcp
+芯片	晶片	fix				zhtw-mcp
+攝像頭	攝影機／鏡頭	flag				zhtw-mcp
+注冊	註冊	fix				zhtw-mcp
+文件夾	資料夾	fix				zhtw-mcp
+源代碼	原始碼	fix				zhtw-mcp
+視頻會議	視訊會議	fix				zhtw-mcp
+短信	簡訊	fix				zhtw-mcp
+激活	啟用	fix				zhtw-mcp
+博主	創作者／部落客	flag				speak-human-tw
+短視頻	短影音	fix				speak-human-tw
+靠譜	可靠	fix				speak-human-tw
+給力	有力	fix				speak-human-tw
+顏值	外型	fix				speak-human-tw
+抓手	施力點	flag			多半整句重寫	speak-human-tw
+閉環	（整句重寫）	flag				speak-human-tw
+顆粒度	細緻度	flag				speak-human-tw
+打法	做法	flag				speak-human-tw
+復盤	檢討／回顧	flag				speak-human-tw
+小夥伴	夥伴	flag				speak-human-tw
+賽道	領域	flag				speak-human-tw
+公眾號	粉專／電子報	flag				speak-human-tw
+支持	支援	flag		功能|格式|平台|裝置|系統|軟體|瀏覽器|版本|檔案|介面|硬體	指功能支援；「支持某觀點」為台灣正確用法	own
+內在交互		allow			既定學術譯名	own
+認知卸載		allow			既定學術譯名	own
+智能障礙		allow			特教正式用語	own
+演算		allow			含演算法	own
+計算法		allow				own
+運算法		allow				own
+估算法		allow				own
+換算法		allow				own
+推算法		allow				own
+平均值		allow				own
+交互作用		allow			統計術語	own
+在線上		allow				own
+卡方差		allow			卡方差異檢定	own
+社會網絡		allow			社會學既定用法	own
+網絡分析		allow				own
+要素數		allow				own
+元素數		allow				own
+比特幣		allow				own
+錨定效應		allow			心理學術語	own
+落地窗		allow				own
+評分項目		allow			item 義	own
+申請程序		allow				own
+程序正義		allow				own
+送審程序		allow				own
+台電		allow			官方用台	own
+台新		allow				own
+台灣電力		allow				own
+台灣藝術大學		allow				own
+台灣科技藝術		allow				own
+台積電		allow				own
+台塑		allow				own
+台達		allow				own
+台泥		allow				own
+台肥		allow				own
+台糖		allow				own
+數據機		allow			modem 的台灣正確用法	own
+共變量		allow			統計 covariate	own
+界面活性		allow			化學既定用語	own
+字節跳動		allow			公司名	own
+用戶端		allow			client 的台灣用法	own
+界面臨		allow			世界面臨／業界面臨：跨詞邊界	own
+界面前		allow			跨詞邊界	own
+界面對		allow			跨詞邊界	own
+端口述		allow			跨詞邊界	own
+端口語		allow			跨詞邊界	own
+現實時		allow			跨詞邊界（現實時間）	own
+真實時		allow			跨詞邊界	own
+其實時		allow			跨詞邊界	own
+確實時		allow			跨詞邊界	own
+事實時		allow			跨詞邊界	own
+落實時		allow			跨詞邊界	own
+證實時		allow			跨詞邊界	own
+誠實時		allow			跨詞邊界	own
+寫實時		allow			跨詞邊界	own
+核實時		allow			跨詞邊界	own
+充實時		allow			跨詞邊界	own
+踏實時		allow			跨詞邊界	own
+指標量		allow			跨詞邊界（指標量測）	own
+目標量		allow			跨詞邊界	own
+博客來		allow			書店名	own
+界面整合		allow			營建管理 interface management 的台灣用語	own

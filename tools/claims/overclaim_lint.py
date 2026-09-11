@@ -56,7 +56,13 @@ ZH = [
     ("程度誇大", r"極為|極其|極度|極大|高度(?=[敏感相關依賴共享一致重要])|遠遠|遠多於|遠高於|遠低於|大幅|巨大|劇烈|關鍵性|決定性|革命性|突破性|壓倒性"),
     ("證據強度", r"證明了|證實了|確立了|揭示了|一致顯示|一致認為|普遍認為|眾所周知|不言而喻|顯而易見|顯然|無可否認|毋庸置疑"),
     ("最高級", r"最(?:重要|關鍵|核心|有效|佳|好|強|大|直接|明確|乾淨|精確|標準|常見|成熟)"),
+    ("無出處歸屬", r"(?<!「)(?:研究顯示|研究表明|有研究指出|許多研究(?:顯示|指出|表明)|許多學者認為|學者普遍認為|專家認為|業界普遍認為)(?!」)"),
 ]
+EN.append(("unattributed", r"\b(?:studies|research|experts?|scholars|many (?:researchers|scholars|studies))\s+(?:have\s+|has\s+)?(?:shown|shows?|suggests?|suggested|indicates?|agree|argue|found)\b|\bit is (?:generally|commonly|widely) (?:believed|known|agreed)\b"))
+# Attribution to unnamed authorities ("studies show", 研究顯示) is only an overclaim when nothing
+# is cited. A citation in the window around the hit (year + bracket, [n], et al.) = sourced, skip.
+ATTRIB = {"無出處歸屬", "unattributed"}
+CITE_RX = re.compile(r"\d{4}[a-z]?\s*[）)]|\[\d+(?:\s*[,，–-]\s*\d+)*\]|et al\.|\[@")
 HAN = re.compile(r"[一-鿿]")
 
 CONVERGE_EN = ("all → most, never → rarely, prove → show/suggest, the only → one of the few, "
@@ -97,6 +103,8 @@ def scan(path: Path, lang: str):
             if not s or s.startswith("|") or s.startswith("![") or s.startswith("> ("):
                 continue
             for m in rx.finditer(line):
+                if cat in ATTRIB and CITE_RX.search(line[max(0, m.start() - 40):m.end() + 80]):
+                    continue
                 ctx = line[max(0, m.start() - 30):m.end() + 30].strip()
                 hits.append({"line": n, "category": cat, "match": m.group(), "context": ctx})
     return lang, hits

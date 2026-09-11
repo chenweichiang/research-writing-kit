@@ -7,6 +7,14 @@ Why not OpenCC: OpenCC's s2twp over-corrects text that is *already* Traditional
 precise mainland-term table + a 台/臺 check with a whitelist, and only reports real
 hits — you decide each one by hand.
 
+The term table lives next to this file in `zh_tw_terms.tsv` (read by
+`zh_tw_terms.py`). Each row can carry context rules: `skip_near` (don't report
+when one of these words is within 10 characters) and `need_near` (only report
+when one is), plus `allow` rows that are masked out before matching (演算法,
+平均值, 交互作用, brand names that officially use 台…). Entries were checked
+against Taiwan-authored journal papers: a term that 3+ Taiwanese authors use is
+normal Taiwan usage and is left out. Extend the TSV for your own field.
+
 No dependencies (Python 3 standard library only).
 
 Usage:
@@ -16,53 +24,20 @@ import re
 import sys
 import sys as _sys, pathlib as _pl
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parent.parent / "common"))
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parent))
 from md_prose import mask_nonprose
+import zh_tw_terms
 from pathlib import Path
 
-# ── Mainland terms (Traditional script, but mainland usage). A value in
-#    parentheses = context-sensitive, judge case by case. Extend freely. ──
-TERMS = {
-    "反饋": "回饋", "落地": "實施(指 implement;landing page 之落地頁→到達頁)", "錨定": "參照(anchoring 直譯腔,如錨定樣本→參照樣本;心理學術語「錨定效應」為例外)", "視頻": "影片", "音頻": "音訊", "屏幕": "螢幕", "默認": "預設",
-    "接口": "介面", "服務器": "伺服器", "用戶": "使用者", "內存": "記憶體",
-    "信息": "資訊", "信號": "訊號", "數據庫": "資料庫", "代碼": "程式碼",
-    "編程": "程式設計", "調試": "除錯", "緩存": "快取", "帶寬": "頻寬",
-    "硬盤": "硬碟", "激光": "雷射", "矢量": "向量", "概率": "機率",
-    "軟件": "軟體", "硬件": "硬體", "鼠標": "滑鼠", "光標": "游標",
-    "智能": "智慧(AI context)", "卸載": "解除安裝(software context)",
-    "網絡": "網路(concrete-network context)",
-    "視屏": "螢幕／影片", "缺省": "預設", "字符": "字元", "比特": "位元",
-    "默認值": "預設值", "數據": "資料(numeric context may keep 數據)",
-}
-
-# ── Whitelist: fragments containing these strings are NOT reported
-#    (correct Taiwan terms / brand names / established academic renderings).
-#    🔧 CUSTOMIZE: add your own institution/brand names that use 台 officially. ──
-WHITELIST = (
-    # established academic renderings / correct Taiwan usage (avoid false hits)
-    "演算法", "演算", "數據庫",
-    # generic academic terms whose 智能/卸載 are NOT the mainland software senses
-    "認知卸載", "智能障礙",
-    # generic Taiwan "item/procedure" (not project/program)
-    "評分項目", "申請程序", "程序正義", "送審程序",
-    # brand / institution names that officially use 台 (add your own here)
-    "台電", "台新", "台灣電力", "台積電", "台塑", "台達", "台泥", "台肥", "台糖",
-)
-
-
-def _mask(line: str) -> str:
-    for w in WHITELIST:
-        line = line.replace(w, "□" * len(w))
-    return line
+TERMS, ALLOW = zh_tw_terms.load()
 
 
 def check_terms(text: str):
     hits = []
     for i, line in enumerate(text.split("\n"), 1):
-        masked = _mask(line)
-        for cn, tw in TERMS.items():
-            for m in re.finditer(re.escape(cn), masked):
-                ctx = line[max(0, m.start() - 8): m.start() + len(cn) + 8]
-                hits.append((i, cn, tw, ctx))
+        for pos, t in zh_tw_terms.find(line, TERMS, ALLOW):
+            ctx = line[max(0, pos - 8): pos + len(t.cn) + 8]
+            hits.append((i, t.cn, t.tw + (f"({t.note})" if t.note else ""), ctx))
     return hits
 
 
@@ -70,7 +45,7 @@ def check_tai(text: str):
     """台→臺 consistency (formal documents prefer 臺; brand names already masked)."""
     hits = []
     for i, line in enumerate(text.split("\n"), 1):
-        masked = _mask(line)
+        masked = zh_tw_terms.mask(line, ALLOW)
         for m in re.finditer("台", masked):
             ctx = line[max(0, m.start() - 6): m.start() + 7]
             hits.append((i, ctx))
@@ -96,7 +71,7 @@ def report(text: str) -> str:
         if len(ta) > 40:
             L.append(f"  … {len(ta)} total, first 40 shown.")
     L.append(f"\nSummary: {len(th)} mainland-term hits, {len(ta)} 台→臺. "
-             "Report-only; judge each by hand.")
+             f"Report-only; judge each by hand. (table: {len(TERMS)} terms + {len(ALLOW)} whitelist rows)")
     return "\n".join(L)
 
 

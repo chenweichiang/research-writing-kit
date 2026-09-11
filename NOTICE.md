@@ -21,6 +21,7 @@
 | **程式碼**：`tools/` 下的 `.py`／`.sh`／`.lua`、規則與設定模板 | **MIT** | [`LICENSE`](LICENSE) |
 | **方法與文件**：`method/`、`skills/`、`agents/`、`templates/`、`setup/`、`examples/`、`README.md`、`CLAUDE.md` | **CC BY 4.0**（姓名標示） | [`LICENSE-DOCS`](LICENSE-DOCS) |
 | **第三方詞表**：`data/academic-vocab/` | 各清單原授權（見下） | — |
+| **台灣用語詞表**：`tools/zh-tw/zh_tw_terms.tsv` | MIT（部分詞條取自兩個 MIT 專案，見下） | — |
 
 白話：程式隨便用、隨便改、可商用，保留版權聲明即可；方法文件也可以改寫、翻譯、拿去教、
 拿去做自己的版本，**唯一條件是標示出處**（作者 Chiang Chenwei 與 repo 網址），改寫版請註明改自本專案。
@@ -48,3 +49,11 @@
 ---
 
 有任何使用上的問題，歡迎在 GitHub 開 issue。
+
+`tools/zh-tw/zh_tw_terms.tsv` 的部分詞條取自兩個 MIT 授權專案，依 MIT 條款保留其版權聲明
+（每列 `source` 欄註明出處，檔頭列出上游版本）：
+
+- **zhtw-mcp**（sysprog21/zhtw-mcp，`assets/ruleset.json`）：MIT License，Copyright (c) 2026 National
+  Cheng Kung University, Taiwan。其兩岸詞彙資料源自 OpenCC（Apache-2.0）。
+- **speak-human-tw**（Raymondhou0917/speak-human-tw，`references/taiwan-localization.md`）：MIT License，
+  Copyright (c) 2026 Raymond Hou。

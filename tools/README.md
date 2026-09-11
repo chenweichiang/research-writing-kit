@@ -31,7 +31,7 @@ out of the box. The English tools need one or two free offline programs.
 
 | Tool | What it does | Run |
 |------|--------------|-----|
-| `zh_localize.py` | Flags mainland-Mandarin terms (反饋→回饋…) + 台/臺 consistency, with a false-positive whitelist. Report-only. | `python3 zh_localize.py draft.md` |
+| `zh_localize.py` | Flags mainland-Mandarin terms (反饋→回饋…) + 台/臺 consistency, with a false-positive whitelist. Report-only. The table is `zh_tw_terms.tsv` (~170 terms with context rules, vetted against Taiwan-authored journal papers; part-sourced from MIT-licensed projects, see `NOTICE.md`). | `python3 zh_localize.py draft.md` |
 | `zh_ai_style.py` | Chinese AI syntax fingerprint: em-dash/semicolon/rule-of-three density, convergence words, sentence burstiness (heuristic). | `python3 zh_ai_style.py draft.md` |
 | `voice_lint.py` | Mechanically enforces YOUR voice rules (config-driven). Exits non-zero until clean — use as a pre-delivery gate. | `python3 voice_lint.py draft.md [--rules voice_rules.json]` |
 
