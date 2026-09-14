@@ -1,5 +1,5 @@
 {
-  "_comment": "Copy to voice_rules.json and edit. Rules are how the voice-lint tool enforces YOUR writing voice. 'hard' rules are pass/fail (fix to zero before delivery); 'soft' rules only report density. Each rule = [label, python-regex]; soft rules take an optional 3rd number = per-1000-char density threshold. Build these from YOUR own writing habits — what YOU never do (see templates/VOICE_PROFILE.template.md). Below are generic Chinese-academic defaults to start from.",
+  "_comment": "Copy to voice_rules.json and edit. Rules are how the voice-lint tool enforces YOUR writing voice. 'hard' rules are pass/fail (fix to zero before delivery); 'soft' rules only report density; 'report' rules are listed for a human decision and never counted; 'headings' is one regex applied to Markdown/Typst heading lines (sentence-form or question titles → rewrite as noun phrases; set to \"\" to disable). Each rule = [label, python-regex]; soft rules take an optional 3rd number = per-1000-char density threshold. Build these from YOUR own writing habits — what YOU never do (see templates/VOICE_PROFILE.template.md). Below are generic Chinese-academic defaults to start from.",
 
   "hard": [
     ["Em-dash / double-hyphen (should be 0 in formal zh prose)", "—|――|--|−"],
@@ -7,10 +7,19 @@
     ["然而 starting a sentence", "(^|。|，)然而"],
     ["Self-congratulatory verdict phrases", "恰恰是|之所在|價值所在|真正的[^，。]{0,8}(在於|重量|價值)"],
     ["Colloquial words I don't use", "當成|看作|好像|沒辦法"],
-    ["Over-literary particles I don't use", "[乃]|抑或|此即"]
+    ["Colloquial demonstratives (那份/那個 → 該…)", "那份由|那份[表單資料紀錄]|那個[步驟東西部分問題]|這個東西"],
+    ["Redundant 此一/這一類 pointing", "此一|這一類|這一場|這一種|這一項"],
+    ["Over-literary particles I don't use", "[乃]|抑或|此即"],
+    ["Stock closers (綜上所述…)", "(?<!「)(?:綜觀全案|綜上所述|總而言之|整體而言|由此觀之|一言以蔽之|總的來說|大體而言)(?!」)"]
   ],
 
   "soft": [
     ["一+measure-word density (too many reads AI-ish)", "一[具個種套位條場道份隻]", 4.0]
-  ]
+  ],
+
+  "report": [
+    ["AI stock phrases (candidates — judge each)", "(?<!「)(?:關鍵作用|扮演著|多維度|標誌著|生態系統|愈發|深厚的|持久的|奠定了?基礎)(?!」)"]
+  ],
+
+  "headings": "為何|為什麼|是否|嗎[？?]?$|？|\\?$|，而|其實"
 }

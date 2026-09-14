@@ -2,8 +2,9 @@
 """English AI style-fingerprint diagnostic — local, no upload (unpublished-draft rule).
 
 Measures the AI syntax fingerprints reviewers actually notice — em-dash / semicolon
-density, `rather than`, `not..but` antithesis, rule-of-three, sentence length and
-burstiness — as PERCENTILES against a baseline corpus of published papers in your
+density, `rather than`, `not..but` antithesis, rule-of-three, sentence length,
+burstiness, and LLM convergence-word density (word list `en_slop_terms.tsv` beside
+this file) — as PERCENTILES against a baseline corpus of published papers in your
 field. Cloud detectors (GPTZero-style) upload your draft and false-positive on
 academic prose; this is the local alternative.
 
@@ -35,6 +36,7 @@ import pathlib
 import re
 import statistics
 import sys
+from collections import Counter
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "common"))
 from md_prose import strip_markup   # same stripping rules for every diagnostic
@@ -78,8 +80,42 @@ METRICS = [
     ("neither", "neither..nor /1k"), ("rather", "rather than /1k"),
     ("triplet", "rule-of-three /1k"), ("semi", "semicolon /1k"),
     ("colon", "mid-sentence colon /1k"), ("slen", "mean sentence len (words)"),
-    ("burst", "burstiness SD/mean"),
+    ("burst", "burstiness SD/mean"), ("slop", "LLM convergence words /1k"),
 ]
+
+# ── LLM convergence words ("slop") ────────────────────────────────────────────
+# The list is `en_slop_terms.tsv` next to this file: terms LLM essays use far more
+# than published HCI papers do (derived from sam-paech/slop-forensics, MIT; see the
+# TSV header). Words HCI papers use anyway — notably, landscape — were dropped, so a
+# hit is a word your field would not naturally write. As with every other metric, the
+# number is a percentile against YOUR corpus; the top hits are printed so you can see
+# which words carry it. If your field's vocabulary overlaps the list, rebuild it.
+SLOP_TSV = pathlib.Path(__file__).resolve().parent / "en_slop_terms.tsv"
+
+
+def _load_slop():
+    words, phrases = set(), []
+    if SLOP_TSV.exists():
+        for line in SLOP_TSV.read_text(encoding="utf-8").splitlines():
+            if not line or line.startswith("#") or line.startswith("term\t"):
+                continue
+            term, kind = line.split("\t")[:2]
+            (words.add(term) if kind == "word" else phrases.append(term))
+    return words, phrases
+
+
+SLOP_WORDS, SLOP_PHRASES = _load_slop()
+
+
+def slop_hits(text: str) -> Counter:
+    toks = re.findall(r"[a-z][a-z'-]*", text.lower())
+    c = Counter(t for t in toks if t in SLOP_WORDS)
+    joined = " " + " ".join(toks) + " "
+    for ph in SLOP_PHRASES:
+        n = joined.count(" " + ph + " ")
+        if n:
+            c[ph] = n
+    return c
 
 
 def extract_text(path: pathlib.Path) -> str:
@@ -136,6 +172,7 @@ def profile(text: str, name: str, min_words: int = 800):
         semi=per1k(text.count(";")),
         colon=per1k(len(re.findall(r"[a-z]: [a-z]", text))),
         slen=mean, burst=statistics.stdev(slens) / mean if len(slens) > 1 else 0,
+        slop=per1k(sum(slop_hits(text).values())),
     )
 
 
@@ -196,6 +233,8 @@ def main():
         print(f"  excluded {len(excluded)} ({reasons})")
     print(f"{'metric':<28}{'draft':>9}{'median':>10}{'pctile':>8}")
     for key, label in METRICS:
+        if key == "slop" and not SLOP_WORDS:
+            continue          # word list missing beside the script: metric silently off
         vals = sorted(b[key] for b in base)
         rank = sum(1 for v in vals if v < target[key]) / len(vals) * 100
         med = vals[len(vals) // 2]
@@ -204,6 +243,10 @@ def main():
         # it teaches the reader to ignore the warnings.
         flag = " <<" if rank > 90 or (key in LOW_IS_BAD and rank < 10) else ""
         print(f"{label:<28}{target[key]:>9.2f}{med:>10.2f}{rank:>7.0f}%{flag}")
+    if SLOP_WORDS:
+        top = slop_hits(clean(extract_text(tpath))).most_common(15)
+        print("convergence-word hits: "
+              + (", ".join(f"{w}×{n}" for w, n in top) if top else "none"))
 
 
 if __name__ == "__main__":

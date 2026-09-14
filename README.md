@@ -1,6 +1,6 @@
 # 研究寫作套件 · Research Writing Kit
 
-**版本 `v1.5.0`**（2026-08）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
+**版本 `v1.6.0`**（2026-09）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
 **English → [README.en.md](README.en.md)**
 
@@ -145,13 +145,15 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 |------|------|--------------|
 | `common/md_prose.py` | 共用模組：把 markdown／LaTeX 版面語法（frontmatter、表格、註解、code）剝掉只留散文，四支文風工具都靠它；不直接執行 | — |
 | `zh-tw/zh_localize.py` | 陸用語→台灣用語、台／臺一致性（只報不改） | 不用 |
-| `zh-tw/zh_ai_style.py` | 中文 AI 句法指紋：破折號、三連並列、趨同詞、句長節奏；可對照你自己的親筆語料 | 不用 |
-| `zh-tw/voice_lint.py` | 你自己的聲音硬規則（吃 `voice_rules.json`），交稿前守門，不乾淨不放行 | 不用 |
+| `zh-tw/zh_ai_style.py` | 中文 AI 句法指紋：破折號、三連並列、趨同詞、句長節奏、「並非…而是」密度、120 字以上長句清單；可對照你自己的親筆語料 | 不用 |
+| `zh-tw/voice_lint.py` | 你自己的聲音硬規則（吃 `voice_rules.json`），交稿前守門，不乾淨不放行；另掃句型標題、八股套語，並列出 AI 套話候選供人判 | 不用 |
+| `zh-tw/zh_gloss_scan.py` | 括號夾註盤點：列出 12 字以上、非引用非指路的夾註，供你決定改定義句、保留或刪 | 不用 |
 | `en/lt_check.sh` | 英文文法＋美英拼字一致性（離線 LanguageTool）；有 n-gram 資料會自動加掛易混詞偵測 | `brew install languagetool pandoc` |
 | `en/lt_strip_noprose.lua` | `lt_check.sh` 用的 pandoc 濾鏡，剝掉非散文再送檢；不直接執行 | （隨 pandoc） |
-| `en/ai_style_diag.py` | 英文 AI 指紋：對照你領域已發表論文語料的百分位；自動排除自家草稿與模板檔以免污染基線 | 自備語料；讀 PDF 需 `pdftotext`（`brew install poppler`） |
+| `en/ai_style_diag.py` | 英文 AI 指紋：對照你領域已發表論文語料的百分位；含 LLM 趨同詞密度並印出命中的詞；自動排除自家草稿與模板檔以免污染基線 | 自備語料；讀 PDF 需 `pdftotext`（`brew install poppler`） |
+| `en/en_slop_terms.tsv` | `ai_style_diag.py` 用的英文 LLM 趨同詞表（162 條，取自 slop-forensics 再篩掉 HCI 論文本來就常用的詞）；不直接執行 | — |
 | `figures/figure_a11y.py` | 圖表色覺可及性：三種色盲模擬＋灰階對比，寫出模擬圖供目檢 | `pip install numpy pillow`（PDF 另需 `pymupdf`） |
-| `refs/pdf_fetch.py` | 取檔分三層：OA 源（增補 Europe PMC／CORE／OpenAIRE）→ curl_cffi TLS 偽裝 → 真實 Chrome 持久 profile。**最後一層才是 Cloudflare 出版社（ACM／Wiley／SAGE／AIP／Elsevier）能到手的原因**，只做 TLS 偽裝不夠。拿不到的一律分類成 `PAYWALL`／`CAPTCHA`／`NO-LINK` | `pip install curl_cffi patchright`（沒裝則退回 stdlib＋OA 源） |
+| `refs/pdf_fetch.py` | 取檔分三層：OA 源（增補 Europe PMC／CORE／OpenAIRE）→ curl_cffi TLS 偽裝 → 真實 Chrome 持久 profile。**最後一層才是 Cloudflare 出版社（ACM／Wiley／SAGE／AIP／Elsevier）能到手的原因**，只做 TLS 偽裝不夠。拿不到的一律分類成 `PAYWALL`／`CAPTCHA`／`NO-LINK`；沒有 DOI 的條目讀 arXiv `eprint`，再不行以標題在 arXiv／OpenAlex 精確比對，只有專書才交回人工 | `pip install curl_cffi patchright`（沒裝則退回 stdlib＋OA 源） |
 | `refs/snowball.py` | 引用滾雪球：誰引用了這篇／這篇引了誰／相近研究，多種子聚合排序 | 不用（需網路） |
 | `refs/retraction_scan.py` | 撤稿掃描：`.bib` 或 DOI 清單對 Crossref 更新關係＋OpenAlex `is_retracted` 雙源查核；無 DOI 條目另列不算已掃 | 不用（需網路） |
 | `claims/uncited_claims_scan.py` | 沒掛引用的量化／因果／最高級宣稱（`.md`／`.tex`／`.qmd`，中英通吃）；逐筆裁決後可加豁免註記 | 不用 |
@@ -275,6 +277,24 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 ---
 
 ## 版本紀錄
+
+- **v1.6.0**（2026-09-14）：**對齊作者工具鏈 8/30 到 9/12 的三批改動：語體、取檔、複核教訓。**
+  ① **中文學術語體四條入鏈**（來源是一份所有工具都過了、資深合著者仍評「不夠學術」的計畫書）：
+  小節標題名詞短語、「並非…而是」只留承重對比、超過 120 字拆句、術語首現三選一且不集中成術語表。
+  `zh_ai_style.py` 新增「並非…而是」密度與長句清單；`voice_lint.py` 新增句型標題掃描、八股套語硬規則、
+  口語指示詞與 `此一` 贅指，並加「只報不計」的 AI 套話候選段（詞條經台灣作者論文與機器段落頻率比對後才留）；
+  新增 `zh_gloss_scan.py` 盤點括號夾註；規則同步進 co-author／paper-review／VOICE_PROFILE 範本與
+  繁中選配包 §4；`build-pdf` 加「頁數卡住時的診斷」。
+  ② **英文 `ai_style_diag.py` 加 LLM 趨同詞密度**（隨包 `en_slop_terms.tsv`，slop-forensics MIT 詞表再篩掉
+  HCI 論文常用詞），一樣以你的語料算百分位並印出命中的詞。
+  ③ **取檔：沒有 DOI 不等於拿不到。** 舊版只收 bib 裡有 `doi` 的條目，arXiv 預印本（只有 `eprint`）從來沒被
+  試過（上游實測 24 筆有 13 筆是這種，修後 10/24 → 23/24）。現在讀 `eprint`／arXiv 網址，再以標題在 arXiv 與
+  OpenAlex **精確比對**（近似比對正是誤配來源：`LoRA` 撞 `QA-LoRA`），只有專書／書章交回人工；對 arXiv 加了
+  3 秒節流與 429 退避。fetch-refs 另記「檔案對了不等於內容全」（MIT Press 專書連結回的是預覽版）。
+  ④ **verify-citations 回寫實戰教訓**：`UNGROUNDED` 是「該判定不可信」不是「該判定錯」（41 筆裡唯一真的
+  方向錯的，正是兩位讀者引述都接地失敗的那筆），處置是自己去讀原文；`10.5860/choice.*` 是專書比對的
+  固定雜訊源（每本學術書都有一篇同名書評）；三個字以下的標題比對無鑑別力。
+  英文 README 補上漏掉的 v1.5.0 紀錄。
 
 - **v1.5.0**（2026-08-30）：**取檔補上真正缺的那一層，並把「拿不到」變成有下一步的結論。**
   新增 `tools/refs/pdf_fetch.py`：OA 源（增補 Europe PMC／CORE／OpenAIRE）→ curl_cffi TLS

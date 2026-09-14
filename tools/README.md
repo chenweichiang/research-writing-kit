@@ -13,8 +13,9 @@ out of the box. The English tools need one or two free offline programs.
 | Folder | Tool | One line |
 |--------|------|----------|
 | `zh-tw/` | `zh_localize.py` | mainland-vs-Taiwan terms + 台/臺 consistency |
-| `zh-tw/` | `zh_ai_style.py` | Chinese AI syntax fingerprint |
-| `zh-tw/` | `voice_lint.py` | your own voice rules as a hard gate |
+| `zh-tw/` | `zh_ai_style.py` | Chinese AI syntax fingerprint (+ not-X-but-Y density, long-sentence list) |
+| `zh-tw/` | `voice_lint.py` | your own voice rules as a hard gate (+ heading scan, stock closers, AI-phrase candidates) |
+| `zh-tw/` | `zh_gloss_scan.py` | parenthetical asides to turn into definitions, keep, or cut |
 | `claims/` | `uncited_claims_scan.py` | sentences that claim (numbers / causes / firsts) but cite nothing |
 | `claims/` | `overclaim_lint.py` | wording that says more than the data supports (EN + zh-TW) |
 | `refs/` | `snowball.py` | forward / backward / related citation snowballing |
@@ -25,15 +26,16 @@ out of the box. The English tools need one or two free offline programs.
 | `rebuttal/` | `check_response.py` | response-to-reviewers completeness |
 | `submissions/` | `check_submissions.py` | duplicate-submission guard |
 | `figures/` | `figure_a11y.py` | colour-vision accessibility of figures |
-| `en/` | `lt_check.sh`, `ai_style_diag.py` | English grammar pass; English AI fingerprint vs your field |
+| `en/` | `lt_check.sh`, `ai_style_diag.py` | English grammar pass; English AI fingerprint vs your field (+ LLM convergence-word density, list in `en_slop_terms.tsv`) |
 
 ## Chinese (`tools/zh-tw/`) — zero installs
 
 | Tool | What it does | Run |
 |------|--------------|-----|
 | `zh_localize.py` | Flags mainland-Mandarin terms (反饋→回饋…) + 台/臺 consistency, with a false-positive whitelist. Report-only. The table is `zh_tw_terms.tsv` (~170 terms with context rules, vetted against Taiwan-authored journal papers; part-sourced from MIT-licensed projects, see `NOTICE.md`). | `python3 zh_localize.py draft.md` |
-| `zh_ai_style.py` | Chinese AI syntax fingerprint: em-dash/semicolon/rule-of-three density, convergence words, sentence burstiness (heuristic). | `python3 zh_ai_style.py draft.md` |
-| `voice_lint.py` | Mechanically enforces YOUR voice rules (config-driven). Exits non-zero until clean — use as a pre-delivery gate. | `python3 voice_lint.py draft.md [--rules voice_rules.json]` |
+| `zh_ai_style.py` | Chinese AI syntax fingerprint: em-dash/semicolon/rule-of-three density, convergence words, sentence burstiness (heuristic); density of the 「並非…而是」 not-X-but-Y frame (≥0.6/k → review each); every sentence over 120 Han characters listed (enumerations exempt). | `python3 zh_ai_style.py draft.md` |
+| `voice_lint.py` | Mechanically enforces YOUR voice rules (config-driven). Exits non-zero until clean — use as a pre-delivery gate. Four rule kinds: `hard` (counted), `soft` (density), `report` (listed, never counted — default: AI stock phrases), `headings` (one regex over Markdown/Typst heading lines; sentence-form or question titles are flagged, rewrite as noun phrases). | `python3 voice_lint.py draft.md [--rules voice_rules.json]` |
+| `zh_gloss_scan.py` | Lists every full-width parenthetical of 12+ characters that is not a citation or a cross-reference. Decide each: plain-language note → a defining sentence at first mention, in place; specification list → keep; restatement → cut. Do not collect them into a glossary. Report-only. | `python3 zh_gloss_scan.py draft.md [--min 12]` |
 
 - `zh_ai_style.py` gets sharper if you point `--authored <folder>` at a folder of your
   own `.txt` writing — then words *you* genuinely use aren't flagged as AI tells.
@@ -151,7 +153,7 @@ out of the box. The English tools need one or two free offline programs.
 | Tool | What it does | Run |
 |------|--------------|-----|
 | `snowball.py` | Citation snowballing: forward ("who cites X"), backward ("what X cites"), related. Multi-seed aggregation — papers hitting more seeds (`seed_hits`) are the most likely should-have-read literature. OpenAlex primary, Semantic Scholar fallback on quota; free keyless APIs, stdlib only. | `python3 snowball.py --doi <doi> --direction forward` |
-| `pdf_fetch.py` | Fetch reference PDFs in three layers: open-access resolvers (adds Europe PMC / CORE / OpenAIRE) → `curl_cffi` TLS impersonation → a real Chrome on a persistent profile, which is what actually clears Cloudflare at ACM/Wiley/SAGE/AIP/Elsevier (TLS impersonation alone does not). Misses are tagged `PAYWALL` / `CAPTCHA` / `NO-LINK` so you know which are worth another five minutes. **Not stdlib**: `pip install curl_cffi patchright`; without them it degrades to urllib + OA sources and says so. Only fetches what you are entitled to. | `python3 pdf_fetch.py --bib references.bib --out refs-pdf` |
+| `pdf_fetch.py` | Fetch reference PDFs in three layers (bib entries without a DOI are read from `eprint`/arXiv URLs, then resolved by **exact** title match on arXiv → OpenAlex, throttled; only books/chapters come back as `MANUAL`): open-access resolvers (adds Europe PMC / CORE / OpenAIRE) → `curl_cffi` TLS impersonation → a real Chrome on a persistent profile, which is what actually clears Cloudflare at ACM/Wiley/SAGE/AIP/Elsevier (TLS impersonation alone does not). Misses are tagged `PAYWALL` / `CAPTCHA` / `NO-LINK` so you know which are worth another five minutes. **Not stdlib**: `pip install curl_cffi patchright`; without them it degrades to urllib + OA sources and says so. Only fetches what you are entitled to. | `python3 pdf_fetch.py --bib references.bib --out refs-pdf` |
 | `retraction_scan.py` | Retraction check for everything you cite: each DOI is asked of Crossref (Retraction Watch data arrives as `update-to` / `updated-by` relations) **and** OpenAlex (`is_retracted`); flagged if either says so. Input: a `.bib`, a one-DOI-per-line file, or DOIs on the command line. Exit 1 = retracted found, 2 = some queries failed. | `python3 retraction_scan.py --bib references.bib [--out report.json]` |
 
 - A 429 from OpenAlex is a **daily quota wall** (resets midnight UTC), not "no
@@ -168,7 +170,7 @@ out of the box. The English tools need one or two free offline programs.
 | Tool | What it does | Needs |
 |------|--------------|-------|
 | `lt_check.sh` | Offline grammar + US/UK spelling-consistency (LanguageTool), markup stripped by the bundled pandoc filter. Auto-mounts optional LanguageTool n-gram data (~15 GB, `~/Corpora/lt-ngrams` or `$LT_NGRAMS`) for statistical confusable-pair detection (affect/effect); runs fine without it. | `brew install languagetool pandoc` |
-| `ai_style_diag.py` | English AI fingerprint as **percentiles** vs a baseline corpus of published papers in your field. | a corpus you assemble; `pdftotext` only for PDF input |
+| `ai_style_diag.py` | English AI fingerprint as **percentiles** vs a baseline corpus of published papers in your field, including **LLM convergence-word density** (`en_slop_terms.tsv` beside the script: 162 terms derived from sam-paech/slop-forensics, MIT, minus words HCI papers use anyway — rebuild the filter against your own field's corpus if the vocabularies overlap). The words that carry the number are printed. | a corpus you assemble; `pdftotext` only for PDF input |
 
 ```bash
 # LanguageTool grammar deep-pass

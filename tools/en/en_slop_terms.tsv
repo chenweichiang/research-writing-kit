@@ -1,0 +1,169 @@
+# English LLM convergence-word list for ai_style_diag.py (columns: term, kind, llm, ref_per_million).
+# Source: sam-paech/slop-forensics @c313f042620f, 'essays' domain (MIT License, Copyright (c) 2025 Sam Paech).
+# Filtered to terms that are RARE in published HCI papers: `llm` = the upstream LLM frequency (per million
+# words for single words; raw count for phrases); `ref_per_million` = frequency in a 78-paper HCI reference
+# half (1,038,498 words). Words HCI papers use anyway (notably, landscape, ...) were dropped. Rebuild the
+# filter against your own field's corpus if your field talks differently.
+term	kind	llm	hci_per_million
+paramount	word	544	1.0
+unwavering	word	130	0.0
+amid	word	865	5.8
+prioritizes	word	118	0.0
+prioritizing	word	226	1.9
+prioritize	word	429	9.6
+demonstrably	word	104	0.0
+unparalleled	word	102	0.0
+indispensable	word	222	1.9
+immense	word	509	5.8
+fosters	word	360	3.9
+fostering	word	990	25.0
+fostered	word	138	3.9
+fueled	word	278	2.9
+delve	word	463	5.8
+delves	word	125	1.0
+delving	word	46	1.0
+irrevocably	word	66	0.0
+meticulously	word	247	2.9
+meticulous	word	121	3.9
+hurdles	word	239	2.9
+relentless	word	297	3.9
+strategically	word	236	2.9
+safeguarding	word	116	1.0
+enduring	word	402	5.8
+undeniably	word	169	1.9
+undeniable	word	172	2.9
+chasm	word	57	0.0
+dynamism	word	54	0.0
+cornerstone	word	300	4.8
+proactively	word	100	1.0
+elevates	word	50	0.0
+ensures	word	440	7.7
+ensuring	word	1070	37.6
+blending	word	293	4.8
+multifaceted	word	531	9.6
+tapestry	word	140	1.9
+cultivates	word	47	0.0
+cultivate	word	185	8.7
+cultivating	word	142	5.8
+grapple	word	89	1.0
+masterfully	word	44	0.0
+reliant	word	171	2.9
+exemplifies	word	171	2.9
+exemplify	word	80	3.9
+equips	word	43	0.0
+equipping	word	63	0.0
+inextricably	word	254	4.8
+cementing	word	43	0.0
+overstated	word	124	1.9
+bedrock	word	200	3.9
+resonate	word	155	2.9
+resonated	word	58	1.0
+burgeoning	word	154	2.9
+profound	word	946	23.1
+utilizing	word	407	9.6
+utilizes	word	132	3.9
+bolstered	word	70	1.0
+hinges	word	167	3.9
+thrives	word	98	1.9
+underpinning	word	63	1.0
+underpins	word	42	1.0
+underpin	word	49	1.9
+underpinned	word	46	1.0
+hampers	word	62	1.0
+crucially	word	350	10.6
+intricate	word	256	7.7
+intricacies	word	69	3.9
+reshaped	word	84	1.9
+solidifying	word	56	1.0
+solidify	word	61	2.9
+pivotal	word	402	13.5
+underscores	word	443	15.4
+underscore	word	122	8.7
+underscored	word	82	2.9
+underscoring	word	97	5.8
+evidenced	word	180	5.8
+confluence	word	102	2.9
+quintessential	word	75	1.9
+ingrained	word	124	3.9
+strengthens	word	123	3.9
+illuminates	word	48	1.0
+aspirational	word	48	1.0
+erode	word	106	1.9
+erodes	word	45	1.0
+eroding	word	72	0.0
+impactful	word	89	2.9
+enriches	word	42	1.0
+groundwork	word	105	3.9
+necessitates	word	171	7.7
+necessitate	word	72	3.9
+nuanced	word	378	18.3
+empowers	word	92	3.9
+navigate	word	507	27.0
+navigated	word	52	1.0
+transcends	word	104	4.8
+advancements	word	288	15.4
+complexities	word	396	23.1
+revolutionized	word	78	3.9
+encapsulates	word	42	1.9
+indelible	word	44	1.9
+amplifies	word	58	2.9
+interconnected	word	199	13.5
+manifests	word	91	5.8
+encompassing	word	156	10.6
+moreover	word	1214	89.6
+furthermore	word	1498	113.6
+streamline	word	97	6.7
+streamlining	word	50	2.9
+foundational	word	306	21.2
+evolving	word	510	26.0
+robust	word	686	35.6
+crucial	word	1612	185.8
+seamless	word	142	11.6
+holistic	word	308	25.0
+plays a crucial role	phrase	693	0.00
+plays a pivotal role	phrase	666	0.96
+play a crucial role	phrase	610	0.00
+play a pivotal role	phrase	543	0.96
+played a crucial role	phrase	340	0.96
+plays a vital role	phrase	308	0.00
+play a significant role	phrase	294	0.96
+played a pivotal role	phrase	293	0.96
+pivotal role in shaping	phrase	285	0.96
+play a vital role	phrase	279	0.96
+extends far beyond	phrase	413	0.00
+extend far beyond	phrase	259	0.00
+provide valuable insights	phrase	261	0.96
+provides valuable insights	phrase	160	0.96
+plays a critical role	phrase	246	0.96
+crucial role in shaping	phrase	230	0.00
+extends beyond mere	phrase	213	0.00
+play a critical role	phrase	210	0.00
+increasingly interconnected world	phrase	206	0.00
+requires a multifaceted approach	phrase	197	0.00
+landscape continues to evolve	phrase	184	0.00
+rapidly evolving landscape	phrase	140	0.00
+left an indelible mark	phrase	138	0.00
+testament to the enduring power	phrase	134	0.00
+closer examination reveals	phrase	134	0.00
+made significant strides	phrase	131	0.00
+gain a deeper understanding	phrase	126	0.96
+marked a pivotal moment	phrase	121	0.00
+marked a turning point	phrase	149	0.00
+significant turning point	phrase	118	0.00
+serves as a cautionary tale	phrase	108	0.96
+serves as a stark reminder	phrase	107	0.00
+fostering a sense of community	phrase	2	0.00
+foster a sense of belonging	phrase	104	0.00
+fostering a sense of belonging	phrase	107	0.00
+another layer of complexity	phrase	9	0.00
+complex interplay of factors	phrase	94	0.00
+must remain vigilant	phrase	104	0.00
+driving force behind	phrase	1	0.96
+rapidly changing world	phrase	2	0.00
+requires careful consideration	phrase	104	0.00
+across various sectors	phrase	103	0.00
+manifest in various ways	phrase	137	0.00
+creating a virtuous cycle	phrase	128	0.00
+significant role in shaping	phrase	180	0.00
+also plays a crucial	phrase	104	0.00
+also play a crucial	phrase	103	0.00

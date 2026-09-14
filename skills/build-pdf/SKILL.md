@@ -30,6 +30,21 @@ Eyeball the PDF against the `venue-notes.md` layout spec: font sizes, margins, s
 styles, tables, page/word limits. Layout is a review item — a citation-perfect draft in
 the wrong format still fails.
 
+## When the page limit bites (measured on a 25-page proposal)
+- **Find the pinned boundaries before cutting prose.** Count characters per page
+  (`for p in $(seq 1 N); do pdftotext -f $p -l $p out.pdf - | wc -m; done`); a page far
+  below the norm is a page break forced by a full-page figure, an unsplittable chart,
+  or a table row that jumped. Cutting text *before* such a page only widens the gap on
+  the page before it — nothing after it moves.
+- **Free a whole page, or nothing changes:** let the figure float (Typst
+  `placement: auto`; LaTeX `[tbp]`), anchor it at a chapter start to control where it
+  lands, and the blank space closes.
+- **Scan combinations, then pick the one with slack:** try a few line-spacing ×
+  table-font-size pairs and take the one that leaves several hundred characters of
+  room, not the one that just fits. References and appendices can be downsized
+  independently of the body. Body leading below ~0.5em (line height 1.5) is the floor;
+  past that, cut content.
+
 ## Second-language papers
 Deliver the formatted paper **and** the formatted back-translation as a pair — the
 back-translation PDF is the author's sign-off entry point (Iron Rule 3).

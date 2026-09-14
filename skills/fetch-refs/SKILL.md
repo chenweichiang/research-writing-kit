@@ -52,7 +52,25 @@ python3 tools/refs/pdf_fetch.py --no-browser --out refs-pdf   # OA sources only,
 
 It layers three ways of getting a file — open-access resolvers (incl. **Europe PMC,
 CORE, OpenAIRE**, which the usual four miss), then a TLS-impersonating HTTP client,
-then a **real Chrome on a persistent profile**. The verify-the-file-matches step
+then a **real Chrome on a persistent profile**.
+
+🔴 **No DOI is not "unobtainable".** Bib entries without a `doi` field used to be
+skipped before any source was tried — and arXiv preprints, whose bib carries only an
+`eprint`, are exactly that case (measured: 13 of 24 entries in one bib, all freely
+available, all skipped; 10/24 → 23/24 obtained after the fix). The tool now reads
+`eprint` / arXiv URLs and, failing that, resolves the title on arXiv then OpenAlex —
+**exact title match only**, because near-matches are collisions (`LoRA` vs `QA-LoRA`;
+a three-word title vs an unrelated 1969 paper). Only books and chapters without a DOI
+are handed back as `MANUAL` (find by ISBN). In lite mode do the same by hand: search
+the title before declaring an entry unobtainable.
+
+⚠️ **"The file matches the citation" does not mean "the file is complete."** Some
+publisher links for books return a *preview* — front matter, chapter 1, and the full
+bibliography (MIT Press: 245-page book → 51 pages; the title page is there, so a title
+check passes). Used for citation verification, such a file gives **false negatives**:
+a sentence cited from chapter 4 is not found, and the citation is wrongly marked
+unsupported. Note the page count against the book's length in the manifest, mark
+`PREVIEW-ONLY`, and say so when reporting. The verify-the-file-matches step
 above stays mandatory either way. Only fetch what you are entitled to: this uses
 *your own* access in a real browser session, exactly as you would by hand.
 

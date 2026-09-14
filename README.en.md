@@ -1,6 +1,6 @@
 # Research Writing Kit · 研究寫作套件
 
-**Version `v1.4.0`** (2026-08) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
+**Version `v1.6.0`** (2026-09) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
 
 **中文版 → [README.md](README.md)**
 
@@ -149,11 +149,14 @@ Once installed, each one triggers either by saying what you want or by typing `/
 |------|---------|------------------|
 | `common/md_prose.py` | Shared module: strips markdown / LaTeX layout syntax (frontmatter, tables, comments, code) and keeps only the prose. All four style tools depend on it. Not run directly | — |
 | `zh-tw/zh_localize.py` | Mainland-vs-Taiwan term check and 台/臺 consistency (the two variant characters for "Tai"); report only, no rewriting | none |
-| `zh-tw/zh_ai_style.py` | Chinese AI syntax fingerprint: dashes, rule-of-three lists, convergence words, sentence-length rhythm; can be compared against your own hand-written corpus | none |
-| `zh-tw/voice_lint.py` | Your own hard voice rules (reads `voice_rules.json`); a gate before delivery, and it does not pass until clean | none |
+| `zh-tw/zh_ai_style.py` | Chinese AI syntax fingerprint: dashes, rule-of-three lists, convergence words, sentence-length rhythm, density of the 「並非…而是」(not-X-but-Y) frame, and a list of sentences over 120 characters; can be compared against your own hand-written corpus | none |
+| `zh-tw/voice_lint.py` | Your own hard voice rules (reads `voice_rules.json`); a gate before delivery, and it does not pass until clean. Also flags sentence-form headings and stock closers, and lists AI stock-phrase candidates for you to judge | none |
+| `zh-tw/zh_gloss_scan.py` | Parenthetical-gloss inventory: every aside of 12+ characters that is not a citation or cross-reference, so you can decide which become defining sentences, which stay, which go | none |
 | `en/lt_check.sh` | English grammar plus US/UK spelling consistency (offline LanguageTool); if n-gram data is present, confused-word detection is added automatically | `brew install languagetool pandoc` |
 | `en/lt_strip_noprose.lua` | The pandoc filter `lt_check.sh` uses to strip non-prose before checking; not run directly | (comes with pandoc) |
-| `en/ai_style_diag.py` | English AI fingerprint: percentiles against a corpus of published papers in your field; automatically excludes your own drafts and template files so they do not contaminate the baseline | Your own corpus; reading PDFs needs `pdftotext` (`brew install poppler`) |
+| `en/ai_style_diag.py` | English AI fingerprint: percentiles against a corpus of published papers in your field, including LLM convergence-word density with the words that carry it; automatically excludes your own drafts and template files so they do not contaminate the baseline | Your own corpus; reading PDFs needs `pdftotext` (`brew install poppler`) |
+| `en/en_slop_terms.tsv` | The English LLM convergence-word list `ai_style_diag.py` reads (162 terms from slop-forensics, minus words HCI papers use anyway); not run directly | — |
+| `refs/pdf_fetch.py` | Fetches reference PDFs in three layers: open-access resolvers (adds Europe PMC / CORE / OpenAIRE) → `curl_cffi` TLS impersonation → a real Chrome on a persistent profile, which is what actually clears Cloudflare publishers (ACM / Wiley / SAGE / AIP / Elsevier). Misses are classified `PAYWALL` / `CAPTCHA` / `NO-LINK`. Entries without a DOI are read from the arXiv `eprint`, then resolved by exact title match on arXiv / OpenAlex; only books go back to you | `pip install curl_cffi patchright` (without them: stdlib + OA sources) |
 | `figures/figure_a11y.py` | Figure colour accessibility: three colour-blindness simulations plus grayscale contrast; writes the simulated images for visual inspection | `pip install numpy pillow` (PDF figures also need `pymupdf`) |
 | `refs/snowball.py` | Citation snowballing: who cited this, what it cites, related work; aggregates and ranks across several seeds | none (needs internet) |
 | `refs/retraction_scan.py` | Retraction scan: a `.bib` or a DOI list checked against Crossref update relations and OpenAlex `is_retracted`, two sources; entries without a DOI are listed separately and not counted as scanned | none (needs internet) |
@@ -279,6 +282,54 @@ uncited claims, regression) need no model; just run the scripts.
 ---
 
 ## Version history
+
+- **v1.6.0** (2026-09-14): **Aligns with three batches of changes in the author's own toolchain
+  (Aug 30 – Sep 12): register, retrieval, and second-review lessons.**
+  ① **Four academic-register rules enter the pipeline** (origin: a proposal that passed every tool
+  and was still judged "not academic enough" by a senior co-author): headings are noun phrases;
+  the "not X but Y" frame only where the contrast carries weight; sentences over ~120 characters
+  are split; a term is handled once at first mention and never collected into a glossary.
+  `zh_ai_style.py` gains the frame density and a long-sentence list; `voice_lint.py` gains a
+  heading scan, stock-closer and colloquial-demonstrative hard rules, and a report-only
+  AI-stock-phrase section (terms kept only after a frequency comparison between Taiwan-authored
+  journal papers and machine paragraphs); new `zh_gloss_scan.py` inventories parenthetical asides.
+  The rules are mirrored in co-author, paper-review, the VOICE_PROFILE template and the zh-TW
+  addon §4; `build-pdf` gains a "when the page limit bites" diagnosis.
+  ② **English `ai_style_diag.py` adds LLM convergence-word density** (bundled `en_slop_terms.tsv`:
+  the MIT slop-forensics list minus words HCI papers use anyway), as a percentile against your
+  corpus, with the words that carry it printed.
+  ③ **Retrieval: no DOI does not mean unobtainable.** The old version kept only bib entries with a
+  `doi`, so arXiv preprints (bib has only `eprint`) were never attempted — 13 of 24 entries in a
+  measured bib, all free; 10/24 → 23/24 after the fix. Now `eprint` / arXiv URLs are read, then the
+  title is resolved on arXiv and OpenAlex by **exact match only** (near-matches are the collisions:
+  `LoRA` vs `QA-LoRA`); only books and chapters go back to you as `MANUAL`. arXiv calls are
+  throttled (3 s) with 429 back-off. fetch-refs also records that "the file matches" is not
+  "the file is complete" (MIT Press book links return a preview).
+  ④ **verify-citations writes back field lessons:** `UNGROUNDED` means "this verdict cannot be
+  trusted", not "this verdict is wrong" — in a 41-citation draft the one real error was the one
+  both readers had judged unsupported while both their quotes failed grounding; the move is to
+  read the passage yourself. `10.5860/choice.*` is a structural false match for books (every
+  academic book has a same-titled review there); titles of three words or fewer have no
+  discriminating power.
+  This English README also gains the v1.5.0 entry it was missing.
+
+- **v1.5.0** (2026-08-30): **Retrieval gets the layer that was actually missing, and "could not
+  get it" becomes a conclusion with a next step.** Adds `tools/refs/pdf_fetch.py`: open-access
+  sources (adding Europe PMC / CORE / OpenAIRE) → `curl_cffi` TLS impersonation → **a real Chrome
+  on a persistent profile**. The old text said Cloudflare-fronted publishers "can only be
+  downloaded by hand in a browser" — the observation was right, the conclusion premature, written
+  before browser automation had been tried. Measured: TLS impersonation recovers edge 403s at
+  T&F-type sites, but ACM / Wiley / SAGE / AIP / Elsevier still answer `cf-mitigated: challenge`;
+  a real browser clears all of them. **More important than the hit rate is the classification:**
+  every miss is `PAYWALL` (no entitlement, the tool cannot help) / `CAPTCHA` (a human passes it
+  once, with an expiry) / `NO-LINK` (the tool can still be improved). A real 46-entry bibliography
+  went 11/46 → 30/46 with `NO-LINK` at zero — every remaining miss is an access gap the user can
+  act on. Three things recorded so they are not relearned: `/doi/pdf/` is often not a PDF (Wiley
+  returns a viewer shell; always check for `%PDF-` magic bytes); Elsevier URLs carry a one-time
+  token and cannot be constructed (intercept the response body); link discovery must read
+  class / aria-label (an icon link's textContent is empty). ❌ And one verified dead end:
+  **Zotero translation-server cannot return PDF links** — metadata all correct, `attachments`
+  always null; it is a bibliographic service, not a retrieval service.
 
 - **v1.4.0** (2026-08-29): **The de-AI pass gets its missing half — removing overclaims.**
   Adds `tools/claims/overclaim_lint.py` (English + Traditional Chinese; four categories:

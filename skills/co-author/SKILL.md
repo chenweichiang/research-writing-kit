@@ -120,6 +120,22 @@ description: Collaborative long-form academic writing — papers AND grant/fundi
   and grammar tools and **before** the de-cadencing pass. It reports, you judge: a real
   0/72 or 100% result is data and stays; an unsupported absolute converges (all→most,
   prove→show, the only→one of the few). Quoted source text is out of scope.
+  **Register, not just tics.** A senior co-author's verdict on a proposal that had
+  passed every tool was "wording and syntax not academic enough, too much text and too
+  few figures". Four rules came out of it, checked before delivery in any language:
+  ① section headings are noun phrases, never full sentences or questions, and a
+  subsection does not restate its chapter title; ② the "not X but Y" frame is kept only
+  where the contrast carries weight, everything else is stated plainly; ③ sentences
+  over ~120 characters (Chinese) / ~45 words (English) are split unless they are
+  enumerations; ④ a term is handled once at first mention — an in-place one-sentence
+  definition, a parenthetical original-language gloss, or a pointer to the full
+  explanation — and **not** collected into a glossary (harder to read). Explanatory
+  asides in parentheses become defining sentences. Traditional-Chinese drafts get all
+  four measured by the bundled tools (`setup/addons/zh-tw/README.md` §4).
+  **Figures before prose** (same verdict): a table that repeats an overview figure
+  folds into the figure; before splitting or dropping a figure or table, list the
+  regression rules pinned to it and decide each string's destination (load-bearing
+  sentences move into the prose when a figure goes).
 - **Phase 6 — Whole-draft verification (you do all of it, before the author sees it):**
   - **6-1 Citations:** re-verify every in-text citation against the PDF (`verify-citations`;
     prose drifts past what the source says). Mismatch → fix now or downgrade to `❓`.

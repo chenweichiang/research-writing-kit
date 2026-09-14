@@ -31,8 +31,12 @@ Confirm (or infer): file path; language (own / second / mixed); target venue
 
 ## Layer 1 — Mechanical (bundled tools first, if usable; else careful read)
 - **Bundled, zero-install (Chinese drafts):** run `tools/zh-tw/zh_localize.py` (Taiwan
-  terms + 台/臺) and `tools/zh-tw/zh_ai_style.py` (Chinese AI fingerprint) directly —
-  they need nothing installed. For the author's voice gate, `tools/zh-tw/voice_lint.py`.
+  terms + 台/臺) and `tools/zh-tw/zh_ai_style.py` (Chinese AI fingerprint; also reports
+  the 「並非…而是」 frame density and lists sentences over 120 characters) directly —
+  they need nothing installed. For the author's voice gate, `tools/zh-tw/voice_lint.py`
+  (also flags sentence-form headings and stock closers). `tools/zh-tw/zh_gloss_scan.py`
+  inventories parenthetical asides of 12+ characters for the term-first-mention check
+  in Layer 3.
 - **Bundled (English drafts):** `tools/en/lt_check.sh` (grammar + US/UK spelling) if
   LanguageTool is installed; `tools/en/ai_style_diag.py` if the author built a corpus.
 - **Bundled, zero-install (either language):** `tools/claims/overclaim_lint.py` — the
@@ -90,9 +94,20 @@ author; put the total edit count at the top.
    collocations. With a field corpus (full mode) also check real frequency there.
    🔴 Word lists are anchors, not auto-replace: the final call is Claude reading the
    context, minimal-edit, with a quote.
-3. Term consistency across the whole draft.
+3. Term consistency across the whole draft, and **term handling at first mention**:
+   one of an in-place defining sentence / a parenthetical original-language gloss / a
+   pointer to the full explanation. Parenthetical plain-language notes (「缺誰就少誰」,
+   "i.e. whoever is missing…") become defining sentences; do **not** gather them into a
+   glossary. Chinese: `zh_gloss_scan.py` lists the candidates.
+3a. **Register.** Headings are noun phrases (a full-sentence or question heading is
+   rewritten; `voice_lint.py` scans heading lines); the "not X but Y" frame stays only
+   where the contrast is load-bearing; over-long sentences are split unless they are
+   enumerations. These came from a co-author's "not academic enough" verdict on a draft
+   that every tool had passed — the tools measure them now, the judgement is still yours.
 4. **AI syntax-fingerprint pass** (beyond convergence words): em-dash / semicolon /
-   rule-of-three density, sentence-length variance. Do punctuation surgery only on pure
+   rule-of-three density, sentence-length variance; English `ai_style_diag.py` also
+   reports LLM convergence-word density as a percentile against your corpus and
+   prints the words that carry it. Do punctuation surgery only on pure
    fillers; keep rhetoric doing conceptual work. Compare before/after. ⚠️ Never use a
    cloud detector — unpublished drafts stay local, and academic prose gives high false
    positives.

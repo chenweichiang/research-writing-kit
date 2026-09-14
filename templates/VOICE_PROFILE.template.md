@@ -25,6 +25,19 @@
 2.
 3.
 
+## Academic register (venue-independent; check before every delivery)
+- Section headings are noun phrases — no full-sentence or question headings; a
+  subsection never restates its chapter title.
+- The "not X but Y" frame only where the contrast carries weight; otherwise plain
+  statement.
+- Long sentences split (Chinese ≳120 characters / English ≳45 words) unless they are
+  enumerations.
+- A term is handled once at first mention: an in-place one-sentence definition, a
+  parenthetical original-language gloss, or a pointer — never a glossary at the end.
+  Plain-language asides in parentheses become defining sentences.
+- No stock closers (綜上所述 / "In conclusion, it is clear that…"); no
+  self-congratulatory verdicts.
+
 ## Do-not list (things that make it stop sounding like them)
 - e.g. self-congratulatory closing verdicts, generic AI connectives, over-hedging —
   fill from what the samples reveal.

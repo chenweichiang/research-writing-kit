@@ -29,11 +29,27 @@ which inflates the uncited-claim scan.)
 3. **Quote grounding.** Every quote offered as evidence is checked back into the PDF
    text by **plain string matching** (fuzzy, no LLM). A quote that isn't there
    (`UNGROUNDED`) means the reader may have paraphrased or invented; that verdict is
-   void — rerun or check by hand. This is the one layer that breaks the "an LLM checks
-   an LLM" loop; don't skip it.
+   **not trustworthy** — rerun or check by hand. This is the one layer that breaks the
+   "an LLM checks an LLM" loop; don't skip it.
+   🔴 *Untrustworthy is not the same as wrong.* Measured case: a 41-citation draft had
+   exactly one citation that really pointed the wrong way — and it was the one both
+   readers judged `unsupported` while **both of their quotes failed grounding** (they
+   had paraphrased instead of quoting; their judgement was right). Treating every
+   `UNGROUNDED` as "verdict void, ignore" would have let the only real error through.
+   The correct move is to **open the source yourself** at that passage — neither
+   accept the verdict wholesale nor throw it away. (That batch: 104 quotes — 61
+   grounded, 22 paraphrased, 19 ungrounded, 2 without a quote.)
 4. **`supported` means "checked and it looks right", not "proven true."** The final
    word belongs to someone who knows the theory and reads the original.
 5. IDs and retractions use **deterministic scripts**, not an agent.
+   Two structural noise sources when matching **books** by title, worth recognising
+   on sight: DOIs under `10.5860/choice.*` are *Choice: Current Reviews for Academic
+   Libraries* — a review journal with **one same-titled review per academic book**,
+   so a book resolves to its review and is reported as "year mismatch"; treat that
+   prefix as a false match without further checking (same pattern: same-titled book
+   reviews in other journals). And titles of three words or fewer collide with
+   unrelated papers — title matching has no discriminating power there; verify those
+   by author + year, not title.
 
 ## Method
 For each "claim + citation" pair in the draft:

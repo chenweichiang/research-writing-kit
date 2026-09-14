@@ -22,6 +22,7 @@
 | **方法與文件**：`method/`、`skills/`、`agents/`、`templates/`、`setup/`、`examples/`、`README.md`、`CLAUDE.md` | **CC BY 4.0**（姓名標示） | [`LICENSE-DOCS`](LICENSE-DOCS) |
 | **第三方詞表**：`data/academic-vocab/` | 各清單原授權（見下） | — |
 | **台灣用語詞表**：`tools/zh-tw/zh_tw_terms.tsv` | MIT（部分詞條取自兩個 MIT 專案，見下） | — |
+| **英文 LLM 趨同詞表**：`tools/en/en_slop_terms.tsv` | MIT（改作自 slop-forensics，見下） | — |
 
 白話：程式隨便用、隨便改、可商用，保留版權聲明即可；方法文件也可以改寫、翻譯、拿去教、
 拿去做自己的版本，**唯一條件是標示出處**（作者 Chiang Chenwei 與 repo 網址），改寫版請註明改自本專案。
@@ -30,7 +31,7 @@
 
 在論文、教材或衍生工具裡用到本方法時，請註明出處，例如：
 
-> Chiang, C. (2026). *Research Writing Kit* (v1.4.0) [Method and toolkit].
+> Chiang, C. (2026). *Research Writing Kit* (v1.6.0) [Method and toolkit].
 > https://github.com/chenweichiang/research-writing-kit
 
 ## 第三方資料的授權（對所有人都有效）
@@ -57,3 +58,6 @@
   Cheng Kung University, Taiwan。其兩岸詞彙資料源自 OpenCC（Apache-2.0）。
 - **speak-human-tw**（Raymondhou0917/speak-human-tw，`references/taiwan-localization.md`）：MIT License，
   Copyright (c) 2026 Raymond Hou。
+
+`tools/en/en_slop_terms.tsv` 改作自 **slop-forensics**（sam-paech/slop-forensics，essays 領域詞表）：MIT License，
+Copyright (c) 2025 Sam Paech。本專案只保留在已發表 HCI 論文裡少見的詞條，並附上參照頻率欄；依 MIT 條款保留其版權聲明。

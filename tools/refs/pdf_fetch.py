@@ -69,7 +69,7 @@ Install for the browser layer: `pip install curl_cffi patchright`. patchright dr
 your installed Chrome via channel="chrome" — it does not download a second browser.
 Without them this degrades to urllib + open-access sources and says so.
 """
-import base64, json, os, re, time, urllib.parse, urllib.request
+import base64, json, os, re, time, urllib.error, urllib.parse, urllib.request
 
 # ---------- L1: HTTP ----------
 try:
@@ -794,15 +794,127 @@ def extra_oa_urls(doi):
 
 
 # ---------- CLI ----------
-def _parse_bib_dois(path):
+def _bib_field(body, name):
+    m = re.search(r"(?im)^\s*%s\s*=\s*[{\"]\s*(.*?)\s*[}\"]\s*,?\s*$" % name, body)
+    return re.sub(r"[{}]", "", m.group(1)).strip() if m else ""
+
+
+def _parse_bib(path):
+    """Every entry, not just the ones with a DOI. Returns dicts:
+    key / doi / arxiv / title / type.
+
+    🔴 No DOI ≠ unobtainable. The previous version kept only entries with a `doi`
+       field, so an arXiv preprint — whose bib usually carries `eprint` and no DOI —
+       was never even attempted. Measured upstream on a 24-entry bib: 13 pure-OA arXiv
+       papers all skipped; after the fix 23/24 obtained. Only books / book chapters
+       genuinely need a human (ISBN search); everything else gets a title search."""
     out = []
     txt = open(path, encoding="utf-8", errors="ignore").read()
-    for m in re.finditer(r"@\w+\s*\{\s*([^,]+),(.*?)(?=\n@\w+\s*\{|\Z)", txt, re.S):
-        key, body = m.group(1).strip(), m.group(2)
+    for m in re.finditer(r"@(\w+)\s*\{\s*([^,]+),(.*?)(?=\n@\w+\s*\{|\Z)", txt, re.S):
+        etype, key, body = m.group(1).lower(), m.group(2).strip(), m.group(3)
         d = re.search(r'10\.\d{4,9}/[^\s,}"]+', body)
-        if d:
-            out.append((key, d.group(0).rstrip(".")))
+        doi = d.group(0).rstrip(".") if d else ""
+        arx = ""
+        am = re.search(r"(?:arxiv\.org/(?:abs|pdf)/|arXiv:|^\s*eprint\s*=\s*[{\"]\s*)"
+                       r"(\d{4}\.\d{4,5}(?:v\d+)?|[a-z\-]+(?:\.[A-Z]{2})?/\d{7})", body, re.M)
+        if am:
+            arx = am.group(1)
+        out.append(dict(key=key, doi=doi, arxiv=arx, title=_bib_field(body, "title"),
+                        year=re.sub(r"\D", "", _bib_field(body, "year"))[:4], type=etype))
     return out
+
+
+def _norm_title(s):
+    return re.sub(r"[^a-z0-9]+", " ", s.lower()).strip()
+
+
+_LAST_ARXIV = [0.0]
+_ARXIV_DOWN = [False]   # set once the API throttles or times out; the rest of the run skips it
+
+
+def _arxiv_get(url, timeout=15):
+    """arXiv's export API asks for ~3 s between calls and answers 429 (or just hangs)
+    when pushed — and it does so for every caller at once when it is under load, not
+    only for the offender. Throttle, retry once, and if it still refuses, mark it down
+    for the rest of this run so a bib with many DOI-less entries falls straight
+    through to OpenAlex instead of stalling a minute per entry."""
+    if _ARXIV_DOWN[0]:
+        return ""
+    gap = 3.0 - (time.time() - _LAST_ARXIV[0])
+    if gap > 0:
+        time.sleep(gap)
+    for wait in (0, 6):
+        if wait:
+            time.sleep(wait)
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": UA})
+            body = urllib.request.urlopen(req, timeout=timeout).read().decode("utf-8", "ignore")
+            _LAST_ARXIV[0] = time.time()
+            return body
+        except urllib.error.HTTPError as e:
+            _LAST_ARXIV[0] = time.time()
+            if e.code != 429:
+                return ""
+        except Exception:
+            break
+    _ARXIV_DOWN[0] = True
+    print("  (arXiv API throttled or unresponsive - title lookups fall through to OpenAlex "
+          "for the rest of this run)", flush=True)
+    return ""
+
+
+def _year_ok(year, got):
+    """Bib year vs candidate year: unknown on either side passes; otherwise ±1
+    (preprint vs proceedings often differ by a year)."""
+    try:
+        return not year or not got or abs(int(year) - int(got)) <= 1
+    except ValueError:
+        return True
+
+
+def resolve_title(title, year=""):
+    """(doi, arxiv_id) for a DOI-less bib entry, or ("", "") — by title, two keyless
+    sources: arXiv's export API, then OpenAlex. A hit needs the normalised title to
+    match EXACTLY and the year to agree within one: near-matches are exactly the
+    collisions that burn you (`LoRA: …` vs `QA-LoRA: …`, a three-word title vs a 1969
+    crystallography paper, a same-titled slide deck or reprint years later), so short
+    titles (≤3 words) are refused outright and no fuzzy match is attempted. A miss
+    here is reported as MANUAL, not guessed."""
+    if len(title.split()) <= 3:
+        return "", ""
+    want = _norm_title(title)
+    words = " ".join(re.findall(r"[A-Za-z0-9]+", title))
+    # 1. arXiv (punctuation inside a quoted ti: query confuses it; search the words)
+    url = "https://export.arxiv.org/api/query?search_query=%s&max_results=3" % (
+        urllib.parse.quote('ti:"%s"' % words))
+    for ent in re.findall(r"<entry>(.*?)</entry>", _arxiv_get(url), re.S):
+        got = re.search(r"<title>(.*?)</title>", ent, re.S)
+        idm = re.search(r"<id>https?://arxiv\.org/abs/([^<]+)</id>", ent)
+        pub = re.search(r"<published>(\d{4})", ent)
+        if (got and idm and _norm_title(re.sub(r"\s+", " ", got.group(1))) == want
+                and _year_ok(year, pub.group(1) if pub else "")):
+            return "", idm.group(1).strip()
+    # 2. OpenAlex (daily quota: a 429 here means try again after midnight UTC)
+    d = _jget("https://api.openalex.org/works?search=%s&per-page=5"
+              "&select=title,doi,ids,publication_year" % urllib.parse.quote(words))
+    for w in d.get("results", []) or []:
+        if _norm_title(w.get("title") or "") != want:
+            continue
+        if not _year_ok(year, w.get("publication_year") or ""):
+            continue
+        doi = re.sub(r"^https?://doi\.org/", "", w.get("doi") or "")
+        am = re.search(r"10\.48550/arxiv\.(.+)$", doi, re.I)
+        if am:
+            return "", am.group(1)
+        if doi:
+            return doi, ""
+    return "", ""
+
+
+def arxiv_search_title(title):
+    """Kept for callers of the old name: arXiv id by title, or None."""
+    doi, arx = resolve_title(title)
+    return arx or None
 
 
 def _safe(name):
@@ -814,7 +926,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("dois", nargs="*", help="DOIs given directly")
-    ap.add_argument("--bib", help="BibTeX file; DOIs read from doi fields")
+    ap.add_argument("--bib", help="BibTeX file: doi fields, arXiv eprint/URL fields, "
+                                  "and a title search on arXiv for DOI-less entries")
     ap.add_argument("--dois", dest="doi_file", help="text file, one DOI per line")
     ap.add_argument("--out", default="refs-pdf", help="output directory (default: refs-pdf)")
     ap.add_argument("--no-browser", action="store_true",
@@ -824,18 +937,30 @@ def main():
     ap.add_argument("--profile", default=DEFAULT_PROFILE, help="persistent Chrome profile path")
     a = ap.parse_args()
 
-    entries = []
+    entries, manual = [], []      # entries: (key, doi, arxiv_id); manual: books without DOI
     if a.bib:
-        entries += _parse_bib_dois(a.bib)
+        for e in _parse_bib(a.bib):
+            if not e["doi"] and not e["arxiv"] and e["title"]:
+                if e["type"] in ("book", "incollection", "inbook"):
+                    manual.append((e["key"], "book/chapter without DOI - find by ISBN"))
+                    continue
+                e["doi"], e["arxiv"] = resolve_title(e["title"], e.get("year", ""))
+                if not e["doi"] and not e["arxiv"]:
+                    manual.append((e["key"], "no DOI; title not matched on arXiv/OpenAlex"))
+                    continue
+            elif not e["doi"] and not e["arxiv"]:
+                manual.append((e["key"], "no DOI, no eprint, no title"))
+                continue
+            entries.append((e["key"], e["doi"], e["arxiv"]))
     if a.doi_file:
         for ln in open(a.doi_file, encoding="utf-8"):
             ln = re.sub(r"^(?:https?://)?(?:dx\.)?doi\.org/", "", ln.strip())
             if ln and not ln.startswith("#"):
-                entries.append((ln, ln))
+                entries.append((ln, ln, ""))
     for d in a.dois:
         d = re.sub(r"^(?:https?://)?(?:dx\.)?doi\.org/", "", d)
-        entries.append((d, d))
-    if not entries:
+        entries.append((d, d, ""))
+    if not entries and not manual:
         ap.error("nothing to fetch: give --bib, --dois, or DOIs on the command line")
 
     os.makedirs(a.out, exist_ok=True)
@@ -843,9 +968,10 @@ def main():
           (HAVE_CURL_CFFI, "off" if a.no_browser else HAVE_PATCHRIGHT), flush=True)
 
     pending, got = [], 0
-    for key, doi in entries:                       # L0/L1: open access first
+    for key, doi, arx in entries:                  # L0/L1: open access first
         data = b""
-        for u in extra_oa_urls(doi):
+        urls = (["https://arxiv.org/pdf/%s" % arx] if arx else []) + (extra_oa_urls(doi) if doi else [])
+        for u in urls:
             st, ct, body, _h = http_get(u)
             if 200 <= st < 300 and looks_pdf(body):
                 data = body
@@ -854,8 +980,12 @@ def main():
             open(os.path.join(a.out, _safe(key) + ".pdf"), "wb").write(data)
             print("  [OK]   %-34s open-access (%d b)" % (key[:34], len(data)), flush=True)
             got += 1
-        else:
+        elif doi:
             pending.append((key, doi))
+        else:
+            # arXiv id known but the PDF did not come: nothing for the browser layer to
+            # navigate to (the old code would have built https://doi.org/None).
+            print("  [MISS] %-34s arXiv %s gave no PDF" % (key[:34], arx), flush=True)
 
     if pending and not a.no_browser and HAVE_PATCHRIGHT:   # L2: real browser
         print("\nbrowser layer: %d item(s) - a Chrome window will open; leave it alone"
@@ -872,8 +1002,15 @@ def main():
     elif pending and not a.no_browser:
         print("\nbrowser layer unavailable (pip install patchright); %d item(s) left"
               % len(pending), flush=True)
+    elif pending:
+        for key, doi in pending:
+            print("  [MISS] %-34s no open-access copy; browser layer off (doi %s)"
+                  % (key[:34], doi), flush=True)
 
-    print("\n%d/%d obtained -> %s" % (got, len(entries), a.out))
+    for key, why in manual:
+        print("  [MANUAL] %-32s %s" % (key[:32], why), flush=True)
+    print("\n%d/%d obtained -> %s%s" % (got, len(entries), a.out,
+          ("  (+%d left for a human)" % len(manual)) if manual else ""))
     print("Verify every file's content against its citation before trusting it - "
           "see skills/fetch-refs (right link, wrong file is common).")
 

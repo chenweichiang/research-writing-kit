@@ -4,7 +4,8 @@
 English AI-style tools count words by \\b\\w+\\b; Chinese has no spaces, so word
 counts and per-1k rates break. This uses **Han-character count** as the denominator
 and Chinese-specific metrics: em-dash / semicolon / rule-of-three (、) density,
-Chinese AI convergence words, sentence length (Han chars) and burstiness.
+Chinese AI convergence words, sentence length (Han chars) and burstiness, the
+「並非…而是」(not-X-but-Y) frame density, and a list of sentences over 120 Han chars.
 
 ⚠️ With no field corpus baseline, thresholds are HEURISTIC (marked below), not
    percentiles. They over-flag dense long-sentence academic prose — read them
@@ -39,7 +40,12 @@ AI_WORDS = [
 ]
 
 # Heuristic thresholds (per 1000 Han chars); no corpus baseline, relative use only.
-TH = {"emdash": (5, 10), "semi": (8, 15), "triplet": (8, 16)}  # (notice, high)
+TH = {"emdash": (5, 10), "semi": (8, 15), "triplet": (8, 16), "contrast": (0.6, 1.0)}  # (notice, high)
+# contrast = density of the 「並非…而是／不是…而是」("not X but Y") frame. Measured case: a
+# 23k-char grant proposal carried 20 of them (≈0.87/k) and a senior co-author flagged the
+# register as "not academic". Keep the ones doing load-bearing contrast; state the rest plainly.
+LONG_SENT = 120   # Han chars; sentences above this are listed (split or re-punctuate).
+                  # Enumerations (≥3 「、」) are exempt — a list is long by nature.
 
 HAN = r"[一-鿿]"
 
@@ -84,9 +90,15 @@ def profile(text: str):
     burst = statistics.stdev(slens) / mean if len(slens) > 1 and mean else 0
     words = {w: len(re.findall(re.escape(w), text)) for w in AI_WORDS}
     words = {w: c for w, c in words.items() if c}
+    contrast = len(re.findall(r"(?:並非|不是)[^。；！？]{0,60}?而是", text))
+    # Long sentences: split on 。！？ only (a semicolon chain is still one sentence);
+    # enumerations with ≥3 「、」 are exempt.
+    full = [x for x in re.split(r"[。！？]", text) if len(re.findall(HAN, x)) > LONG_SENT]
+    long_sents = [x.strip() for x in full if x.count("、") < 3]
     return dict(n=n, emdash=k(emdash), semi=k(semi), triplet=k(triplet),
                 slen=round(mean, 1), burst=round(burst, 2),
-                emdash_raw=emdash, words=words)
+                emdash_raw=emdash, words=words,
+                contrast=k(contrast), contrast_raw=contrast, long_sents=long_sents)
 
 
 def flag(key, val):
@@ -147,7 +159,16 @@ def report(text: str, authored: Path) -> str:
          f"{'em-dash':<22}{p['emdash']:>7}/k{flag('emdash', p['emdash'])}  (raw {p['emdash_raw']})",
          f"{'semicolon':<22}{p['semi']:>7}/k{flag('semi', p['semi'])}",
          f"{'rule-of-three A、B、C':<22}{p['triplet']:>7}/k{flag('triplet', p['triplet'])}",
-         f"{'mean sentence len':<22}{p['slen']:>7} Han   burstiness SD/mean={p['burst']}"]
+         f"{'mean sentence len':<22}{p['slen']:>7} Han   burstiness SD/mean={p['burst']}",
+         f"{'not-X-but-Y 並非…而是':<22}{p['contrast']:>7}/k{flag('contrast', p['contrast'])}  "
+         f"(raw {p['contrast_raw']}; keep load-bearing contrasts, state the rest plainly)"]
+    if p["long_sents"]:
+        L.append(f"Sentences over {LONG_SENT} Han chars (enumerations exempt): "
+                 f"{len(p['long_sents'])} — split each, or re-punctuate into a running sentence")
+        for x in p["long_sents"][:8]:
+            L.append(f"    …{x[:36]}…({len(re.findall(HAN, x))} chars)")
+        if len(p["long_sents"]) > 8:
+            L.append(f"    …and {len(p['long_sents']) - 8} more")
     base = personal_baseline(authored)
     bn = base.get("_n", 0)
     real = {w for w in AI_WORDS if base.get(w, 0) > 0}
