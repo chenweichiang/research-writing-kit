@@ -1,6 +1,8 @@
 # 研究寫作套件 · Research Writing Kit
 
-**版本 `v1.6.0`**（2026-09）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
+[![版本](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![最近更新](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![程式 MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![文件 CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
+
+**版本 `v1.6.0`**（2026-09-14）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
 **English → [README.en.md](README.en.md)**
 
