@@ -8,13 +8,34 @@
 ## What lite mode uses
 - **Literature:** WebSearch + Semantic Scholar / OpenAlex / Crossref (all free, no
   install). Citation graphs tell you what to cite; the web fetches open-access PDFs.
+  **Literature map** (candidate classics for a topic, Phase 1 / `method/RIGOR_PROCESS.md`
+  stage 3): without `tools/refs/lit_map.py`, pull the reference lists of 5–8 seed
+  papers by hand and count which sources recur across them — recurring across
+  *different authors/venues* is the signal, not any single paper's citation count.
 - **Verification:** Claude reads the actual source (open-access PDF or the publisher
   page you can view) and checks the claim's direction. Paywalled + no OA → `❓unverified`.
+- **Method decision** (Phase 3.0): without `tools/method/method_decision_check.py`,
+  still do the procedure by hand — read 8 comparable studies' methods sections, fill
+  the comparison table in `templates/method-decision.template.md` in prose, and check
+  off each required section yourself before the author signs off. The check script
+  only verifies the sections exist; doing it in prose is not a lesser version of the
+  judgment, just of the format nagging.
+- **Pre-data-collection plan** (if new data / an effect claim is coming): still write
+  `analysis-plan.md` from the template and get eyes on it *before* collecting anything
+  — this step's value comes from timing, not tooling, so lite mode has no excuse to
+  skip it. Note the commit or send date by hand instead of relying on
+  `analysis_plan_check.py` to verify it.
 - **Method / analysis:** Claude describes the design honestly and states what analysis
   is appropriate; simple summaries done carefully. (Heavy stats want full mode.)
 - **Language / de-AI:** Claude does the convergence-word and AI-syntax passes by hand,
   compares before/after, and — for a second language — produces an independent
-  back-translation. (Local linters/corpora are a full-mode upgrade.)
+  back-translation. (Local linters/corpora are a full-mode upgrade.) **Contrast
+  sentences** (*not X but Y*, *X, not Y*, *rather than*, *instead of*, *not only*):
+  without `ai_style_diag.py --gate`, count them by hand every revision round — list
+  each hit with its shape, get a total, and track whether the total is going down
+  round over round, not just whether any single occurrence looks fine in isolation.
+  The same rule applies without the tool: fixing an overage by rewriting one shape
+  into another doesn't move the total, so don't count it as progress.
 - **Formatting:** Claude produces the cleanest export it can and, if there's no
   typesetting toolchain, is explicit that a final layout pass is still needed. For a
   proper PDF, a minimal Typst/Quarto install is the first upgrade worth making.

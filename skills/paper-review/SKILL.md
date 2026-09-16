@@ -100,17 +100,39 @@ author; put the total edit count at the top.
    "i.e. whoever is missing…") become defining sentences; do **not** gather them into a
    glossary. Chinese: `zh_gloss_scan.py` lists the candidates.
 3a. **Register.** Headings are noun phrases (a full-sentence or question heading is
-   rewritten; `voice_lint.py` scans heading lines); the "not X but Y" frame stays only
-   where the contrast is load-bearing; over-long sentences are split unless they are
-   enumerations. These came from a co-author's "not academic enough" verdict on a draft
-   that every tool had passed — the tools measure them now, the judgement is still yours.
+   rewritten; `voice_lint.py` scans heading lines); over-long sentences are split unless
+   they are enumerations. These came from a co-author's "not academic enough" verdict on
+   a draft that every tool had passed — the tools measure them now, the judgement is
+   still yours.
+3b. **Contrast-sentence total** (same rule in every language, look at the total, not
+   any single form): English = *not…but* + "X, not Y" + *rather than* + *instead of* +
+   *not only* (`ai_style_diag.py`'s "contrast sentence total" line, flagged above the
+   baseline's 90th percentile, with every hit listed); the bundled Chinese equivalent is
+   並非／不是…而是 + 而非 + 而不是 + 不在於…而在於 + 與其…不如
+   (`tools/zh-tw/zh_ai_style.py`, reported per thousand Han characters against a Chinese
+   baseline). Keep only load-bearing contrasts; **state everything else plainly — do not
+   swap to a different contrast shape** (*rather than* → "X, not Y" is the same tic
+   wearing different clothes; a real revision drives the *total* down, not just one
+   variant of it).
 4. **AI syntax-fingerprint pass** (beyond convergence words): em-dash / semicolon /
    rule-of-three density, sentence-length variance; English `ai_style_diag.py` also
-   reports LLM convergence-word density as a percentile against your corpus and
-   prints the words that carry it. Do punctuation surgery only on pure
-   fillers; keep rhetoric doing conceptual work. Compare before/after. ⚠️ Never use a
-   cloud detector — unpublished drafts stay local, and academic prose gives high false
-   positives.
+   reports LLM convergence-word density as a percentile against a baseline of
+   **same-genre, pre-2022** published papers by other people (never the author's own
+   drafts) and prints the words that carry it. **Also run the grammar layer**
+   `tools/en/biber_diag.py` (dozens of Biber-style register features against the
+   baseline — flags e.g. heavy nominalization or sentence-final gerund clauses, which a
+   convergence-word scan alone misses; fix by converting the nominalization back to a
+   verb or splitting the trailing "-ing" clause into its own sentence), **the bundle
+   layer** `tools/en/bundle_diag.py` (lexical bundles the draft repeats far more than
+   the baseline does), and **the metadiscourse layer** `tools/en/metadiscourse_en.py`
+   (Hyland stance / engagement / boosting-hedging markers against the baseline — a
+   draft that under-uses hedges and reader-engagement relative to the baseline reads
+   more certain than the evidence supports). **Look at the multiple, not only the
+   percentile**: a feature sitting at 5× the baseline median but only the 69th
+   percentile still needs fixing — the percentile alone can hide a long tail. Do
+   punctuation surgery only on pure fillers; keep rhetoric doing conceptual work.
+   Compare before/after. ⚠️ Never use a cloud detector — unpublished drafts stay local,
+   and academic prose gives high false positives.
 5. **Overclaim pass** (`tools/claims/overclaim_lint.py` from Layer 1, judged here).
    De-AI is not finished when the convergence words are gone: a draft that still says
    *proves*, *all*, *the only*, *clearly* reads as machine-written **and** hands a

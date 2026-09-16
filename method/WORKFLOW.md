@@ -5,6 +5,13 @@
 > (Claude + web only) versus **full mode** (optional local tools from
 > `setup/TOOLS.md`). Nothing here requires the full tools; they only make it faster
 > or more rigorous.
+>
+> For the method-decision step (Phase 3.0) see `method/METHOD_DECISION.md` (the
+> decision procedure) and `method/METHOD_CARDS.md` (per-method analysis cards).
+> For the full rigor checklist behind the literature → argument → method pipeline
+> (thirteen stages, each with its methodological rationale), see
+> `method/RIGOR_PROCESS.md` — this file does not repeat that content, only points
+> to it at the relevant phase.
 
 ## Phase 0 — Intake (the author decides what to write)
 
@@ -106,10 +113,66 @@ is out; in skeleton mode, wait for the nod.
 - ⚠️ Whatever you could not read in full stays `❓unverified` — never treat an
   abstract, or a paper you only saw the landing page of, as confirmed.
 
+## Phase 3.0 — Method decision (compare comparable studies first, then choose)
+
+Do this whenever new data will be collected, existing data needs to become a paper,
+or a proposal is being written. Full procedure: `method/METHOD_DECISION.md`;
+per-method cards: `method/METHOD_CARDS.md`.
+
+🔴 **Check the literature before deciding, regardless of whether you already think
+you know the answer.** What's common or appropriate for a field — a research
+design, a statistical test, a qualitative approach — is settled by checking
+comparable papers, not by memory or a generic playbook. Write the pre-check guess
+and the post-check answer side by side, and note anything considered and then
+dropped after checking, with the reason.
+
+1. State the claims you want to make and their type (causal / correlational /
+   prevalence / interpretive / mechanistic / design knowledge / feasibility) —
+   the claim type decides the method.
+2. Read the methods sections of **at least 8 comparable studies**, filling a
+   comparison table (`templates/literature-matrix.template.md`); from **at
+   least 5** of them, extract the actual analysis practice into a second table
+   (test/model, effect size + CI, correction for quantitative; coding
+   approach, inter-rater/reflexivity for qualitative).
+3. Shortlist **at least two candidate methods**; for each, write what it can
+   and cannot support, how the core construct is actually measured and its
+   most plausible alternative explanation, and — the item independent review
+   most often finds missing — **a check outside the author's own judgment**
+   (a second coder, a blind rater, an external reviewer, or someone else
+   collecting the data). Narrowing the claim is not a substitute when the
+   researcher is the sole judge.
+4. Decide; write a claim-alignment table (downgrade any claim the chosen
+   method can't carry) and a premortem (three most likely reasons this fails
+   or gets rejected).
+5. Produce `method-decision.md` (template: `templates/method-decision.template.md`)
+   and run `python3 tools/method/method_decision_check.py method-decision.md`
+   before the author signs off — the check proves the required sections
+   exist, not that the method is right. Re-run steps 2–4 when the target
+   venue changes.
+
+### 🔴 Pre-data-collection plan (hard gate)
+
+If Phase 3.0 calls for new data or an effect claim, write `analysis-plan.md`
+(template: `templates/analysis-plan.template.md` — ethics approval, stopping
+rule, primary analysis or qualitative approach, what result would change your
+mind, the independent check, data-in-hand checkpoints, who reviewed the plan)
+and commit it **before** collecting anything. Run
+`python3 tools/method/analysis_plan_check.py analysis-plan.md` (it checks that
+the commit date precedes the start of data collection). Any deviation
+afterward goes into the plan's own deviations section — never edited into the
+earlier sections. This is the only step in the whole pipeline that cannot be
+repaired after the fact: pre-registration only has value ahead of the data,
+and ethics approval must precede collection. Everything else (literature
+synthesis quality, problematization) stays a judgment call guided by the
+templates, not a script gate.
+
 ## Phase 3 — Method / analysis (in parallel with the skeleton)
 
 Decide whether this paper needs to *design a method* (collecting new data) or
-*analyze existing data*.
+*analyze existing data*. **For existing data, first check how comparable papers
+in the target field usually analyze this kind of data** — reuse
+`method-decision.md`'s analysis-method table if one exists, extend it if the
+data type differs, rather than defaulting to a generic recipe.
 - **Design:** follow the venue's methodological playbook. **First diagnose whether
   the design can answer the question** (bias and coverage, not only power — see
   Phase 3.5); *then* estimate sample size. High power with low coverage is a biased
@@ -212,6 +275,17 @@ anti-homogenization point). Follow `venue-notes.md` for structure and format.
    1d. **Figure and table provenance** — each figure/table → the script and data file
        that made it (logged in the ledger); each caption claim → visible in the
        figure; no truncated axes that mislead. Figures are evidence, not decoration.
+   1e. **Analysis-plan reconciliation** (if `analysis-plan.md` exists) — run
+       `python3 tools/method/analysis_plan_check.py analysis-plan.md --phase6`;
+       write every deviation, or explicitly "no deviations" (never blank). The
+       method section reports any deviation honestly, and anything analyzed
+       outside the plan is labeled exploratory, not confirmatory.
+   1f. **Literature update** — the field may have moved between when the
+       argument was scoped and now. Re-run the Phase 1 keyword search and a
+       forward citation snowball (`tools/refs/snowball.py`) for anything
+       published since the `search-log.md` start date; fold anything relevant
+       into the comparison table or skeleton, and record the check regardless
+       of outcome.
 2. Final format check against `venue-notes.md`, every official hard rule.
    2a. **The six submission declarations**, each marked "written" or "not
        applicable + why" — never blank: generative-AI use disclosure (**always** —

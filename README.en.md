@@ -2,7 +2,7 @@
 
 [![version](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![updated](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![code MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![docs CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**Version `v1.6.0`** (2026-09-14) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
+**Version `v1.7.0`** (2026-09-17) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
 
 **中文版 → [README.md](README.md)**
 
@@ -115,7 +115,7 @@ Open Claude Code in the folder where your paper lives and say what you want in o
 |------|----------|
 | `CLAUDE.md` | **The installer**: your Claude reads this to interview you and generate your personal setup. |
 | `NOTICE.md` | Sharing terms and third-party data licences. |
-| `method/` | **The method itself**, four files: `PHILOSOPHY.md` (mindset), `IRON-RULES.md` (the non-negotiables), `WORKFLOW.md` (the full eight-phase pipeline), `ARGUMENTATION.md` (argument moves, used as an internal diagnostic). |
+| `method/` | **The method itself**, seven files: `PHILOSOPHY.md` (mindset), `IRON-RULES.md` (the non-negotiables), `WORKFLOW.md` (the full eight-phase pipeline), `ARGUMENTATION.md` (argument moves, used as an internal diagnostic), `RIGOR_PROCESS.md` (a thirteen-stage rigorous process from literature to reporting), `METHOD_DECISION.md` (the method-decision procedure and reporting guidelines), `METHOD_CARDS.md` (38 research-method cards with a decision index and condition-triggered warnings). |
 | `skills/` | Seven skill templates (table below). |
 | `agents/` | Two subagent templates (table below). |
 | `tools/` | Sixteen local scripts plus helper files and templates (table below); documented in `tools/README.md`. |
@@ -285,6 +285,39 @@ uncited claims, regression) need no model; just run the scripts.
 
 ## Version history
 
+- **v1.7.0** (2026-09-17): **Research-method decisions, a rigorous research process, and counting
+  contrast sentences in total.**
+  ① **Method decisions** (`method/METHOD_DECISION.md`, `method/METHOD_CARDS.md`): check comparable
+  papers first, whether or not you think you already know the answer. Read the methods sections of at
+  least eight comparable studies, extract the analysis from at least five, and write your judgment
+  before and after the search side by side. Each candidate method states how the core construct is
+  measured, the most likely alternative explanation, and an independent check by someone other than
+  the author. The 38 method cards cover quantitative, qualitative, mixed and design research, and art
+  and design practice research, with a decision index and twelve condition-triggered warnings.
+  Template and checker: `templates/method-decision.template.md`, `tools/method/method_decision_check.py`.
+  In the author's internal blind test on seven past projects, following the procedure anticipated 78%
+  of the real methodological problems; the pre-search judgment anticipated 36%. The most frequently
+  missed issue was independent judgment beyond the author.
+  ② **Rigorous research process** (`method/RIGOR_PROCESS.md`): thirteen stages from research purpose,
+  search planning, identifying classics, critical synthesis and problematization, through locking the
+  plan before data collection, analysis, reporting and pre-delivery checks, each with methodological
+  sources and evidence marks. The one hard gate is the **pre-data-collection plan**
+  (`templates/analysis-plan.template.md`, `tools/method/analysis_plan_check.py`; the plan's commit must
+  predate data collection), because it is the only stage that cannot be repaired afterwards. New:
+  `templates/literature-matrix.template.md` (synthesis by concept), `tools/refs/lit_map.py` (what a set
+  of papers on one topic cites in common, as candidate classics), `tools/method/tea_second_opinion.py`
+  (a second opinion on test selection for simple designs). Traditional-Chinese templates live in
+  `setup/addons/zh-tw/templates/`.
+  ③ **Contrast sentences are counted in total**: `tools/en/ai_style_diag.py` counts not…but, "X, not Y",
+  rather than, instead of and not only together, lists each sentence when the total exceeds the
+  baseline p90, and `--gate` can block the next step; `tools/zh-tw/zh_ai_style.py` does the same for the
+  Chinese frames. Fix them by stating the point directly; swapping one contrast shape for another is
+  not a fix. New layers: `biber_diag.py` (grammar), `bundle_diag.py` (lexical bundles),
+  `metadiscourse_en.py` (metadiscourse), plus `tools/submissions/style_reaudit.py` to re-measure every
+  manuscript after a measurement rule changes. Recommended baseline: human-written papers in the same
+  genre, published before 2023, excluding your own drafts.
+  ④ `setup/TOOLS.md` adds bibliometrix, ASReview, Tea and Argdown, and a list of tools not recommended
+  because they upload manuscripts or data.
 - **v1.6.0** (2026-09-14): **Aligns with three batches of changes in the author's own toolchain
   (Aug 30 – Sep 12): register, retrieval, and second-review lessons.**
   ① **Four academic-register rules enter the pipeline** (origin: a proposal that passed every tool

@@ -55,6 +55,13 @@ parent principles are the opposite of each.
   *When not to use:* when the claim is already a marginal view that needs no
   flipping — forcing a reframe there is contrived. A reframe needs a *genuine*
   re-classification to stand on, otherwise it is sophistry.
+  **On the page, state the new classification directly rather than reaching for a
+  "not X but Y" contrast sentence to do the flip** (e.g. write "ambiguity is a
+  product of the interpretive relation," not "ambiguity is not a flaw but a
+  relation"). The reframe's force comes from the reclassification itself, not from
+  the contrast sentence's shape — and contrast sentences need tracking as a total
+  across the whole draft regardless of how well-earned any one of them is (see
+  `skills/co-author/SKILL.md`, Phase 5).
 - **Ground in a concrete case.** Move from abstraction to a specific instance the
   reader can see, then generalize back. Powerful for design/qualitative work.
   *When not to use:* the case must be real and checkable (an invented one collapses

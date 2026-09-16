@@ -2,7 +2,7 @@
 
 [![版本](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![最近更新](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![程式 MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![文件 CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**版本 `v1.6.0`**（2026-09-14）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
+**版本 `v1.7.0`**（2026-09-17）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
 **English → [README.en.md](README.en.md)**
 
@@ -111,7 +111,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 |------|------|
 | `CLAUDE.md` | **安裝器**：你的 Claude 讀這個來訪談你、生成你的專屬設定。 |
 | `NOTICE.md` | 分享條件與第三方資料授權。 |
-| `method/` | **方法本體**四份：`PHILOSOPHY.md`（心法）、`IRON-RULES.md`（鐵則）、`WORKFLOW.md`（八個 Phase 的完整流程）、`ARGUMENTATION.md`（論證工法，內部診斷用）。 |
+| `method/` | **方法本體**七份：`PHILOSOPHY.md`（心法）、`IRON-RULES.md`（鐵則）、`WORKFLOW.md`（八個 Phase 的完整流程）、`ARGUMENTATION.md`（論證工法，內部診斷用）、`RIGOR_PROCESS.md`（從文獻到報告的十三階段嚴謹流程）、`METHOD_DECISION.md`（研究方法決策程序與報告準則）、`METHOD_CARDS.md`（38 張研究方法分析卡，含決策索引與條件警訊）。以上三份新文件目前是英文。 |
 | `skills/` | 七個 skill 範本（見下表）。 |
 | `agents/` | 兩個 subagent 範本（見下表）。 |
 | `tools/` | 十六支本機腳本＋輔助檔＋模板（見下表），說明在 `tools/README.md`。 |
@@ -280,6 +280,24 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 
 ## 版本紀錄
 
+- **v1.7.0**（2026-09-17）：**研究方法決策、嚴謹研究流程，以及對比句改看總量。**
+  ① **方法決策**（`method/METHOD_DECISION.md`、`method/METHOD_CARDS.md`）：不論自認知不知道，都先查同類論文，
+  至少 8 篇讀方法段、5 篇抽出分析做法，並列查證前後的判斷；每個候選方法寫出核心構念怎麼測、替代解釋、
+  作者以外的獨立檢核。38 張分析卡涵蓋量化、質性、混合與設計研究、藝術與設計實踐研究，開頭有決策索引與
+  12 條條件警訊。範本與檢查程式：`templates/method-decision.template.md`、`tools/method/method_decision_check.py`。
+  作者的內部盲測（七個過去的案子）：照程序事先料到真實方法問題 78%，查文獻前的直覺判斷 36%；最常漏掉的是作者以外的獨立判斷。
+  ② **嚴謹研究流程**（`method/RIGOR_PROCESS.md`）：十三階段，從研究目的、檢索規劃、確立經典、批判性綜整、問題化，
+  到資料收集前鎖計畫、分析、報告、交付前查核，每一步附方法學文獻依據與證據標記。
+  唯一的硬閘門是**資料收集前計畫**（`templates/analysis-plan.template.md`、`tools/method/analysis_plan_check.py`，
+  定稿 commit 必須早於開始收資料），因為它是整條流程裡事後補不回來的一段。
+  新增 `templates/literature-matrix.template.md`（按概念綜整）、`tools/refs/lit_map.py`（一批同主題文獻共同引用誰，
+  當作候選經典）、`tools/method/tea_second_opinion.py`（簡單設計的統計檢定第二意見）。繁中範本在 `setup/addons/zh-tw/templates/`。
+  ③ **對比句看總量**：`tools/en/ai_style_diag.py` 把 not…but、X, not Y、rather than、instead of、not only 一起算，
+  超過基線 p90 就列出逐句，`--gate` 可擋下一步；`tools/zh-tw/zh_ai_style.py` 把並非…而是、而非、而不是等一起算。
+  修法是改直陳，**不准換成另一種對比形狀**。新增語法層 `biber_diag.py`、詞組層 `bundle_diag.py`、
+  後設論述層 `metadiscourse_en.py`，以及量測規則改過後重量所有稿件的 `tools/submissions/style_reaudit.py`。
+  基線建議：同文類、2022 年以前發表、不含自己稿件的真人論文。
+  ④ `setup/TOOLS.md` 補上 bibliometrix、ASReview、Tea、Argdown 等工具，以及會上傳稿件或資料、不建議使用的工具清單。
 - **v1.6.0**（2026-09-14）：**對齊作者工具鏈 8/30 到 9/12 的三批改動：語體、取檔、複核教訓。**
   ① **中文學術語體四條入鏈**（來源是一份所有工具都過了、資深合著者仍評「不夠學術」的計畫書）：
   小節標題名詞短語、「並非…而是」只留承重對比、超過 120 字拆句、術語首現三選一且不集中成術語表。

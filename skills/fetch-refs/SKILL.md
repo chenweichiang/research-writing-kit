@@ -1,6 +1,6 @@
 ---
 name: fetch-refs
-description: Collect the PDFs of a paper's references so they can be verified. Use when the author says "get me the reference PDFs", "collect the references", "fetch references", "pull the cited papers". Also does citation snowballing (bundled `tools/refs/snowball.py`) — "who cites this paper", "find follow-up work", "snowball the references", "forward citations". Multi-source, open-access first; verifies each PDF's content actually matches the citation before filing.
+description: Collect the PDFs of a paper's references so they can be verified. Use when the author says "get me the reference PDFs", "collect the references", "fetch references", "pull the cited papers". Also does citation snowballing (bundled `tools/refs/snowball.py`) — "who cites this paper", "find follow-up work", "snowball the references", "forward citations" — and a literature map (`tools/refs/lit_map.py`, candidate classics by co-citation within a batch of literature, not global citation count; a starting point for judgment, not a verdict) — "what are the classics in this field", "who does everyone in this area cite". Multi-source, open-access first; verifies each PDF's content actually matches the citation before filing.
 ---
 
 # fetch-refs — collect reference PDFs
@@ -149,6 +149,32 @@ python3 tools/refs/snowball.py --bib references.bib --direction forward --limit 
 - Once candidates are chosen, add their DOIs to the `.bib` and run the collection
   flow above — discovery and fetching chain into one line.
 
+## Literature map (`lit_map.py`): candidate classics and recent high-impact work
+Snowballing answers "who does this one paper connect to"; `lit_map.py` answers
+"**who does this whole batch of literature co-cite**" — a starting point for judging
+what counts as a classic (a classic is not just "highest global citation count"; see
+`method/RIGOR_PROCESS.md` stage 3).
+
+```bash
+python3 tools/refs/lit_map.py --query "research through design" --from-year 2007 --limit 200 --out map.md --csv refs.csv
+python3 tools/refs/lit_map.py --dois seeds.txt --out map.md      # a hand-picked seed set instead
+```
+
+- Output: a co-citation ranking (count, share, number of distinct venues citing it) +
+  the most-cited recent work in the window.
+- **This is a candidate list, not a verdict**: still check by hand whether each one is
+  cited across different camps, whether it's been replicated or overturned, and whether
+  it's since been retracted — "cited by N distinct venues" is a rough proxy, not proof.
+- `--save-json` saves the raw OpenAlex data if you want to hand it to a full
+  bibliometric mapping tool (e.g. R's `bibliometrix`) for a complete science map.
+  **Query with `title_and_abstract`**, not full-text search — full-text search surfaces
+  cross-field high-citation noise (a methodology paper used everywhere, unrelated to
+  your topic). **OpenAlex bills by usage**; a 429 means the day's quota is spent.
+- When the candidate list runs into the hundreds and you need a systematic or scoping
+  review, screen with **ASReview** (`asreview lab`, local, optional install — see
+  `setup/TOOLS.md`) rather than reading all of them.
+
 ## Output
 A folder of named PDFs + a manifest table (obtained / OA / paywalled-missing),
-ready for `verify-citations`. Snowballing adds a ranked candidate list (or CSV).
+ready for `verify-citations`. Snowballing adds a ranked candidate list (or CSV); the
+literature map adds a co-citation ranking.

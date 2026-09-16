@@ -34,12 +34,28 @@ second layer those tools cannot see: cadence patterns a human reader trips on.
 concepts in quotes, product/system names, quoted data — into a do-not-touch
 list. (Real incident: a camera-ready product name got "de-marketed" by mistake.)
 
-## The six cadence tics
+## The seven cadence tics
 1. **Triads as refrain** — `X, Y, and Z` recurring within a section, or
    consecutive paragraphs all closing on three-part lists. → Cut to two or four
    items, or subordinate; at most one rhetorical triad per page.
-2. **not-X-but-Y balance beams** — `not merely X but Y`, `less about X than Y`
-   at high frequency. → Say Y directly; if X matters, give it its own sentence.
+2. **Contrast sentences (count every shape together)** — `not X but Y`,
+   `X, not Y`, `Y rather than X`, `Y instead of X`, `not only/merely X`,
+   `less about X than Y`. → Say Y directly; if X matters, give it its own sentence.
+   🔴 **This is the single biggest gap a fingerprint tool alone will miss**: fixing
+   one occurrence by swapping it for a *different* contrast shape — `rather than` →
+   "X, not Y", `not…but` → `instead of` — leaves the **total** exactly where it was,
+   and a human reader (or a reviewer who has seen this pattern before) still notices.
+   Rule:
+   - Before touching anything, run
+     `python3 tools/en/ai_style_diag.py <draft> --show-contrast` (kit path is in the
+     author's CLAUDE.md) to get the **contrast-sentence total** and the list of hits.
+   - Target: bring the total under the baseline's 90th percentile (the report prints
+     it). Keep only contrasts doing real argumentative work — e.g. explicitly
+     rebutting a named prior position.
+   - **Forbidden**: rewriting one contrast shape into another. A rewritten sentence
+     must not contain *any* of the shapes above, unless it is a kept load-bearing one.
+   - Prioritize the abstract, the first paragraph of the introduction, and each
+     section's opening sentence — where a reviewer reads first.
 3. **Aphoristic endings** — every paragraph closing on a short, ringing
    "quotable line". → Deflate: end on a plain bridging sentence or a concrete fact.
 4. **Self-described honesty** — "to be honest", "this is precisely where the
@@ -58,6 +74,10 @@ list. (Real incident: a camera-ready product name got "de-marketed" by mistake.)
    untouched.** Run `python3 tools/claims/overclaim_lint.py <draft> --lang en` first
    (kit path is in the author's CLAUDE.md) to get the candidate list, then judge each
    one — the scanner reports, it never decides.
+7. **Opening stock phrases** — "In the era of generative AI", "faces a paradigm
+   shift", "has emerged as", "the advent of", "rapidly evolving". Human academic
+   openings almost never use these. → Start directly from the research question or a
+   concrete phenomenon. `ai_style_diag.py`'s report lists where these appear.
 
 ## Workflow
 1. `Read` the whole text once *without editing*; list hits: line number + tic
@@ -68,10 +88,16 @@ list. (Real incident: a camera-ready product name got "de-marketed" by mistake.)
    more conservative (no new claims).
 3. If asked to edit the file directly, apply with `Edit`; otherwise output a
    change list (line | original | rewrite | tic type) for the main loop to review.
-4. If you edited the file and the fingerprint tool is available, rerun it to
-   confirm the statistical layer didn't get worse.
+4. **Must run** `ai_style_diag.py <draft> --gate` after editing, confirm the
+   contrast-sentence total is under the baseline's 90th percentile and nothing
+   else got worse; if not, go back to step 2.
 
 ## Output
-Final message = the change list (or an applied-changes summary) + a one-line
-overall judgment (AI-cadence level: high/medium/low, expected level after).
-Do not repaste the full text.
+Final message = the change list (or an applied-changes summary) +
+**a before/after comparison table** (the contrast-sentence total and each of the
+five shapes individually, em-dash count, opening-stock-phrase count — numbers taken
+from `ai_style_diag.py`'s actual output, never estimated) + a one-line overall
+judgment (AI-cadence level: high/medium/low, expected level after). Do not repaste
+the full text. The author cannot judge whether their own English sounds like AI —
+your judgment cannot substitute for the measurement, and a comparison table with no
+numbers means the work isn't done.

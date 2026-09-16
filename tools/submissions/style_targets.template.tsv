@@ -1,0 +1,22 @@
+# Style re-audit registry — which file to measure for each manuscript/proposal, so
+# style_reaudit.py can re-check it after a change to ai_style_diag.py / zh_ai_style.py /
+# common/md_prose.py. Copy this to style_targets.tsv next to your SUBMISSIONS.tsv and
+# keep it up to date — every SUBMISSIONS.tsv row with status drafting/submitted/
+# under_review/revision must have a matching row here (style_reaudit.py checks this).
+#
+# Columns:
+#   target_id  matches a manuscript_id in SUBMISSIONS.tsv for anything on that ledger;
+#              for a deliverable that isn't on the ledger (e.g. an internal grant
+#              proposal with no publication venue), use your own id and write
+#              "non-ledger" in the note column.
+#   lang       en | zh
+#   path       resolved relative to --root (default: this file's own directory,
+#              i.e. wherever SUBMISSIONS.tsv lives) unless it starts with ~ or is
+#              already absolute. May include a glob (*) — the most recently modified
+#              match is used, so "draft_v*.docx" always picks up your latest version.
+#              "-" = deliberately not measured; say why in the note column.
+#   note       why this file was chosen, or why it's skipped.
+target_id	lang	path	note
+example-paper	en	2026-01-example/submission/manuscript_v*.docx	most recent submission version
+example-internal-proposal	zh	2026-02-internal-grant/draft/proposal.md	non-ledger; not on SUBMISSIONS.tsv, re-measure every revision
+example-poster	en	-	poster text is mostly figures; word count too low for stable statistics

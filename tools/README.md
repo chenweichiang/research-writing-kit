@@ -13,7 +13,7 @@ out of the box. The English tools need one or two free offline programs.
 | Folder | Tool | One line |
 |--------|------|----------|
 | `zh-tw/` | `zh_localize.py` | mainland-vs-Taiwan terms + 台/臺 consistency |
-| `zh-tw/` | `zh_ai_style.py` | Chinese AI syntax fingerprint (+ not-X-but-Y density, long-sentence list) |
+| `zh-tw/` | `zh_ai_style.py` | Chinese AI syntax fingerprint (+ contrast-sentence total, long-sentence list) |
 | `zh-tw/` | `voice_lint.py` | your own voice rules as a hard gate (+ heading scan, stock closers, AI-phrase candidates) |
 | `zh-tw/` | `zh_gloss_scan.py` | parenthetical asides to turn into definitions, keep, or cut |
 | `claims/` | `uncited_claims_scan.py` | sentences that claim (numbers / causes / firsts) but cite nothing |
@@ -21,12 +21,20 @@ out of the box. The English tools need one or two free offline programs.
 | `refs/` | `snowball.py` | forward / backward / related citation snowballing |
 | `refs/` | `retraction_scan.py` | has anything you cite been retracted (Crossref + OpenAlex) |
 | `refs/` | `pdf_fetch.py` | fetch reference PDFs: OA resolvers → TLS impersonation → real browser (needs `curl_cffi`, `patchright`) |
+| `refs/` | `lit_map.py` | candidate classics by co-citation within a literature batch (not global citation count) |
+| `method/` | `method_decision_check.py` | format gate for `method-decision.md` (English or zh-TW template) |
+| `method/` | `analysis_plan_check.py` | format + timing gate for `analysis-plan.md`; `--phase6` checks deviations were recorded |
+| `method/` | `tea_second_opinion.py` | second opinion on which classic statistical test fits (wraps Tea; optional install) |
 | `vocab/` | `fetch_awl.py` | fetch Coxhead's AWL from the official VUW site into a local TSV (not shipped: CC BY-NC-ND) |
 | `regress/` | `regress.py` + `dead_rule_check.py` | regression suite for long documents + false-green-light detector |
 | `rebuttal/` | `check_response.py` | response-to-reviewers completeness |
 | `submissions/` | `check_submissions.py` | duplicate-submission guard |
+| `submissions/` | `style_reaudit.py` | re-run style/de-AI measurement on every drafting/under-review manuscript after a rule change |
 | `figures/` | `figure_a11y.py` | colour-vision accessibility of figures |
 | `en/` | `lt_check.sh`, `ai_style_diag.py` | English grammar pass; English AI fingerprint vs your field (+ LLM convergence-word density, list in `en_slop_terms.tsv`) |
+| `en/` | `biber_diag.py` | grammatical-register check, Biber-style features vs your field (needs pybiber + spaCy, dedicated env) |
+| `en/` | `bundle_diag.py` | lexical bundles the draft over-uses relative to your field corpus |
+| `en/` | `metadiscourse_en.py` | Hyland stance / engagement / boosting-hedging markers vs your field corpus |
 
 ## Chinese (`tools/zh-tw/`) — zero installs
 
@@ -155,6 +163,7 @@ out of the box. The English tools need one or two free offline programs.
 | `snowball.py` | Citation snowballing: forward ("who cites X"), backward ("what X cites"), related. Multi-seed aggregation — papers hitting more seeds (`seed_hits`) are the most likely should-have-read literature. OpenAlex primary, Semantic Scholar fallback on quota; free keyless APIs, stdlib only. | `python3 snowball.py --doi <doi> --direction forward` |
 | `pdf_fetch.py` | Fetch reference PDFs in three layers (bib entries without a DOI are read from `eprint`/arXiv URLs, then resolved by **exact** title match on arXiv → OpenAlex, throttled; only books/chapters come back as `MANUAL`): open-access resolvers (adds Europe PMC / CORE / OpenAIRE) → `curl_cffi` TLS impersonation → a real Chrome on a persistent profile, which is what actually clears Cloudflare at ACM/Wiley/SAGE/AIP/Elsevier (TLS impersonation alone does not). Misses are tagged `PAYWALL` / `CAPTCHA` / `NO-LINK` so you know which are worth another five minutes. **Not stdlib**: `pip install curl_cffi patchright`; without them it degrades to urllib + OA sources and says so. Only fetches what you are entitled to. | `python3 pdf_fetch.py --bib references.bib --out refs-pdf` |
 | `retraction_scan.py` | Retraction check for everything you cite: each DOI is asked of Crossref (Retraction Watch data arrives as `update-to` / `updated-by` relations) **and** OpenAlex (`is_retracted`); flagged if either says so. Input: a `.bib`, a one-DOI-per-line file, or DOIs on the command line. Exit 1 = retracted found, 2 = some queries failed. | `python3 retraction_scan.py --bib references.bib [--out report.json]` |
+| `lit_map.py` | Literature map: co-citation ranking within a batch of literature (candidate classics — a starting point, judged by hand, see `method/RIGOR_PROCESS.md` stage 3) + most-cited recent work in a year window. Query by `title_and_abstract` (full-text search surfaces cross-field noise); OpenAlex bills by usage, 429 = daily quota spent. | `python3 lit_map.py --query "<topic>" --from-year 2010 --limit 200 --out map.md [--csv refs.csv] [--save-json]` |
 
 - A 429 from OpenAlex is a **daily quota wall** (resets midnight UTC), not "no
   results" — rerun later. `--email you@example.org` is optional but gets you the
@@ -164,13 +173,37 @@ out of the box. The English tools need one or two free offline programs.
   without a DOI is outside what the tool can check — not verified, and rerunning will
   not change it. `API_ERROR` is likewise not a pass; the exit code says the scan is
   incomplete. A `RETRACTED` hit still needs a human to read the notice.
+- `lit_map.py --dois seeds.txt` takes a hand-picked seed set instead of a query.
+  For a full bibliometric science map from the same raw data, pass `--save-json`
+  and hand it to R's `bibliometrix` (see `setup/TOOLS.md`).
+
+## Method decision (`tools/method/`) — zero installs (except the optional Tea wrapper)
+
+| Tool | What it does | Run |
+|------|--------------|-----|
+| `method_decision_check.py` | Format gate for `method-decision.md`: checks the required sections exist (claims, comparable-studies table, analysis-method table, candidates with independent-check field, claim-alignment table, premortem). Recognizes both the English template and the zh-TW one. Passing proves the sections exist, not that the method is right. | `python3 method_decision_check.py method-decision.md [--selftest]` |
+| `analysis_plan_check.py` | Format + timing gate for `analysis-plan.md`: checks required sections exist and, in the default mode, that the plan's commit date precedes the recorded data-collection start date. `--phase6` instead checks the deviations section was filled in (or explicitly says "no deviations") before delivery. | `python3 analysis_plan_check.py analysis-plan.md [--phase6] [--selftest]` |
+| `tea_second_opinion.py` | Optional wrapper around Tea (tealang, needs its own environment — see `setup/TOOLS.md`): describe hypotheses and variable types, get a second opinion on which classic statistical test fits. Covers classic tests only, not mixed/ordinal models — one input alongside the comparison table, not a verdict. | `python3 tea_second_opinion.py --spec spec.json` |
+
+- Both check scripts exist to catch the same failure mode as `dead_rule_check.py`
+  elsewhere in this kit: "the section is in the file" is not the same as "the
+  section says something real" — they check structure, and the judgment (is this
+  the right method, does the independent-check field name an actual person) stays
+  with the author and Claude.
+- `analysis_plan_check.py`'s timing check is the one hard gate in the whole method
+  pipeline (see `method/WORKFLOW.md` Phase 3.0): pre-registration only has value
+  ahead of the data, so the check is deliberately strict about the date rather than
+  just checking the file exists.
 
 ## English (`tools/en/`) — one or two free installs
 
 | Tool | What it does | Needs |
 |------|--------------|-------|
 | `lt_check.sh` | Offline grammar + US/UK spelling-consistency (LanguageTool), markup stripped by the bundled pandoc filter. Auto-mounts optional LanguageTool n-gram data (~15 GB, `~/Corpora/lt-ngrams` or `$LT_NGRAMS`) for statistical confusable-pair detection (affect/effect); runs fine without it. | `brew install languagetool pandoc` |
-| `ai_style_diag.py` | English AI fingerprint as **percentiles** vs a baseline corpus of published papers in your field, including **LLM convergence-word density** (`en_slop_terms.tsv` beside the script: 162 terms derived from sam-paech/slop-forensics, MIT, minus words HCI papers use anyway — rebuild the filter against your own field's corpus if the vocabularies overlap). The words that carry the number are printed. | a corpus you assemble; `pdftotext` only for PDF input |
+| `ai_style_diag.py` | English AI fingerprint as **percentiles** vs a baseline corpus of published papers in your field, including **LLM convergence-word density** (`en_slop_terms.tsv` beside the script: 162 terms derived from sam-paech/slop-forensics, MIT, minus words HCI papers use anyway — rebuild the filter against your own field's corpus if the vocabularies overlap) and a **contrast-sentence total** (`not…but` + "X, not Y" + `rather than` + `instead of` + `not only`, `--show-contrast` lists every hit; `--gate` exits non-zero above the baseline's 90th percentile). The words/sentences that carry each number are printed. | a corpus you assemble; `pdftotext` only for PDF input |
+| `biber_diag.py` | Grammatical-register check: dozens of Biber-style features (nominalization rate, sentence-final gerund clauses, passive voice, and more) vs the same baseline corpus, reported as percentiles with items outside the baseline's 5th/95th flagged individually — a single overall percentile can hide a feature sitting at several times the baseline median. | pybiber + spaCy in a dedicated env — see `setup/TOOLS.md` |
+| `bundle_diag.py` | Lexical bundles (recurring 3–5-word phrases) the draft uses far more than the baseline does — the phrase-level layer between single convergence words and whole-sentence cadence. | same corpus as `ai_style_diag.py` |
+| `metadiscourse_en.py` | Hyland stance / engagement / boosting-hedging markers vs the baseline — a draft that under-uses hedges and reader-engagement relative to expert writing reads more certain than the evidence supports. `--matches` prints which sentences carry each marker. | same corpus as `ai_style_diag.py` |
 
 ```bash
 # LanguageTool grammar deep-pass
@@ -179,6 +212,10 @@ tools/en/lt_check.sh draft.tex --variant en-GB
 
 # English style fingerprint (needs your own baseline corpus of ≥30 published papers)
 python3 tools/en/ai_style_diag.py draft.md --corpus ~/my-field-corpus
+python3 tools/en/ai_style_diag.py draft.md --corpus ~/my-field-corpus --gate           # revision-round gate
+python3 tools/en/bundle_diag.py draft.md --corpus ~/my-field-corpus
+python3 tools/en/metadiscourse_en.py draft.md --corpus ~/my-field-corpus --matches
+~/.venvs/biber/bin/python tools/en/biber_diag.py draft.md --corpus ~/my-field-corpus   # dedicated env
 ```
 
 🔴 **`ai_style_diag.py` corpus hygiene:** the baseline holds **only other people's

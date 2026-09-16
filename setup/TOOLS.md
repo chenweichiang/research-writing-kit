@@ -8,10 +8,14 @@
 > 📦 **Already bundled in `tools/`** (no big install): the Chinese checkers
 > (`zh_localize`, `zh_ai_style`, `voice_lint` — zero-install, Python stdlib), the
 > English `lt_check.sh` (needs `brew install languagetool pandoc`) + `ai_style_diag.py`
-> (needs a corpus you assemble), and the zero-install scanners `tools/refs/snowball.py`,
-> `tools/refs/retraction_scan.py`, `tools/claims/uncited_claims_scan.py`, and the
+> (needs a corpus you assemble), `bundle_diag.py` + `metadiscourse_en.py` (zero-install,
+> same corpus), and the zero-install scanners `tools/refs/snowball.py`,
+> `tools/refs/retraction_scan.py`, `tools/refs/lit_map.py`,
+> `tools/claims/uncited_claims_scan.py`, `tools/method/method_decision_check.py` +
+> `tools/method/analysis_plan_check.py`, `tools/submissions/style_reaudit.py`, and the
 > `tools/regress/` pair (`regress.py`, `dead_rule_check.py`) behind the `doc-regress`
-> skill. Those rows below are marked ✅bundled. See `tools/README.md`.
+> skill. Those rows below are marked ✅bundled. `tools/en/biber_diag.py` is the one
+> English tool needing a dedicated environment (pybiber + spaCy). See `tools/README.md`.
 
 | Capability | Lite (default, no install) | Full (optional upgrade) |
 |-----------|----------------------------|--------------------------|
@@ -25,10 +29,17 @@
 | **Scanned / CJK PDF extraction** | Render pages to images and read visually (slow) | **MinerU** (`uv tool install mineru` or `pipx install mineru`) — scans, CJK layouts, tables, formulas → clean markdown |
 | **Statistics / analysis** | Honest description + simple summaries | R (mixed models via `lme4`/`afex`, ordinal via `ordinal::clmm`, post-hoc via `emmeans`) / Python / a persistent Jupyter kernel — data stays local. **Bayesian, three roads:** formula-expressible hierarchical regression → `brms`; evidence for the null (BF01) → `BayesFactor`; discrete latent variables, custom distributions or samplers, JAGS ports → `nimble` (Stan cannot sample discrete parameters). All three report priors + convergence |
 | **Design diagnosis** (can this design answer the question at all?) | Claude reasons about confounds and states the claim's ceiling honestly | R `DeclareDesign` — declare model / inquiry / data strategy / answer strategy, run Monte-Carlo diagnosis, read **coverage** (should be ≈.95), not just power; then `simr` for sample size. Only when new data will be collected *and* an effect claimed |
-| **Statistical-consistency check of a draft** | Recompute reported numbers by hand, mark lower-confidence | R packages **statcheck** (recompute APA-style p values) + **scrutiny** (GRIM: is that mean possible given N) — `install.packages(c("statcheck","scrutiny"))` |
+| **Statistical-consistency check of a draft** | Recompute reported numbers by hand, mark lower-confidence | R packages **statcheck** (recompute APA-style p values) + **scrutiny** (GRIM: is that mean possible given N) — `install.packages(c("statcheck","scrutiny"))`. **Run the local R packages, not the web versions** — see "Not recommended" below |
 | **Grammar / style linting** | Claude's by-hand passes | ✅bundled `tools/en/lt_check.sh` (LanguageTool, offline) — `brew install languagetool pandoc`; optional LanguageTool n-gram data (~15 GB, auto-detected at `~/Corpora/lt-ngrams` or `$LT_NGRAMS`) adds statistical confusable-pair detection (affect/effect). Optional extras: **Harper** (offline, millisecond first pass on every save — editor plugin or CLI; LanguageTool stays the authoritative second pass) and, for Chinese, **autocorrect** (`brew install autocorrect`: full/half-width punctuation and CJK–Latin spacing) |
 | **De-AI / voice checking** | Convergence-word + AI-syntax passes by hand | ✅bundled `tools/en/ai_style_diag.py` (percentiles vs a corpus you assemble — published papers only, never your own drafts) |
-| **Traditional-Chinese-Taiwan** | Claude checks by hand | ✅bundled `tools/zh-tw/` (zero install): `zh_localize` (Taiwan terms), `zh_ai_style` (Chinese AI-tic + not-X-but-Y density + long sentences), `voice_lint` (your voice rules + heading scan), `zh_gloss_scan` (parenthetical asides). Official-term DB check = bring-your-own DB. |
+| **Grammatical-register check** (beyond convergence words — nominalization, gerund clauses, dozens of Biber-style features) | Eyeball register by hand; the overclaim and convergence-word passes still run | ✅bundled `tools/en/biber_diag.py`, needs **pybiber + spaCy** in a dedicated environment (keeps their pinned dependency versions off your main Python): `python3 -m venv ~/.venvs/biber && ~/.venvs/biber/bin/pip install pybiber spacy && ~/.venvs/biber/bin/python -m spacy download en_core_web_sm`, then `~/.venvs/biber/bin/python tools/en/biber_diag.py draft.md` |
+| **Lexical-bundle / metadiscourse checks** | Claude reads for repeated phrases and hedging/boosting by hand | ✅bundled, zero-install: `tools/en/bundle_diag.py` (over-used lexical bundles vs your corpus), `tools/en/metadiscourse_en.py` (Hyland stance/engagement/boosting-hedging markers vs your corpus) |
+| **Literature mapping / bibliometrics** (candidate classics by co-citation, full science maps) | ✅bundled `tools/refs/lit_map.py` (zero-install; a candidate list, judged by hand — see `method/RIGOR_PROCESS.md` stage 3) | + R **bibliometrix** and **openalexR** (`install.packages("bibliometrix")`, `remotes::install_github("ropensci/openalexR")`) for a full co-citation/science map from `lit_map.py --save-json`'s raw data; **PRISMA2020** (`install.packages("PRISMA2020")`) draws the flow diagram for a systematic/scoping review |
+| **Large-scale literature screening** (hundreds of candidates, systematic/scoping review) | Read and triage by hand — fine under ~50–100 items | **ASReview** (`asreview lab`) in its own environment: `python3 -m venv ~/.venvs/asreview && ~/.venvs/asreview/bin/pip install asreview`. Active-learning screening; simulation studies report it can cut screening effort substantially at high recall targets — still a human decision per item, not an oracle |
+| **Second opinion on which statistical test fits** | `method/METHOD_CARDS.md`'s decision index + the comparison table from Phase 3.0 | **Tea** (tealang) in its own environment (it pins to Python 3.10–3.13, likely to conflict with a newer default interpreter): `python3.11 -m venv ~/.venvs/tea && ~/.venvs/tea/bin/pip install tea-lang` — describes hypotheses and variable types, suggests a test. Covers classic tests only, not mixed/ordinal models; treat its answer as one input alongside the comparison table, not a verdict |
+| **Argument mapping** (visualize the skeleton's move structure) | Prose skeleton nodes are enough for most drafts | **Argdown** (`npm install -g @argdown/cli`) renders a `.argdown` outline as an argument map — useful for a paper with an unusually tangled rebuttal structure, optional otherwise |
+| **Chinese metadiscourse scale** (optional, Traditional-Chinese-Taiwan add-on) | `tools/zh-tw/zh_ai_style.py`'s heuristic metadiscourse markers | **zh-metadiscourse-scale** — a *scale*, not a detector; read its own documentation on what it does and does not claim before using it as a checklist item, not a pass/fail gate |
+| **Traditional-Chinese-Taiwan** | Claude checks by hand | ✅bundled `tools/zh-tw/` (zero install): `zh_localize` (Taiwan terms), `zh_ai_style` (Chinese AI-tic + contrast-sentence total + long sentences, both ends), `voice_lint` (your voice rules + heading scan), `zh_gloss_scan` (parenthetical asides). Official-term DB check = bring-your-own DB; optional scale = `zh-metadiscourse-scale` above. |
 | **PDF / typesetting** | Cleanest export + "layout still needs a pass" | Typst or Quarto/LaTeX with the venue's template and embedded fonts |
 
 ## Numeric pitfalls (check before trusting a number)
@@ -49,6 +60,28 @@ runs statistics locally must mention them.
   exactly 2×, identical CIs across groups). That is usually a constant leaking from a
   broken pipeline, not a result — go back to the log and the exit code before it
   enters the draft.
+
+## Not recommended (and the lite alternative)
+
+These looked useful during a survey of the field's tooling and were rejected for a
+concrete reason — listed so you don't re-discover the same dead end:
+
+- **SciScore, Penelope.ai** — upload the full manuscript to a third party. Lite
+  alternative: the reporting-guideline checklist in `paper-review` Layer 4, done
+  by hand.
+- **statcheck and rSPRITE's web versions** — send your data to an external server.
+  Lite alternative: the local R packages (`statcheck`, `scrutiny`), already in the
+  table above — same checks, nothing leaves your machine.
+- **Consensus, SciSpace** — uploaded documents are processed in the cloud, and
+  neither publishes an independent accuracy evaluation you can check. Lite
+  alternative: WebSearch + Semantic Scholar/OpenAlex, read the sources yourself.
+- **CollabCoder** — a genuinely useful qualitative-coding comparison design, but it
+  requires an OpenAI API key and sends interview data to OpenAI's servers. Lite
+  alternative: a second human coder + `irr`-style agreement statistics in R.
+- **PaperQA2** — defaults to calling a cloud model, and stands up a second search
+  index that will drift from whatever local literature store you already keep.
+  Lite alternative: your own local RAG (full mode) or WebSearch + manual reading
+  (lite mode).
 
 ## Principles for the installer
 - **Privacy is non-negotiable in both modes:** unpublished drafts and raw data stay

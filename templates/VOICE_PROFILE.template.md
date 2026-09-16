@@ -28,8 +28,14 @@
 ## Academic register (venue-independent; check before every delivery)
 - Section headings are noun phrases — no full-sentence or question headings; a
   subsection never restates its chapter title.
-- The "not X but Y" frame only where the contrast carries weight; otherwise plain
-  statement.
+- Contrast sentences (*not X but Y*, *X, not Y*, *rather than*, *instead of*, *not
+  only*) are tracked as a **total across the draft**, measured every revision round
+  (`tools/en/ai_style_diag.py --gate`), not judged one at a time — density climbs
+  round over round if each review comment adds one more. Keep only the contrasts
+  that carry real weight; state everything else plainly. **Do not "fix" an overage
+  by swapping to a different contrast shape** — turning a `rather than` sentence
+  into a `X, not Y` sentence is the same tic in different clothes, and the total
+  won't move.
 - Long sentences split (Chinese ≳120 characters / English ≳45 words) unless they are
   enumerations.
 - A term is handled once at first mention: an in-place one-sentence definition, a

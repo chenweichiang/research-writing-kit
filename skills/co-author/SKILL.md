@@ -1,6 +1,6 @@
 ---
 name: co-author
-description: Collaborative long-form academic writing — papers AND grant/funding proposals. Use when the author says "help me write this paper", "turn these sources into a paper", "develop this", "build the skeleton", "co-author", or wants to write a grant/funding/fellowship proposal, or has an existing draft to rewrite/upgrade/resubmit ("rewrite this", "it got rejected, submit elsewhere", "turn this talk/old proposal into a journal paper" → Phase 0.5), or needs the submission declarations (AI-use disclosure / ethics / data availability / author contributions / competing interests / pre-registration) or asks "what am I missing that should be there". Division of labor = the author decides what to say and gives final sign-off; Claude verifies literature, researches the venue's current format and review norms, designs method / runs analysis when needed, writes the draft, and self-checks every step. Default = "write it all the way to a verified complete draft"; only build-skeleton-first when the author explicitly asks. For check-only (don't rewrite) → paper-review; for slides → a deck skill.
+description: Collaborative long-form academic writing — papers AND grant/funding proposals. Use when the author says "help me write this paper", "turn these sources into a paper", "develop this", "build the skeleton", "co-author", or wants to write a grant/funding/fellowship proposal, or needs the submission declarations (AI-use disclosure / ethics / data availability / author contributions / competing interests / pre-registration) or asks "what am I missing that should be there", or wants to **decide on a research method** ("should this be quantitative or qualitative", "how do people in my field usually design a study like this", "help me pick a method" — routes to Phase 3.0: compare at least 8 comparable studies' methods before deciding, producing a `method-decision.md`), or has an existing draft to rewrite/upgrade/resubmit ("rewrite this", "it got rejected, submit elsewhere", "turn this talk/old proposal into a journal paper" → Phase 0.5). Division of labor = the author decides what to say and gives final sign-off; Claude verifies literature, researches the venue's current format and review norms, designs method / runs analysis when needed, writes the draft, and self-checks every step. Default = "write it all the way to a verified complete draft"; only build-skeleton-first when the author explicitly asks. For check-only (don't rewrite) → paper-review; for slides → a deck skill.
 ---
 
 # co-author — collaborative paper / proposal writing
@@ -67,7 +67,16 @@ description: Collaborative long-form academic writing — papers AND grant/fundi
   background may be reused within reason; **results and discussion may not**. Disclose
   in the cover letter and cite the earlier work. Conference-to-journal extension is the
   common case and usually welcome — but venues state how much new material they expect.
-- **Phase 1 — Two-track scouting:** (A) literature via citation graphs + web, holdings
+- **Phase 1 — Two-track scouting:** full rigor checklist for the literature →
+  argument → method pipeline is `method/RIGOR_PROCESS.md` (thirteen stages, each
+  with its methodological rationale): declare the review type and a stopping
+  rule before reading; a classic is not just "highly cited" — check whether it
+  is cited across different camps and whether it has been replicated or
+  overturned; synthesize **by concept, not by author or chronology**
+  (`templates/literature-matrix.template.md`; for candidate classics a topic's
+  literature converges on, run `tools/refs/lit_map.py` first); a "nobody has
+  done this" claim needs a search trail and a stated boundary, not an
+  impression. (A) literature via citation graphs + web, holdings
   are a convenience sample not the canon. **Keep a `search-log.md`** in the project:
   which databases (OpenAlex / Semantic Scholar / web / own library), the query strings,
   the date run, inclusion/exclusion criteria, hits per step. Three reasons: a reviewer
@@ -82,7 +91,61 @@ description: Collaborative long-form academic writing — papers AND grant/fundi
   recommended venue as explicit options). Non-blocking in default mode.
 - **Phase 2 — Verify & fetch:** read each source enough to confirm direction; check
   DOIs/ISBNs; `❓unverified` for anything you couldn't confirm.
-- **Phase 3 — Method/analysis:** design or analyze; data local, effect sizes + CIs,
+- **Phase 3.0 — Method decision: compare comparable studies first, then choose a
+  method.** Do this whenever new data will be collected, existing data needs to
+  become a paper, or a proposal is being written. Full guidance:
+  `method/METHOD_DECISION.md` (the decision procedure) and `method/METHOD_CARDS.md`
+  (per-method analysis cards — quantitative, qualitative, mixed/design research,
+  arts/practice research).
+  🔴 **Check the literature before deciding, regardless of whether you already
+  think you know the answer** — what's common or appropriate in a field (a
+  research design, a statistical test, a qualitative approach) is settled by
+  checking comparable papers, not by memory or a generic playbook; write the
+  pre-check guess and the post-check answer side by side so it's visible
+  whether checking changed the judgment, and note anything considered and then
+  dropped after checking, with the reason.
+  Procedure: (1) state the claims you want to make and their type (causal /
+  correlational / prevalence / interpretive / mechanistic / design knowledge /
+  feasibility) before picking a method — the claim type decides the method;
+  (2) read the methods sections of **at least 8 comparable studies** (your own
+  literature search first, then citation databases), filling a comparison table
+  (`templates/literature-matrix.template.md`), and from **at least 5** of them
+  extract the actual analysis practice into a second table — for quantitative
+  work: test/model, effect size + CI, multiple-comparison correction; for
+  qualitative work: analytic approach, coding process, how inter-rater
+  agreement or reflexivity was handled; (3) shortlist **at least two candidate
+  methods**, each with what it can and cannot support, how the core construct
+  is actually measured and its most plausible alternative explanation, and —
+  the item independent review most often finds missing — **a check outside the
+  author's own judgment** (a second coder, a blind rater, an external reviewer,
+  or someone else collecting the data; narrowing the claim is not a substitute
+  when the researcher is the only judge); (4) decide, write a claim-alignment
+  table (downgrade any claim the chosen method can't carry), and a premortem
+  (the three most likely reasons this gets rejected or fails); (5) produce
+  `method-decision.md` (template: `templates/method-decision.template.md`) and
+  run `python3 tools/method/method_decision_check.py method-decision.md` before
+  the author signs off in their own language — the check proves the required
+  sections exist, not that the method is right. Re-run steps 2–4 when the
+  target venue changes.
+- 🔴 **Pre-data-collection plan (hard gate).** If `method-decision.md` calls for
+  new data or an effect claim, write `analysis-plan.md` (template:
+  `templates/analysis-plan.template.md` — ethics approval, stopping rule,
+  primary analysis or qualitative approach, what result would change your
+  mind, the independent check, data-in-hand checkpoints, who reviewed the
+  plan) and commit it **before** collecting anything; run
+  `python3 tools/method/analysis_plan_check.py analysis-plan.md` (it checks
+  that the plan's commit date precedes the start of data collection). Any
+  deviation afterward is written into the plan's deviations section, never
+  edited into the earlier sections. This is the only step in the whole
+  pipeline that cannot be repaired after the fact — pre-registration only has
+  value ahead of the data, and ethics approval must precede collection.
+  Everything else (synthesis quality, problematization) stays a judgment call
+  guided by the templates, not a script gate.
+- **Phase 3 — Method/analysis:** **for existing data, first check how comparable
+  papers in the target field usually analyze this kind of data** — reuse
+  `method-decision.md`'s analysis-method table if one exists, extend it if the
+  data type differs, rather than defaulting to a generic recipe. Then: design or
+  analyze; data local, effect sizes + CIs,
   Likert ordinal, seeds fixed; fold results back into skeleton nodes. Start the
   **numbers ledger** here (`tools/regress/numbers-ledger.template.md`; method in the
   `doc-regress` skill) — every number that will appear in the draft gets a row with its
@@ -120,6 +183,49 @@ description: Collaborative long-form academic writing — papers AND grant/fundi
   and grammar tools and **before** the de-cadencing pass. It reports, you judge: a real
   0/72 or 100% result is data and stays; an unsupported absolute converges (all→most,
   prove→show, the only→one of the few). Quoted source text is out of scope.
+  🔴 **Contrast sentences are a revision-time default, and need measuring every
+  round, not just before delivery.** Answering one review comment at a time
+  nudges toward adding another "it's X, not Y" boundary line, so the total
+  climbs with each revision round rather than staying flat. Rule: ① state
+  things plainly while drafting and revising, and keep a contrast only where
+  it is doing real argumentative work; ② **measure after every revision
+  round**, not only before delivery — English:
+  `python3 tools/en/ai_style_diag.py <draft> --gate` (exits non-zero when the
+  total contrast-sentence count is over the baseline's 90th percentile);
+  Chinese: `tools/zh-tw/zh_ai_style.py` reports the same total against a
+  Chinese baseline; ③ **do not fix an overage by swapping to a different
+  contrast shape** — "rather than" → "X, not Y", 並非…而是 → 而非, are the same
+  tic in different clothes, and the total does not move. After any rule
+  change to how contrast (or any style measure) is counted, re-run
+  `python3 tools/submissions/style_reaudit.py` against every manuscript still
+  drafting or under review (tracked in
+  `tools/submissions/style_targets.template.tsv`).
+  **Baseline and measuring stack.** Build (or point `--corpus` at) a folder of
+  **same-genre, pre-2022** published papers by other people — never your own
+  drafts, never a mix of the author's writing and others'. Run, every
+  revision round: English `ai_style_diag.py --gate` (contrast, punctuation,
+  sentence length, opening stock phrases) + `tools/en/biber_diag.py`
+  (grammatical register — dozens of Biber-style features against the
+  baseline) + `tools/en/bundle_diag.py` (lexical bundles the draft over-uses
+  relative to the baseline) + `tools/en/metadiscourse_en.py` (Hyland stance /
+  engagement / boosting-hedging markers against the baseline). **Directions
+  the literature actually supports, not just tool thresholds:** ① keep
+  argument structure author-led (skeleton-first, already this skill's
+  practice); ② keep genuine reader-engagement and implicit-stance markers in
+  English prose — LLM output tends to under-use both relative to expert
+  writing, which reads as more certain than the evidence supports; ③ don't
+  let stock connectives ("it is worth noting that…", "furthermore…") carry
+  the paragraph's framing — state the framing plainly, in your own words,
+  instead; ④ where the fingerprint tool flags heavy nominalization or a
+  sentence-final gerund clause, convert the nominalization back to a verb and
+  split the trailing "-ing" clause into its own sentence; ⑤ for Chinese
+  drafts, check sentence length **at both ends** — a mechanical revision pass
+  over-shortens into choppy fragments about as often as it runs long, so a
+  percentile near the bottom of the distribution deserves a look too, not
+  just the top. A method with no controlled comparison yet (e.g., matching
+  register to an exemplar paragraph from the baseline) stays a trial: measure
+  before/after with the tools above, and drop it if the numbers don't
+  improve.
   **Register, not just tics.** A senior co-author's verdict on a proposal that had
   passed every tool was "wording and syntax not academic enough, too much text and too
   few figures". Four rules came out of it, checked before delivery in any language:
@@ -165,6 +271,17 @@ description: Collaborative long-form academic writing — papers AND grant/fundi
     data file that produced it (logged in the ledger); every claim in a caption can be
     pointed to on the figure; truncated axes are marked. Figures are evidence, not
     decoration, and they are the usual blind spot.
+  - **6-1d Analysis-plan reconciliation (if `analysis-plan.md` exists):** run
+    `python3 tools/method/analysis_plan_check.py analysis-plan.md --phase6`
+    (write every deviation, or explicitly "no deviations" — never leave it
+    blank); the draft's method section reports any deviation honestly, and
+    anything analyzed outside the plan is labeled exploratory, not confirmatory.
+  - **6-1e Literature update:** the field may have moved between when the
+    argument was scoped and now. Re-run the Phase 1 keyword search and a
+    forward citation snowball (`tools/refs/snowball.py`) for anything
+    published since the `search-log.md` start date; fold anything relevant
+    into the comparison table or skeleton, and record the check in
+    `search-log.md` regardless of the outcome.
   - **6-2 Format:** tick `venue-notes.md` item by item (length, structure, section order,
     attachments, font/margins — every hard rule).
   - **6-2a Submission declarations — six items.** These are conditions for the
@@ -236,6 +353,10 @@ description: Collaborative long-form academic writing — papers AND grant/fundi
 - Literature: web + citation graphs (lite) / `fetch-refs` + `verify-citations` + local
   RAG (full).
 - Venue norms: web search of the official call → `venue-notes.md`.
+- Method decision: comparable-studies comparison + `method/METHOD_DECISION.md` +
+  `method/METHOD_CARDS.md` (`tools/method/method_decision_check.py`,
+  `tools/method/analysis_plan_check.py`); full rigor checklist in
+  `method/RIGOR_PROCESS.md`.
 - Method/analysis: describe honestly (lite) / R · Python · Jupyter (full).
 - Language: voice profile + careful AI-tic pass (lite) / local linters + corpora (full,
   see `setup/TOOLS.md`; Traditional-Chinese-Taiwan authors: `setup/addons/zh-tw/`).
