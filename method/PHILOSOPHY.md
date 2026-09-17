@@ -74,8 +74,10 @@ that the meaning is right (e.g. a back-translation into a language they read).
 - **No fabricated citations.** This is the first rule for a reason (`IRON-RULES.md`).
 - **Report effect sizes and confidence intervals, not just p-values.** Don't
   claim "no effect" from a non-significant p, since that requires an equivalence test.
-- **Data stays local.** Unpublished drafts and raw/participant data never go to a
-  cloud tool or a public AI detector.
+- **No third-party uploads.** Unpublished drafts and raw/participant data never go to a
+  third-party cloud tool or a public AI detector. The one cloud service that sees them is
+  the model you work with (Claude Code sends what it reads to Anthropic), so check your
+  institution's rules before it reads participant data.
 - **De-AI before delivery, and review with fresh eyes.** The writer's own
   self-review shares the writer's blind spots; a clean second pass catches what
   the drafting context hid.

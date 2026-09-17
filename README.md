@@ -2,7 +2,7 @@
 
 [![版本](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![最近更新](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![程式 MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![文件 CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**版本 `v1.7.1`**（2026-09-17）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
+**版本 `v1.7.2`**（2026-09-17）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
 **English → [README.en.md](README.en.md)**
 
@@ -25,13 +25,13 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 - **先架骨架再寫字**：不從空白頁硬擠出稿（那種硬擠就是「AI 味」的來源），先把論證結構立好，再照著它寫成文字。
 - **絕不編造引用**：每一條文獻都真的抓下來、確認方向對。查不到就標「未驗證」，不假裝。
 - **像你的聲音**：用你的母語寫時，對齊你自己的文風，不磨成通用 AI 腔。
-- **誠實內建**：效果量＋信賴區間（不只 p 值）、資料留在你電腦、交稿前去 AI 味、乾淨二審。
+- **誠實內建**：效果量＋信賴區間（不只 p 值）、資料不交給第三方服務、交稿前去 AI 味、乾淨二審。
 
 ---
 
 ## 怎麼用
 
-這套方法最終在**你自己電腦的 Claude Code** 上跑，這樣資料才留在本機、工具才跑得動。
+這套方法最終在**你自己電腦的 Claude Code** 上跑，這樣檔案才存在你手上、工具才跑得動。
 依你現在手上有什麼，選一條路開始：
 
 ### 情況 A ｜ 你電腦上已經有 Claude Code
@@ -92,6 +92,10 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 ## 隱私
 
 - 這個 repo 裡只有**方法與工具**，沒有任何人的稿件或資料。
+- 隨包的檢查工具與統計分析都在你的電腦上跑。線上檢索只送出 DOI、標題、作者這類書目資料（見〈會用到哪些外部程式與服務〉）。
+- 方法本身要求：**未發表稿件與研究原始資料不交給第三方線上服務**，不丟公開的 AI 偵測器，也不貼到其他雲端 AI 工具。
+- **Claude Code 本身是雲端模型**，它讀到的檔案內容（包括稿件與資料）會傳到 Anthropic 處理。有受試者資料或保密要求時，先確認機構與研究倫理審查的規定，以及你 Claude 帳號的資料使用設定。規定不允許送出的資料，就不要讓 Claude 讀。
+- 你生成的個人設定（文風檔、投稿筆記、骨架）不會被這個 repo 收走（見 `.gitignore`）。
 
 ## 授權
 
@@ -99,9 +103,6 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 - **方法與文件**（`method/`、`skills/`、`agents/`、`templates/`、`setup/`、README）：CC BY 4.0，可改寫、翻譯、教學、做自己的版本，**唯一條件是標示出處**（[`LICENSE-DOCS`](LICENSE-DOCS)）。
 - **第三方詞表**（`data/academic-vocab/`）：隨包的 AVL、ACL 為研究／教學免費使用、需標示出處；AWL 是 CC BY-NC-ND（不得改作），**不隨包**，由你用 `tools/vocab/fetch_awl.py` 自行抓取到本機。都不在上面兩種授權範圍內。
 - 引用格式與細則見 [`NOTICE.md`](NOTICE.md)。
-- 方法本身要求：**未發表的稿件與研究原始資料永遠留在你自己的電腦**，不上傳雲端、不丟公開的
-  AI 偵測器。你生成的個人設定（文風檔、投稿筆記、骨架）也不會被這個 repo 收走
-  （見 `.gitignore`）。
 
 ---
 
@@ -234,7 +235,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | **MinerU** | 掃描檔／中文 PDF 抽成乾淨文字（`verify-citations`） | `uv tool install mineru` |
 | **R**＋`statcheck`、`scrutiny` | `paper-review` 第 1 層重算 p 值、GRIM 查平均數可能性（沒裝就退回手算） | 裝 R 後 `install.packages(c("statcheck","scrutiny"))` |
 | **R**＋`DeclareDesign` | `co-author` Phase 3.5 設計診斷（看 coverage 不只看 power） | `install.packages("DeclareDesign")` |
-| **R** 或 **Python** 統計 | 本機統計分析：混合模型（`lme4`／`afex`）、序數 Likert（`ordinal::clmm`）、事後比較與效果量；分流規則見 `setup/TOOLS.md` | 資料全程留在你電腦；數值雷區見 `setup/TOOLS.md` |
+| **R** 或 **Python** 統計 | 本機統計分析：混合模型（`lme4`／`afex`）、序數 Likert（`ordinal::clmm`）、事後比較與效果量；分流規則見 `setup/TOOLS.md` | 計算在你電腦上跑；數值雷區見 `setup/TOOLS.md` |
 | **R** 貝氏三路 | 公式寫得出的階層模型→`brms`；「無差異」結論要 BF01→`BayesFactor`；**離散潛在變數／混合模型／自訂 sampler／JAGS 舊模型移植→`nimble`**（BUGS 語法，Stan 寫不出離散參數）；三者都要報先驗與收斂診斷 | `install.packages(c("brms","BayesFactor","nimble"))`；`brms` 另需 CmdStan 或 rstan |
 | **Harper** | 英文毫秒級第一遍文法（存檔就報；LanguageTool 仍是主力） | 編輯器外掛或 CLI，離線 |
 | **autocorrect** | 中文全半形、盤古空格自動整理 | `brew install autocorrect` |
@@ -254,7 +255,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | **出版社網站** | `pdf_fetch.py` 的瀏覽器層，用**你自己的**存取權在真實瀏覽器 session 取檔 | 就是你手動開網頁會送的東西 |
 | **Unpaywall**、**arXiv** | `fetch-refs` 抓開放取用的 PDF | DOI |
 
-**稿件內容從不送出**：線上服務只拿到 DOI、標題、作者這類書目資料；未發表稿件與研究原始資料永遠留在你的電腦。
+**上表的線上服務只拿到書目資料**（DOI、標題、作者）。稿件內容會送出去的地方只有 Claude Code 本身（見〈隱私〉）。
 
 ### 刻意不收的環節
 
@@ -280,6 +281,8 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 
 ## 版本紀錄
 
+- **v1.7.2**（2026-09-17）：**隱私說明改成照實寫。** 舊版多處寫「未發表稿件永遠留在你的電腦」，但 Claude Code 是雲端模型，它讀到的稿件與資料會傳到 Anthropic 處理，這句話不成立。
+  現在的說法是：隨包工具與統計在本機跑、線上檢索只送書目資料、稿件不交給第三方服務，並在〈隱私〉明講 Claude Code 會送出它讀到的內容，有受試者資料或保密要求時要先確認機構規定。README、`CLAUDE.md`、`method/`、`setup/`、三個 skill 與 `tools/` 說明一併改。
 - **v1.7.1**（2026-09-17）：**文件清掉長破折號。** 套件在教「長破折號是 AI 文字的明顯痕跡」，自己的文件卻每千詞有 10 個以上。
   英文文件的長破折號從 794 個降到 13 個（每千詞 10.4 → 0.2），剩下的是原文引句、文獻標題與表格裡代表「無」的 `—`。
   中文文件的 `——` 清到零。改法依作用換成句號、逗號、括號或冒號，分號與對比句數量都沒有增加。

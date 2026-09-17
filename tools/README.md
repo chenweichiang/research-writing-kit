@@ -4,7 +4,7 @@ Small, local, privacy-respecting checkers you can run from day one. **The three
 Chinese tools need nothing installed** (Python 3 standard library only). They work
 out of the box. The English tools need one or two free offline programs.
 
-> Everything here runs **on your machine**; drafts never leave it. Never paste an
+> Everything here runs **on your machine** and sends no draft text anywhere. Never paste an
 > unpublished draft into a cloud "AI detector."
 >
 > These are generalized from one researcher's toolkit. Adapt the word lists and

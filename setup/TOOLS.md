@@ -27,7 +27,7 @@
 | **Uncited-claims scan** (quantitative / causal / superlative sentences with no citation) | ✅bundled `tools/claims/uncited_claims_scan.py`: pure regex, zero LLM, Chinese + English. Each hit: cite it, point to your own data (ledger), or soften the wording; suppress with an inline waiver that carries a reason | (already full-strength) |
 | **Document regression** (a caught error becomes a standing check) | ✅bundled `tools/regress/regress.py` + `dead_rule_check.py`, driven by a rules file (start from `rules.template.json`) kept *in the author's project*; includes the numbers-ledger checks (stale value recurs → FAIL, current value missing from draft → WARN). Method in `skills/doc-regress` | (already full-strength) |
 | **Scanned / CJK PDF extraction** | Render pages to images and read visually (slow) | **MinerU** (`uv tool install mineru` or `pipx install mineru`): scans, CJK layouts, tables, formulas → clean markdown |
-| **Statistics / analysis** | Honest description + simple summaries | R (mixed models via `lme4`/`afex`, ordinal via `ordinal::clmm`, post-hoc via `emmeans`) / Python / a persistent Jupyter kernel. Data stays local. **Bayesian, three roads:** formula-expressible hierarchical regression → `brms`; evidence for the null (BF01) → `BayesFactor`; discrete latent variables, custom distributions or samplers, JAGS ports → `nimble` (Stan cannot sample discrete parameters). All three report priors + convergence |
+| **Statistics / analysis** | Honest description + simple summaries | R (mixed models via `lme4`/`afex`, ordinal via `ordinal::clmm`, post-hoc via `emmeans`) / Python / a persistent Jupyter kernel. The computation runs locally. **Bayesian, three roads:** formula-expressible hierarchical regression → `brms`; evidence for the null (BF01) → `BayesFactor`; discrete latent variables, custom distributions or samplers, JAGS ports → `nimble` (Stan cannot sample discrete parameters). All three report priors + convergence |
 | **Design diagnosis** (can this design answer the question at all?) | Claude reasons about confounds and states the claim's ceiling honestly | R `DeclareDesign`: declare model / inquiry / data strategy / answer strategy, run Monte-Carlo diagnosis, read **coverage** (should be ≈.95), not just power; then `simr` for sample size. Only when new data will be collected *and* an effect claimed |
 | **Statistical-consistency check of a draft** | Recompute reported numbers by hand, mark lower-confidence | R packages **statcheck** (recompute APA-style p values) + **scrutiny** (GRIM: is that mean possible given N): `install.packages(c("statcheck","scrutiny"))`. **Run the local R packages, not the web versions**: see "Not recommended" below |
 | **Grammar / style linting** | Claude's by-hand passes | ✅bundled `tools/en/lt_check.sh` (LanguageTool, offline): `brew install languagetool pandoc`; optional LanguageTool n-gram data (~15 GB, auto-detected at `~/Corpora/lt-ngrams` or `$LT_NGRAMS`) adds statistical confusable-pair detection (affect/effect). Optional extras: **Harper** (offline, millisecond first pass on every save: editor plugin or CLI; LanguageTool stays the authoritative second pass) and, for Chinese, **autocorrect** (`brew install autocorrect`: full/half-width punctuation and CJK–Latin spacing) |
@@ -84,8 +84,9 @@ concrete reason, listed so you don't re-discover the same dead end:
   (lite mode).
 
 ## Principles for the installer
-- **Privacy is non-negotiable in both modes:** unpublished drafts and raw data stay
-  local. No cloud detectors, no public LLM uploads. That rule doesn't relax in full mode.
+- **Privacy is non-negotiable in both modes:** unpublished drafts and raw data go to
+  no third-party service. No cloud detectors, no uploads to other public AI tools. That rule
+  doesn't relax in full mode. Claude Code itself sends what it reads to Anthropic; say so to the author.
 - **Corpus hygiene** (if you build a style baseline): the baseline holds **only other
   people's published papers**. Never mix in the author's own drafts/posters/co-authored
   work or admin junk. Comparing the author's style against a baseline containing their

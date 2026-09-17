@@ -2,7 +2,7 @@
 
 [![version](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![updated](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![code MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![docs CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**Version `v1.7.1`** (2026-09-17) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
+**Version `v1.7.2`** (2026-09-17) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
 
 **中文版 → [README.md](README.md)**
 
@@ -26,13 +26,13 @@ This is not a template you paste in. It is a **method**, plus a small toolbox th
 - **Skeleton before prose**: no squeezing a draft out of a blank page (that squeezing is where "AI flavour" comes from). Build the argument structure first, then write the words to fit it.
 - **Never fabricates a citation**: every reference is really fetched and its direction of support confirmed. If it cannot be found, it is marked "unverified". No pretending.
 - **Sounds like you**: when you write in your native language, the prose is matched to your own voice, not sanded down into generic AI prose.
-- **Honesty built in**: effect sizes with confidence intervals (not just p-values), data stays on your computer, a de-AI pass before delivery, a clean second review.
+- **Honesty built in**: effect sizes with confidence intervals (not just p-values), no handing data to third-party services, a de-AI pass before delivery, a clean second review.
 
 ---
 
 ## How to use it
 
-In the end, this method runs in **Claude Code on your own computer**. That is what keeps your data local and lets the tools run.
+In the end, this method runs in **Claude Code on your own computer**. That is what keeps your files on your own disk and lets the tools run.
 Pick a starting point based on what you have right now:
 
 ### Case A | You already have Claude Code on your computer
@@ -96,6 +96,10 @@ Open Claude Code in the folder where your paper lives and say what you want in o
 ## Privacy
 
 - This repo contains only the **method and the tools**. It holds nobody's drafts or data.
+- The bundled check tools and the statistics run on your computer. Online lookups send only bibliographic data such as DOIs, titles, and author names (see "External programs and services it uses").
+- The method itself requires that **unpublished drafts and raw research data are not handed to third-party online services**: no public AI detectors, no pasting into other cloud AI tools.
+- **Claude Code itself is a cloud model.** Whatever files it reads, drafts and data included, are sent to Anthropic for processing. If you work with participant data or confidential material, first check your institution's and ethics board's rules and your Claude account's data settings. Data those rules keep in-house should not be opened in Claude Code.
+- The personal setup you generate (voice profile, venue notes, skeleton) is not collected back into this repo (see `.gitignore`).
 
 ## Licensing
 
@@ -103,9 +107,6 @@ Open Claude Code in the folder where your paper lives and say what you want in o
 - **Method and documents** (`method/`, `skills/`, `agents/`, `templates/`, `setup/`, the READMEs): CC BY 4.0. Rewrite, translate, teach, make your own version. **The only condition is attribution** ([`LICENSE-DOCS`](LICENSE-DOCS)).
 - **Third-party word lists** (`data/academic-vocab/`): the kit ships two, AVL and ACL (free for research and educational use, with attribution). The AWL is CC BY-NC-ND; you fetch it yourself with `tools/vocab/fetch_awl.py`, and the kit never redistributes it. None of these lists are covered by either licence above.
 - Citation format and details: [`NOTICE.md`](NOTICE.md).
-- The method itself requires that **unpublished drafts and raw research data always stay on your own computer**. Never upload them to the cloud or to a public
-  AI detector. The personal setup you generate (voice profile, venue notes, skeleton) is not collected back into this repo either
-  (see `.gitignore`).
 
 ---
 
@@ -238,7 +239,7 @@ These are **your** files (in your paper folder, not in this repo). Keep them und
 | **MinerU** | Extracting clean text from scanned or Chinese PDFs (`verify-citations`) | `uv tool install mineru` |
 | **R** plus `statcheck`, `scrutiny` | `paper-review` layer 1: recomputes p-values and runs GRIM on reported means (falls back to manual arithmetic if not installed) | Install R, then `install.packages(c("statcheck","scrutiny"))` |
 | **R** plus `DeclareDesign` | `co-author` Phase 3.5 design diagnosis (looks at coverage, not only power) | `install.packages("DeclareDesign")` |
-| **R** or **Python** statistics | Local statistical analysis: mixed models (`lme4` / `afex`), ordinal Likert (`ordinal::clmm`), post-hoc comparisons and effect sizes; routing rules in `setup/TOOLS.md` | Data stays on your computer throughout; numerical pitfalls in `setup/TOOLS.md` |
+| **R** or **Python** statistics | Local statistical analysis: mixed models (`lme4` / `afex`), ordinal Likert (`ordinal::clmm`), post-hoc comparisons and effect sizes; routing rules in `setup/TOOLS.md` | The computation runs on your computer; numerical pitfalls in `setup/TOOLS.md` |
 | **R** Bayesian, three routes | Hierarchical models you can write as a formula → `brms`; a "no difference" conclusion needs BF01 → `BayesFactor`; **discrete latent variables / mixture models / custom samplers / porting old JAGS models → `nimble`** (BUGS syntax; Stan cannot express discrete parameters). All three must report priors and convergence diagnostics | `install.packages(c("brms","BayesFactor","nimble"))`; `brms` also needs CmdStan or rstan |
 | **Harper** | A millisecond first pass on English grammar (reports on save; LanguageTool is still the main tool) | Editor plugin or CLI, offline |
 | **autocorrect** | Tidies Chinese full-width / half-width punctuation and CJK-Latin spacing automatically | `brew install autocorrect` |
@@ -256,7 +257,7 @@ These are **your** files (in your paper folder, not in this repo). Keep them und
 | **Semantic Scholar** | `snowball.py` fallback, citation lookups | DOI or title |
 | **Unpaywall**, **arXiv** | `fetch-refs` fetching open-access PDFs | DOI |
 
-**Manuscript text is never sent.** The online services only receive bibliographic data such as DOIs, titles, and author names. Unpublished drafts and raw research data always stay on your computer.
+**The online services above receive only bibliographic data** (DOIs, titles, author names). The one place manuscript text is sent is Claude Code itself (see "Privacy").
 
 ### Deliberately not shipped
 
@@ -284,6 +285,12 @@ uncited claims, regression) need no model; just run the scripts.
 ---
 
 ## Version history
+
+- **v1.7.2** (2026-09-17): **The privacy statement now says what actually happens.** Earlier versions said in several places that
+  unpublished drafts always stay on your computer. Claude Code is a cloud model, so the drafts and data it reads are sent to Anthropic,
+  and that sentence was not true. The kit now says: the bundled tools and statistics run locally, online lookups send only bibliographic
+  data, drafts are not handed to third-party services, and "Privacy" states plainly that Claude Code sends what it reads, so participant
+  or confidential data needs the institution's clearance first. The READMEs, `CLAUDE.md`, `method/`, `setup/`, three skills, and the `tools/` notes changed together.
 
 - **v1.7.1** (2026-09-17): **The documents drop their em dashes.** The kit teaches that em dashes
   are a visible sign of AI prose, yet its own documents carried more than ten per thousand words.

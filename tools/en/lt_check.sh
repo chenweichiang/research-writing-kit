@@ -8,7 +8,7 @@
 #   flips it in one shot. Whichever variant you lock, mixed spelling gets flagged
 #   (the other variant's spellings are marked) — symmetric.
 # Privacy: LanguageTool (brew build) is pure local Java — the draft never leaves the
-#   machine (satisfies "unpublished drafts stay local").
+#   machine (satisfies "no third-party uploads").
 #
 # Requires: languagetool + pandoc  (macOS: brew install languagetool pandoc)
 #   Override the binary with:  LT=/path/to/languagetool  lt_check.sh ...

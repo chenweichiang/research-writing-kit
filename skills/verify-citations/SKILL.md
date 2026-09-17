@@ -111,7 +111,7 @@ foundational works (→ the presumption-of-correctness rules in the template).
   faster model is fine for the per-source readers and for the skeptic second review;
   keep the strongest model for the whole-draft synthesis and the final report. If
   subagents are used, set the model explicitly on each rather than inheriting.
-- Never upload the unpublished draft to a cloud service to do this.
+- Never upload the unpublished draft to a third-party cloud service to do this.
 
 ## Not this skill
 Claims **without** a citation marker are invisible here. Run

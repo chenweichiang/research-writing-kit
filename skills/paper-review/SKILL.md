@@ -1,13 +1,13 @@
 ---
 name: paper-review
-description: Five-layer quality check for an academic draft (any language). Use when the author says "check this paper", "proofread", "catch typos", "look at this as a reviewer", "paper review", "check before I submit", asks whether the reported statistics are self-consistent / the numbers look suspicious, wants the draft checked against a reporting guideline (COREQ / SRQR / TREND / CONSORT / STROBE / PRISMA), or asks "which declarations am I missing before submitting". Reads the project's `ADJUDICATED.md` before reviewing (settled items are not re-raised). Mechanical layers run local tools when available (statistics = statcheck + scrutiny recomputation, not hand-rolled, when R is installed); semantic and logic layers are done by Claude under an anti-bias rubric. Unpublished drafts never leave the machine.
+description: Five-layer quality check for an academic draft (any language). Use when the author says "check this paper", "proofread", "catch typos", "look at this as a reviewer", "paper review", "check before I submit", asks whether the reported statistics are self-consistent / the numbers look suspicious, wants the draft checked against a reporting guideline (COREQ / SRQR / TREND / CONSORT / STROBE / PRISMA), or asks "which declarations am I missing before submitting". Reads the project's `ADJUDICATED.md` before reviewing (settled items are not re-raised). Mechanical layers run local tools when available (statistics = statcheck + scrutiny recomputation, not hand-rolled, when R is installed); semantic and logic layers are done by Claude under an anti-bias rubric. Unpublished drafts never go to third-party services.
 ---
 
 # Paper Review: five-layer quality check
 
 > Generated from the Research Writing Kit; adapt to the author.
-> Iron rules: **unpublished drafts never go to the cloud** (never suggest a public
-> AI detector), **minimal-edit** (don't rewrite the author's voice), **every
+> Iron rules: **unpublished drafts never go to third-party cloud services** (never
+> suggest a public AI detector), **minimal-edit** (don't rewrite the author's voice), **every
 > criticism carries a quote from the text**.
 
 > Author profile (filled at setup): field `<FIELD>` · language(s) `<LANGUAGE>` ·
@@ -131,7 +131,7 @@ author; put the total edit count at the top.
    percentile**: a feature sitting at 5× the baseline median but only the 69th
    percentile still needs fixing. The percentile alone can hide a long tail. Do
    punctuation surgery only on pure fillers; keep rhetoric doing conceptual work.
-   Compare before/after. ⚠️ Never use a cloud detector. Unpublished drafts stay local,
+   Compare before/after. ⚠️ Never use a cloud detector. Unpublished drafts stay out of third-party services,
    and academic prose gives high false positives.
 5. **Overclaim pass** (`tools/claims/overclaim_lint.py` from Layer 1, judged here).
    De-AI is not finished when the convergence words are gone: a draft that still says
@@ -189,7 +189,7 @@ Rubric (score each 🔴fatal / 🟡major / 🟢minor):
      (most ACM venues and journals now require it). Check it **matches reality**: a draft
      co-written with an LLM that declares "language polishing only" is a false
      disclosure. The same policies forbid uploading a manuscript to a public LLM for
-     review, the external basis for this skill's "drafts stay local" rule.
+     review, the external basis for this skill's "no third-party uploads" rule.
    - **Research ethics**: approval or exemption number and institution in the Method;
      consent and identifiable-data handling stated.
    - **Data and code availability**: present, and true? ("available" with no link, or a

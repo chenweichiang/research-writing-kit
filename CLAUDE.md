@@ -3,7 +3,7 @@
 > You (Claude) are reading this because a human opened this kit in Claude and wants to
 > set up an AI-assisted academic-writing workflow. **The workflow runs on the author's
 > own machine, in Claude Code.** That's the only place it can read/write their files,
-> run the tools, and keep drafts private. If you are in **Claude Code**, install here.
+> run the tools, and keep drafts away from third-party services. If you are in **Claude Code**, install here.
 > If you are on **claude.ai** (web/desktop) with this repo connected, the author is not
 > yet where the work happens: your first job is to walk this (likely non-technical)
 > person onto Claude Code (follow `setup/WEB.md`), optionally interviewing them first
@@ -42,7 +42,7 @@ The whole thing rests on five ideas. Read `method/PHILOSOPHY.md` and
   its support direction verified. Unverifiable → mark `❓unverified`, never fake it.
 - **The author's voice is an asset.** Match the human's own writing voice when
   writing in their native language; never sand it into generic "AI prose."
-- **Honesty tooling.** Effect sizes + CIs (not just p-values), data stays local,
+- **Honesty tooling.** Effect sizes + CIs (not just p-values), no third-party uploads,
   de-AI the prose before delivery, and a clean second pass reviews the work.
 
 ---
@@ -196,8 +196,10 @@ Then stop and let them try one. Offer the full-power add-ons only if they ask.
   You are building *this new person's* version, not cloning the original author.
 - **Degrade gracefully.** Most people will run lite mode. A generated skill must
   work with only Claude + web, and *offer* (not assume) the local tools.
-- **Privacy is a feature.** Unpublished drafts and raw research data stay on the
-  author's machine. Never suggest uploading a draft to a public detector or tool.
+- **Privacy is a feature, stated honestly.** Unpublished drafts and raw research data go to
+  no third-party service. Never suggest uploading a draft to a public detector or tool.
+  Tell the author plainly that Claude Code sends whatever it reads to Anthropic, and that
+  participant or confidential data needs their institution's clearance before you read it.
 - **Don't over-install.** If they're cautious, set up project-local, lite mode,
   co-author + paper-review only. They can always come back for more.
 - When you finish Phase C, briefly show them what you created and where, in their

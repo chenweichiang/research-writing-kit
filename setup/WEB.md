@@ -9,8 +9,9 @@
 
 ## Why move at all (say this to them, plainly, in their language)
 
-- The method keeps your **drafts and data on your own computer**: nothing unpublished
-  goes to the cloud. That privacy only holds on your machine.
+- The method keeps your **drafts and data as files on your own computer** and never hands
+  them to third-party services. (Claude Code still sends what it reads to Anthropic, the same
+  way this chat does.)
 - Claude Code can **save your paper, skeleton, and references as real files**, and run
   the checking tools. The web app can read this method and talk it through, but it can't
   touch your computer.

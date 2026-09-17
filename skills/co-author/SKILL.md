@@ -31,8 +31,8 @@ description: Collaborative long-form academic writing (papers AND grant/funding 
    send a one-page direction summary as non-blocking and keep going.
 3. **Author signs off in a language they can check.** Skeleton in their strongest
    language; second-language output ships with an **independent back-translation**.
-4. **Data stays local; effect sizes + CIs.** Follow venue method rules; profile data
-   first; Likert as ordinal; seeds fixed; nothing unpublished goes to the cloud.
+4. **No third-party uploads; effect sizes + CIs.** Follow venue method rules; profile data
+   first; Likert as ordinal; seeds fixed; nothing unpublished goes to third-party cloud services.
 5. **"Sounds like the author" only where sure.** Match voice in their own language
    with real samples; otherwise aim for faithful strong academic prose.
 6. **Delivery comes with a verification report.** Citations + format + toolchain +

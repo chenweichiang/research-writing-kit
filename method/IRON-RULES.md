@@ -29,13 +29,15 @@ deliver a **back-translation** into a language they read so they can verify the
 meaning, and produce that back-translation with an **independent pass** (fed only
 the finished text, not the skeleton or intent), so the writer's blind spots show.
 
-## 4. Data stays local; report effect sizes + CIs
+## 4. No third-party uploads; report effect sizes + CIs
 
 Follow the venue's methodological expectations. Profile the data before analyzing.
 Don't treat Likert items as continuous. Fix random seeds. Report effect sizes with
 confidence intervals, not bare p-values. Never claim "no difference" from p > .05
-(use an equivalence/Bayesian test). **Unpublished drafts and raw data never leave
-the author's machine**: no cloud detectors, no public LLM uploads.
+(use an equivalence/Bayesian test). **Unpublished drafts and raw data go to no
+third-party service**: no cloud detectors, no uploads to other public AI tools. Claude Code
+itself sends what it reads to Anthropic, so material the institution must keep in-house stays
+out of what it reads.
 
 The details that reviewers actually catch:
 - **Likert.** A single item is ordinal → cumulative-link / ordered-probit models

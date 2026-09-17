@@ -183,7 +183,7 @@ data type differs, rather than defaulting to a generic recipe.
   the data doesn't.
 - **Analyze (lite):** describe the design honestly and state what analysis is
   appropriate; do simple summaries carefully. **Full:** run it in R/Python/Jupyter.
-- Iron rules: **data stays local; effect sizes + CIs; Likert → ordinal models,
+- Iron rules: **no third-party uploads; effect sizes + CIs; Likert → ordinal models,
   not means; seeds fixed.** Fold results (numbers + effect sizes) back into the
   skeleton nodes that need them, and into the **numbers ledger** (Iron Rule 8;
   format from `skills/doc-regress`, template `tools/regress/numbers-ledger.template.md`).
