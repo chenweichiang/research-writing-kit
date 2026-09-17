@@ -2,7 +2,7 @@
 
 [![版本](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![最近更新](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![程式 MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![文件 CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**版本 `v1.7.0`**（2026-09-17）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
+**版本 `v1.7.1`**（2026-09-17）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
 **English → [README.en.md](README.en.md)**
 
@@ -95,8 +95,8 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 
 ## 授權
 
-- **程式碼**（`tools/`）：MIT——隨便用、隨便改、可商用，保留版權聲明即可（[`LICENSE`](LICENSE)）。
-- **方法與文件**（`method/`、`skills/`、`agents/`、`templates/`、`setup/`、README）：CC BY 4.0——可改寫、翻譯、教學、做自己的版本，**唯一條件是標示出處**（[`LICENSE-DOCS`](LICENSE-DOCS)）。
+- **程式碼**（`tools/`）：MIT，隨便用、隨便改、可商用，保留版權聲明即可（[`LICENSE`](LICENSE)）。
+- **方法與文件**（`method/`、`skills/`、`agents/`、`templates/`、`setup/`、README）：CC BY 4.0，可改寫、翻譯、教學、做自己的版本，**唯一條件是標示出處**（[`LICENSE-DOCS`](LICENSE-DOCS)）。
 - **第三方詞表**（`data/academic-vocab/`）：隨包的 AVL、ACL 為研究／教學免費使用、需標示出處；AWL 是 CC BY-NC-ND（不得改作），**不隨包**，由你用 `tools/vocab/fetch_awl.py` 自行抓取到本機。都不在上面兩種授權範圍內。
 - 引用格式與細則見 [`NOTICE.md`](NOTICE.md)。
 - 方法本身要求：**未發表的稿件與研究原始資料永遠留在你自己的電腦**，不上傳雲端、不丟公開的
@@ -179,7 +179,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 |------|------|------|
 | 七個 skill | `~/.claude/skills/<名稱>/SKILL.md`（全域）或你論文資料夾的 `.claude/skills/`（單一專案） | **照你的答案改寫過**，不是原檔複製；領域、語言、場域、模式都填進去了 |
 | 兩個 subagent | `~/.claude/agents/` 或專案 `.claude/agents/` | 寫英文或要查引用的人才裝 |
-| 你的 `CLAUDE.md` 多一段 | `~/.claude/CLAUDE.md` 或專案 `CLAUDE.md` | 記你的領域、語言、場域、模式（lite／full）、文風檔位置，以及 **kit 的路徑（`KIT PATH`）**——全機只記這一處，搬 kit 只改這一行 |
+| 你的 `CLAUDE.md` 多一段 | `~/.claude/CLAUDE.md` 或專案 `CLAUDE.md` | 記你的領域、語言、場域、模式（lite／full）、文風檔位置，以及 **kit 的路徑（`KIT PATH`）**，全機只記這一處，搬 kit 只改這一行 |
 | `voice-samples/` | 你的專案或家目錄 | **只放你親筆寫的文章**（給了舊稿才有）；文風工具的 `--authored` 指這裡，絕不指向混有 AI 稿的資料夾 |
 | `VOICE_PROFILE.md`、`voice_rules.json` | 同上 | 從你的舊稿抽出的文風描述與硬規則；`voice_lint.py` 吃後者 |
 
@@ -195,7 +195,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 |------|--------|------|
 | `skeleton.md` | `co-author` | 論證骨架＝唯一權威；每個 Phase 結束回寫 `## Progress`，新 session 先讀它 |
 | `venue-notes.md` | `co-author` | 目標場域當年度的格式、字數、審查慣例、AI 揭露政策、預印本政策 |
-| `search-log.md` | `co-author` | 檢索留痕：用了哪些資料庫、查詢字串、日期、納入排除——審稿人問「為何漏了 X」時要答得出來 |
+| `search-log.md` | `co-author` | 檢索留痕：用了哪些資料庫、查詢字串、日期、納入排除，審稿人問「為何漏了 X」時要答得出來 |
 | `ADJUDICATED.md` | `co-author`／`paper-review`／`doc-regress` | 已裁定事項：「看起來錯、查過、其實對」的清單，之後的檢查不重問 |
 | 文獻 PDF 資料夾＋清單檔 | `fetch-refs` | 依 `NN [作者 年] 標題.pdf` 命名；清單記找到什麼、沒找到什麼、驗證層級（verified／LOW-CONFIDENCE）、自署著作標記 |
 | `snowball.csv` | `snowball.py` | 滾雪球結果（可自訂檔名） |
@@ -254,11 +254,11 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | **出版社網站** | `pdf_fetch.py` 的瀏覽器層，用**你自己的**存取權在真實瀏覽器 session 取檔 | 就是你手動開網頁會送的東西 |
 | **Unpaywall**、**arXiv** | `fetch-refs` 抓開放取用的 PDF | DOI |
 
-**稿件內容從不送出**——線上服務只拿到 DOI、標題、作者這類書目資料；未發表稿件與研究原始資料永遠留在你的電腦。
+**稿件內容從不送出**：線上服務只拿到 DOI、標題、作者這類書目資料；未發表稿件與研究原始資料永遠留在你的電腦。
 
 ### 刻意不收的環節
 
-原作者的工具鏈還有幾個環節存在，但**不出貨**——不是忘了，是它們超出「論文與提案」的範圍，或綁死在某台機器上：
+原作者的工具鏈還有幾個環節存在，但**不出貨**，不是忘了，是它們超出「論文與提案」的範圍，或綁死在某台機器上：
 
 - **present-video**（發表影片一條龍：TTS 克隆本人聲音／Whisper 聽寫驗證／本機生圖）：超出論文與提案的範圍，且每一段都要自架模型。
 - **paper-healthcheck**：檢查的是作者**本機工具鏈本身**有沒有斷、有沒有新版，不是檢查稿件；你的工具鏈長什麼樣它不知道。
@@ -279,6 +279,15 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 ---
 
 ## 版本紀錄
+
+- **v1.7.1**（2026-09-17）：**文件清掉長破折號。** 套件在教「長破折號是 AI 文字的明顯痕跡」，自己的文件卻每千詞有 10 個以上。
+  英文文件的長破折號從 794 個降到 13 個（每千詞 10.4 → 0.2），剩下的是原文引句、文獻標題與表格裡代表「無」的 `—`。
+  中文文件的 `——` 清到零。改法依作用換成句號、逗號、括號或冒號，分號與對比句數量都沒有增加。
+  第一輪有一部分改成句中冒號，等於把同一種節奏換個形狀，第二輪再把其中約 180 個改回句號或連接詞，
+  剩下的冒號是標題、列舉與表格欄位，句中冒號每千詞 8.6 → 9.9。
+  清理後的檢查：範本檢查程式的輸出與清理前相同，方法卡的引句與 DOI 不變，工具自我測試全數通過。
+  另修正 v1.7.0 的一個問題：`skills/co-author/SKILL.md` 開頭 YAML 的說明欄含「冒號＋空格」，嚴格的 YAML 解析會失敗，
+  現在所有 skill 與 agent 的 frontmatter 都能解析。
 
 - **v1.7.0**（2026-09-17）：**研究方法決策、嚴謹研究流程，以及對比句改看總量。**
   ① **方法決策**（`method/METHOD_DECISION.md`、`method/METHOD_CARDS.md`）：不論自認知不知道，都先查同類論文，
@@ -319,31 +328,31 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 - **v1.5.0**（2026-08-30）：**取檔補上真正缺的那一層，並把「拿不到」變成有下一步的結論。**
   新增 `tools/refs/pdf_fetch.py`：OA 源（增補 Europe PMC／CORE／OpenAIRE）→ curl_cffi TLS
   偽裝 → **真實 Chrome 持久 profile**。舊版說 Cloudflare 出版社「只能人工瀏覽器下載」，
-  觀察沒錯但結論下太早——那是在沒試過瀏覽器自動化的前提下寫的。實測：TLS 偽裝救得回 T&F
+  觀察沒錯但結論下太早。那是在沒試過瀏覽器自動化的前提下寫的。實測：TLS 偽裝救得回 T&F
   一類的邊緣 403，但 ACM／Wiley／SAGE／AIP／Elsevier 仍回 `cf-mitigated: challenge`；
   真實瀏覽器則全部通過。**比命中率更重要的是分類**：拿不到的一律標成 `PAYWALL`（沒訂閱，
   工具無解）／`CAPTCHA`（人過一次即可，且有時效）／`NO-LINK`（工具還能再改），
-  混報成一句「需瀏覽器」等於沒報。真實 46 筆書目實測 11/46 → 30/46，且 `NO-LINK` 歸零——
+  混報成一句「需瀏覽器」等於沒報。真實 46 筆書目實測 11/46 → 30/46，且 `NO-LINK` 歸零。
   每一筆未到手都是使用者能採取行動的權限缺口。另記三件事以免重蹈：`/doi/pdf/` 常常不是
   PDF（Wiley 回檢視器外殼，一律驗 `%PDF-` magic bytes）、Elsevier 的網址含一次性 token
   拼不出來（要攔回應本體）、連結發現必須看 class／aria-label（圖示連結的 textContent 是空的）。
-  ❌ 並記下一條驗證過的死路：**Zotero translation-server 拿不到 PDF 連結**——metadata 全對，
+  ❌ 並記下一條驗證過的死路：**Zotero translation-server 拿不到 PDF 連結**，metadata 全對，
   但 `attachments` 恆為 null，它是書目服務不是取檔服務。
 
-- **v1.4.0**（2026-08-29）：**去 AI 味補上另一半——消過度宣稱。** 新增
+- **v1.4.0**（2026-08-29）：**去 AI 味補上另一半，消過度宣稱。** 新增
   `tools/claims/overclaim_lint.py`（中英雙語，四類：絕對化／程度誇大／證據強度／最高級；
   **只報不改**）。原因：只拿掉趨同詞與節奏，卻留著「證明了／完全／唯一／clearly／proves」，
-  讀起來仍像模型寫的；而且不同於節奏痕跡，撐不起的絕對句是**實質**瑕疵——審稿人看到 n=12
+  讀起來仍像模型寫的；而且不同於節奏痕跡，撐不起的絕對句是**實質**瑕疵。審稿人看到 n=12
   的研究寫「證明了」，後面寫什麼都不會再信。處置原則是逐筆人判：資料撐得起就留
   （真的 0/72、100% 就是資料，把資料改軟是另一種不誠實），撐不起才收斂；**引述原文與引號內
-  的對象語言不掃**。已接進 `/co-author` Phase 5 與 6-3（每次交付重跑——每輪新寫的段落都會
+  的對象語言不掃**。已接進 `/co-author` Phase 5 與 6-3（每次交付重跑，每輪新寫的段落都會
   把宣稱長回來）、`/paper-review` 第 1 層與第 3 層、`method/WORKFLOW.md` Phase 5／6，
   `de-cadencing-scholar` 的 tic 由五類擴為六類。
 
 - **v1.3.0**（2026-08-25）：**補上交付前最容易漏、事後最難救的幾道關卡。** 新增第七個 skill
   `doc-regress`（抓到一次錯就寫成一條常駐檢查，改 A 不再弄壞 B；規則隨稿版控，含數字帳本模板
   `tools/regress/numbers-ledger.template.md` 與 `regress.py`／`dead_rule_check.py`）；新增
-  `tools/refs/retraction_scan.py`（撤稿掃描，Crossref＋OpenAlex 雙源，**每次交付重掃**——撤稿持續
+  `tools/refs/retraction_scan.py`（撤稿掃描，Crossref＋OpenAlex 雙源，**每次交付重掃**，撤稿持續
   發生，上次乾淨不代表這次乾淨）與 `tools/claims/uncited_claims_scan.py`（沒掛引用的量化／因果／
   最高級宣稱；查引用只看有引用標記的句子，這是它碰不到的盲區）。協作寫作補鐵則「檔案是唯一權威」
   （每個 Phase 回寫進度、壓縮後先重讀檔案再動手）、Phase 1A 檢索留痕、Phase 3.5 設計診斷（判
@@ -355,11 +364,11 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
   繁中包補 Typst。文風工具（中英四支）同步修正一批量測 bug。方法文件同步：流程改為 8 phase、
   鐵則補統計細則（ART 只限連續 DV、單題 Likert 走序數模型、SESOI 設計期宣告、貝氏三路分流）、
   論證工法每招補「何時別用」與實證論文手藝、`setup/TOOLS.md` 補數值雷區與 Harper／autocorrect。AWL 詞表不再隨包（CC BY-NC-ND 的 ND 條款），改由 `tools/vocab/fetch_awl.py` 抓取。README 改成完整清單：七個 skill 的名字與觸發句、`tools/` 全部檔案、安裝後電腦上會多出什麼、論文專案裡會長出哪些檔案、外部程式與線上服務各自被誰用到、送出什麼資料。
-- **v1.2.0**（2026-08-24）：**修掉一批會給錯數字的量測 bug**——文風診斷工具（中英文四支）
+- **v1.2.0**（2026-08-24）：**修掉一批會給錯數字的量測 bug**：文風診斷工具（中英文四支）
   把 markdown 版面語法當成散文標點在數：YAML frontmatter 與表格分隔列被當破折號、HTML
   註解裡的字被當正文、pandoc 多鍵引用的分號被當文風、粗體標題讓斷句規則失效而把兩三句
-  黏成一句。實測一份真實投稿：平均句長 44.22 詞（第 99 百分位）→ 26.52 詞（第 53 百分位）
-  ——**照舊版數字去修，會把本來正常的句子改壞**。剝除規則抽成 `tools/common/md_prose.py`
+  黏成一句。實測一份真實投稿：平均句長 44.22 詞（第 99 百分位）→ 26.52 詞（第 53 百分位）。
+  **照舊版數字去修，會把本來正常的句子改壞**。剝除規則抽成 `tools/common/md_prose.py`
   中英共用。另修 `snowball.py` 的 Semantic Scholar 後備線從未被觸發（撞每日額度時，
   第一個呼叫就 429，整顆種子被跳過）。
   新增：`rebuttal` skill（審稿回應逐點裁定＋修訂對照＋完整性驗證）、投稿狀態表與一稿多投
@@ -370,4 +379,4 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
   （零安裝）；查引用支援掃描檔／中文 PDF（選配 MinerU）；英文文法檢查可自動加掛 n-gram
   易混詞偵測（選配）；新增 `agents/` 兩個 subagent 範本：英文交付前的去 AI 節奏複查、
   引用查驗二審。
-- **v1.0.0**（2026-07）：初版——方法本體、五個 skill 範本、中英文檢查工具、自我安裝流程。
+- **v1.0.0**（2026-07）：初版：方法本體、五個 skill 範本、中英文檢查工具、自我安裝流程。

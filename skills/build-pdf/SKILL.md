@@ -3,7 +3,7 @@ name: build-pdf
 description: Turn a finished draft into a properly formatted PDF in the venue's layout. Use when the author says "make the PDF", "format this for submission", "typeset this", "build the paper". The deliverable is always a formatted PDF, never raw markdown (Iron Rule 7).
 ---
 
-# build-pdf — typeset the deliverable
+# build-pdf: typeset the deliverable
 
 > Generated from the Research Writing Kit; adapt to the venue and the author's tools.
 > Iron Rule 7: **the deliverable is a formatted PDF from version one**, matching the
@@ -22,12 +22,12 @@ Record the layout spec in `venue-notes.md`.
 - **General / Chinese / non-LaTeX:** a lightweight typesetting path (e.g. Typst or
   Quarto) that embeds the correct CJK/Latin fonts and matches the measured spec.
 - **Lite / no toolchain installed:** guide the author to a minimal install, or produce
-  the cleanest possible export and be explicit that layout still needs a final pass —
-  don't pretend a raw markdown export is the submission.
+  the cleanest possible export and be explicit that layout still needs a final pass.
+  Don't pretend a raw markdown export is the submission.
 
 ## Check before handing over
 Eyeball the PDF against the `venue-notes.md` layout spec: font sizes, margins, section
-styles, tables, page/word limits. Layout is a review item — a citation-perfect draft in
+styles, tables, page/word limits. Layout is a review item. A citation-perfect draft in
 the wrong format still fails.
 
 ## When the page limit bites (measured on a 25-page proposal)
@@ -35,7 +35,7 @@ the wrong format still fails.
   (`for p in $(seq 1 N); do pdftotext -f $p -l $p out.pdf - | wc -m; done`); a page far
   below the norm is a page break forced by a full-page figure, an unsplittable chart,
   or a table row that jumped. Cutting text *before* such a page only widens the gap on
-  the page before it — nothing after it moves.
+  the page before it. Nothing after it moves.
 - **Free a whole page, or nothing changes:** let the figure float (Typst
   `placement: auto`; LaTeX `[tbp]`), anchor it at a chapter start to control where it
   lands, and the blank space closes.
@@ -46,5 +46,5 @@ the wrong format still fails.
   past that, cut content.
 
 ## Second-language papers
-Deliver the formatted paper **and** the formatted back-translation as a pair — the
+Deliver the formatted paper **and** the formatted back-translation as a pair. The
 back-translation PDF is the author's sign-off entry point (Iron Rule 3).

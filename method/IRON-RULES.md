@@ -1,4 +1,4 @@
-# The Method — Iron Rules
+# The Method: Iron Rules
 
 > The non-negotiables. Every generated skill must preserve all of these. You may
 > simplify the *wording* for a non-technical author; you may not drop the *rule*.
@@ -8,17 +8,17 @@
 ## 1. Never fabricate a citation
 
 Every reference that enters a draft must be **really obtained** and its **support
-direction verified** — i.e. you actually read enough of the source to confirm it
+direction verified**: i.e. you actually read enough of the source to confirm it
 says what you're citing it for, and in the right direction. If you cannot get the
 full text or verify it, mark it `❓unverified` and never present it as established.
 A plausible-looking citation you did not verify is a fabrication.
 
 ## 2. Build the skeleton; don't gate by default
 
-Always build the argument skeleton (`skeleton.md`) before writing prose — it's
+Always build the argument skeleton (`skeleton.md`) before writing prose. It's
 the quality engine and the cross-session source of truth. But in default mode you
 do **not** wait for the author to approve it. Send a one-page direction summary as
-*non-blocking* (they can interrupt anytime — early interruption is cheap), and
+*non-blocking* (they can interrupt anytime, early interruption is cheap), and
 keep going. Only in explicit skeleton-collaboration mode do you wait for sign-off.
 
 ## 3. The author signs off in a language they can actually check
@@ -26,7 +26,7 @@ keep going. Only in explicit skeleton-collaboration mode do you wait for sign-of
 Working language for thinking and the skeleton = the author's strongest language.
 If the final paper is in a language the author does **not** write themselves,
 deliver a **back-translation** into a language they read so they can verify the
-meaning — and produce that back-translation with an **independent pass** (fed only
+meaning, and produce that back-translation with an **independent pass** (fed only
 the finished text, not the skeleton or intent), so the writer's blind spots show.
 
 ## 4. Data stays local; report effect sizes + CIs
@@ -35,13 +35,13 @@ Follow the venue's methodological expectations. Profile the data before analyzin
 Don't treat Likert items as continuous. Fix random seeds. Report effect sizes with
 confidence intervals, not bare p-values. Never claim "no difference" from p > .05
 (use an equivalence/Bayesian test). **Unpublished drafts and raw data never leave
-the author's machine** — no cloud detectors, no public LLM uploads.
+the author's machine**: no cloud detectors, no public LLM uploads.
 
 The details that reviewers actually catch:
 - **Likert.** A single item is ordinal → cumulative-link / ordered-probit models
   (`clmm`, `ordinal`), not means. A multi-item *summed scale* may be treated as
   approximately continuous, but then report its reliability (Cronbach's alpha or
-  omega) — no alpha, no scale.
+  omega). No alpha, no scale.
 - **ART only for continuous DVs.** Aligned Rank Transform is for factorial designs
   with a continuous outcome. Feeding it Likert, ordinal, count, or binary outcomes
   inflates Type I error (Tsandilas 2024). Those go to `clmm` (ordinal) or GLMMs
@@ -59,7 +59,7 @@ The details that reviewers actually catch:
   note, and convergence diagnostics.
 - **Design before power.** If the paper will *claim* an effect from new data, first
   ask whether the design can answer the question at all (bias and coverage, not
-  just power — see `WORKFLOW.md` Phase 3.5). A single-group pre/post cannot separate
+  just power, as detailed in `WORKFLOW.md` Phase 3.5). A single-group pre/post cannot separate
   the intervention from testing/maturation: add a control, or downgrade the claim
   to non-causal in the text.
 
@@ -67,7 +67,7 @@ The details that reviewers actually catch:
 
 Match the author's voice when writing in a language they write themselves and you
 have real samples (a filled-in `VOICE_PROFILE`). In a language they don't write,
-there is no "their voice" to match — aim for faithful, strong academic prose
+there is no "their voice" to match. Aim for faithful, strong academic prose
 instead of pretending. Preserve author-written passages; rewrite them only for
 real errors or necessary structural fixes.
 
@@ -76,18 +76,18 @@ real errors or necessary structural fixes.
 Every first draft or major revision you hand back includes: a citation-by-citation
 verification result, a point-by-point check against the venue's *current* official
 rules, proof the language toolchain is clean, and the `❓unverified` list. Don't
-hand over anything you haven't cleaned yourself first — the author needs a
+hand over anything you haven't cleaned yourself first. The author needs a
 reasonably complete, checked version to be able to judge it.
 
 ## 7. The deliverable is formatted, from the first version
 
-Deliver in the venue's format — the official template, or, absent one, the format
+Deliver in the venue's format: the official template, or, absent one, the format
 of the author's previously submitted documents (margins, font sizes, section
 styles, table style). Layout is itself a review item. `skeleton.md` and draft
 markdown are *internal working files*, never the thing you hand over. Don't ship
 raw markdown as if it were the paper.
 
-## 8. Files are the only authority — the conversation is not
+## 8. Files are the only authority: the conversation is not
 
 Long sessions drift: after a context compaction the model still carries a half-
 decayed story of what was decided, and it fights the files without noticing. That
@@ -97,7 +97,7 @@ So:
   is done, what's next, open questions, known risks, which files were touched. A
   rule that only says "read" and never "write" guarantees the file falls behind.
 - **The first action of a new session, or after a compaction,** is to re-read
-  `skeleton.md`, `venue-notes.md`, and the numbers ledger — and to say so plainly
+  `skeleton.md`, `venue-notes.md`, and the numbers ledger, and to say so plainly
   ("the conversation is not authoritative; the files are"). What the files don't
   record did not happen; to continue an earlier judgement, find it in the files
   first, and if it isn't there, redo it or ask.
@@ -116,6 +116,6 @@ So:
 If you use a formal argument checker (e.g. an SMT solver or a defeasible-argument
 tool) to stress-test a core causal claim, remember what it does and doesn't prove:
 it checks *validity and formal acceptance*, not *truth*. The propositions and
-attacks are ones you encoded — garbage in, garbage out — so the formalization
+attacks are ones you encoded (garbage in, garbage out), so the formalization
 itself must be human-reviewed. It complements adversarial human review; it never
 replaces it.

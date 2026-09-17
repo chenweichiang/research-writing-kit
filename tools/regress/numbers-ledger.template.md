@@ -24,7 +24,7 @@ Columns (regress.py reads the first five; `note` is free text):
            model numbers and other groups' correct values.
            Use `\|` inside a cell for the regex OR (a bare `|` would end the cell).
            `—` means "no stale value yet" (normal for a first ledger: R-STALE then
-           guards nothing — do not count it as a verified defence).
+           guards nothing. Do not count it as a verified defence).
   source   script / notebook that produces the number
   where    where it appears in the manuscript (section, table)
 

@@ -1,16 +1,16 @@
-# CLAUDE.md — Bootstrap Protocol for the Research Writing Kit
+# CLAUDE.md: Bootstrap Protocol for the Research Writing Kit
 
 > You (Claude) are reading this because a human opened this kit in Claude and wants to
 > set up an AI-assisted academic-writing workflow. **The workflow runs on the author's
-> own machine, in Claude Code** — that's the only place it can read/write their files,
+> own machine, in Claude Code.** That's the only place it can read/write their files,
 > run the tools, and keep drafts private. If you are in **Claude Code**, install here.
 > If you are on **claude.ai** (web/desktop) with this repo connected, the author is not
 > yet where the work happens: your first job is to walk this (likely non-technical)
-> person onto Claude Code — follow `setup/WEB.md` — optionally interviewing them first
+> person onto Claude Code (follow `setup/WEB.md`), optionally interviewing them first
 > so they arrive ready. claude.ai is the on-ramp, not the destination.
 > **This file is not the workflow. It is the installer.** Your job is to
 > interview this person, then generate a *personalized* set of skills and a
-> CLAUDE.md tailored to them — so that from now on their own Claude can help
+> CLAUDE.md tailored to them, so that from now on their own Claude can help
 > them write papers and proposals the way this method prescribes.
 >
 > The person is very likely **not technical** and may be new to AI tools.
@@ -47,16 +47,16 @@ The whole thing rests on five ideas. Read `method/PHILOSOPHY.md` and
 
 ---
 
-## BOOTSTRAP — run these phases in order
+## BOOTSTRAP: run these phases in order
 
-### Phase 0 — Where is the author running you? (check this first, silently)
+### Phase 0: Where is the author running you? (check this first, silently)
 
 - **Claude Code** (you can read/write local files and run shell commands) → you're in
   the right place. Continue to Phase A and install here.
 - **claude.ai web/desktop** (a GitHub connector lets you *read* this repo, but you
   cannot write to their disk or run programs) → the author is **not yet where the work
   happens**. The whole method depends on a machine that can hold files and run the
-  tools privately — that's Claude Code. Your job here is to **walk them onto Claude
+  tools privately. That's Claude Code. Your job here is to **walk them onto Claude
   Code**: follow `setup/WEB.md`. You *may* run the Phase A interview first (the answers
   carry over so they arrive ready), but the actual install happens in Claude Code, not
   in the web app. Do not fake a file-writing install from the browser.
@@ -64,13 +64,13 @@ The whole thing rests on five ideas. Read `method/PHILOSOPHY.md` and
 If you can't tell which you are, ask one plain line: "Are you using Claude in a terminal
 or a code editor, or on the claude.ai website/app?"
 
-### Phase A — Interview (ask in the human's language, one at a time)
+### Phase A: Interview (ask in the human's language, one at a time)
 
 Keep it friendly. These map directly to what you'll generate. Suggested wording
-is in `setup/INTERVIEW.md` — adapt it, don't read it robotically.
+is in `setup/INTERVIEW.md`. Adapt it, don't read it robotically.
 
 1. **What do you write?** (e.g. HCI papers, education research, humanities essays,
-   grant proposals, a thesis) — and roughly what field/discipline.
+   grant proposals, a thesis), and roughly what field/discipline.
 2. **What language do you write in?** (the language of the *final paper*, which may
    differ from the language you're talking to me in right now.)
 3. **Where do you submit?** Any target venues/journals/funders you know of, or
@@ -85,20 +85,20 @@ is in `setup/INTERVIEW.md` — adapt it, don't read it robotically.
    - **Full power** (optional, later): local citation tools, corpora, stats.
      → mention it exists (`setup/TOOLS.md`), but don't force it now.
 6. **Do you want the Traditional-Chinese-Taiwan localization pack?** (Only if they
-   write Chinese for a Taiwan audience — Taiwan-vs-mainland term checking, etc.
+   write Chinese for a Taiwan audience: Taiwan-vs-mainland term checking, etc.
    → `setup/addons/zh-tw/`. Skip entirely otherwise.)
 
 If the human answers vaguely, pick sensible defaults and say what you chose.
 Do not block on perfect answers.
 
-### Phase B — Build a voice profile (only if they gave you samples)
+### Phase B: Build a voice profile (only if they gave you samples)
 
 If they provided their own writing:
 - 🔴 **Put the samples in a dedicated `voice-samples/` folder** (in their project or
-  home), holding **only their own writing** — never AI/co-authored drafts. The
+  home), holding **only their own writing**, never AI/co-authored drafts. The
   style tools' `--authored` flag points *here*, not at the project folder (a project
-  folder also holds AI drafts, which would poison the baseline — the same corpus-
-  hygiene rule as the English style tool). Name their files plainly; the tools also
+  folder also holds AI drafts, which would poison the baseline under the same
+  corpus-hygiene rule as the English style tool). Name their files plainly; the tools also
   auto-skip anything containing "草稿/draft/ai/claude/gpt" as a second guard.
 - Read the samples. Extract *observable* habits into a filled-in copy of
   `templates/VOICE_PROFILE.template.md`: typical sentence length and rhythm,
@@ -112,10 +112,10 @@ If they provided their own writing:
 If they gave no samples: skip. The generated skills will target "clear, strong
 academic prose in <their venue's> register" instead of "sounds like them."
 
-### Phase C — Generate their personalized setup
+### Phase C: Generate their personalized setup
 
 > **This phase runs in Claude Code.** If the author is on claude.ai, you should have
-> sent them to `setup/WEB.md` in Phase 0 to get onto Claude Code first — come back here
+> sent them to `setup/WEB.md` in Phase 0 to get onto Claude Code first. Come back here
 > once they're in a terminal inside the cloned kit.
 
 Decide *where* to install based on how they answered Q5 and their comfort:
@@ -126,14 +126,14 @@ Decide *where* to install based on how they answered Q5 and their comfort:
   they're working in. Safer default for a cautious first-timer.
 
 Ask which they prefer in plain terms ("just for this paper, or for everything
-you write?"). Then, **generate — do not copy verbatim** — from the templates in
+you write?"). Then, generate (**do not copy verbatim**) from the templates in
 `skills/`, filling in:
 
 - their **field** and **target venue(s)** (into each skill's venue/format step),
 - their **writing language** and the matching language toolchain (lite or full),
-- their **voice profile** path (or "no voice profile — aim for venue register"),
+- their **voice profile** path (or "no voice profile, aim for venue register"),
 - the **degraded vs full** tool references per `setup/TOOLS.md` (never reference a
-  tool they haven't installed as if it exists — gate it behind "if installed"),
+  tool they haven't installed as if it exists, so gate it behind "if installed"),
 - for authors who write English or will verify citations: also adapt and install
   the two **subagent templates** from `agents/` (into `~/.claude/agents/` or the
   project's `.claude/agents/`, matching the skills' scope).
@@ -142,7 +142,7 @@ Also write them a short **their-own CLAUDE.md** (or a section in it) that record
 their field, language, venues, where the voice profile lives, which mode (lite/full)
 is active, **and the path where this kit is cloned** (the `KIT PATH`).
 
-🔴 **Record the kit path in exactly one place — their CLAUDE.md — and nowhere else.**
+🔴 **Record the kit path in exactly one place (their CLAUDE.md) and nowhere else.**
 Their CLAUDE.md is auto-loaded, so their Claude always knows it. In the generated
 skills, refer to kit tools as "the kit's `tools/zh-tw/...` (kit path is in CLAUDE.md)"
 rather than pasting an absolute path into every skill. That way, if they move or
@@ -152,10 +152,10 @@ resolve the path from CLAUDE.md at call time.
 Every generated skill MUST preserve the five iron ideas above. You may simplify
 wording for a non-technical author, but you may not drop: no-fabricated-citations,
 skeleton-first, effect-size+CI, data-stays-local, voice-preservation, de-AI pass
-(**both halves** — convergence words *and* overclaims: an unsupported absolute is a
+(**both halves**, convergence words *and* overclaims: an unsupported absolute is a
 substantive fault, not a stylistic one).
 
-### Phase D — Teach them the 3 sentences they'll actually use
+### Phase D: Teach them the 3 sentences they'll actually use
 
 Non-technical authors don't want a manual. Hand them the small number of things
 they'll actually type, in their language. For example:
@@ -178,12 +178,12 @@ Then stop and let them try one. Offer the full-power add-ons only if they ask.
 | `method/WORKFLOW.md` | The full 8-phase pipeline, generalized, with lite/full notes. |
 | `method/ARGUMENTATION.md` | Argument *moves* as an internal diagnostic (not a menu to sprinkle). |
 | `skills/*/SKILL.md` | De-personalized skill templates to adapt per author: `co-author`, `paper-review`, `fetch-refs`, `verify-citations`, `rebuttal`, `doc-regress` (turn a caught error into a standing check that scans the whole document and blocks recurrence; rules live in the author's project), `build-pdf`. |
-| `agents/*.md` | Subagent templates: `de-cadencing-scholar` (pre-delivery English rhythm pass) and `citation-skeptic` (calibrated second review of flagged citations). Install alongside the skills for authors who write English or verify citations — adapt, as with skills. |
-| `tools/` | Working local checkers, ready from day one. Chinese ones, `tools/refs/snowball.py`, `tools/refs/retraction_scan.py` (retraction scan, Crossref + OpenAlex), `tools/claims/uncited_claims_scan.py` (uncited quantitative/causal/superlative claims), `tools/claims/overclaim_lint.py` (bilingual overclaim scan — the second half of the de-AI pass), and `tools/regress/` (`regress.py` document-regression runner, `dead_rule_check.py` rule-set health, `rules.template.json`, `numbers-ledger.template.md`) are zero-install (stdlib); English ones need one/two free offline programs. `tools/refs/pdf_fetch.py` (layered reference-PDF retrieval; the browser layer is what clears Cloudflare publishers) is the one exception that needs installs — `pip install curl_cffi patchright` — and degrades to stdlib + open-access sources without them. See `tools/README.md`. |
+| `agents/*.md` | Subagent templates: `de-cadencing-scholar` (pre-delivery English rhythm pass) and `citation-skeptic` (calibrated second review of flagged citations). Install alongside the skills for authors who write English or verify citations. Adapt, as with skills. |
+| `tools/` | Working local checkers, ready from day one. Chinese ones, `tools/refs/snowball.py`, `tools/refs/retraction_scan.py` (retraction scan, Crossref + OpenAlex), `tools/claims/uncited_claims_scan.py` (uncited quantitative/causal/superlative claims), `tools/claims/overclaim_lint.py` (bilingual overclaim scan, the second half of the de-AI pass), and `tools/regress/` (`regress.py` document-regression runner, `dead_rule_check.py` rule-set health, `rules.template.json`, `numbers-ledger.template.md`) are zero-install (stdlib); English ones need one/two free offline programs. `tools/refs/pdf_fetch.py` (layered reference-PDF retrieval; the browser layer is what clears Cloudflare publishers) is the one exception that needs installs (`pip install curl_cffi patchright`) and degrades to stdlib + open-access sources without them. See `tools/README.md`. |
 | `templates/*` | Scaffolds the author fills in (voice profile, venue notes, skeleton, voice rules). |
 | `setup/INTERVIEW.md` | Suggested interview wording. |
-| `setup/WEB.md` | On-ramp for authors who start on claude.ai — how to move them onto Claude Code. |
-| `setup/LITE.md` | Zero-install path — works with just Claude + web. |
+| `setup/WEB.md` | On-ramp for authors who start on claude.ai: how to move them onto Claude Code. |
+| `setup/LITE.md` | Zero-install path: works with just Claude + web. |
 | `setup/TOOLS.md` | Optional local power-ups + graceful-degradation map. |
 | `setup/addons/zh-tw/` | Traditional-Chinese-Taiwan localization pack (optional). |
 | `examples/` | An anonymized worked skeleton, for reference. |
@@ -195,7 +195,7 @@ Then stop and let them try one. Offer the full-power add-ons only if they ask.
 - **Adapt, never impersonate.** This kit came from one researcher's practice.
   You are building *this new person's* version, not cloning the original author.
 - **Degrade gracefully.** Most people will run lite mode. A generated skill must
-  work with only Claude + web, and *offer* — not assume — the local tools.
+  work with only Claude + web, and *offer* (not assume) the local tools.
 - **Privacy is a feature.** Unpublished drafts and raw research data stay on the
   author's machine. Never suggest uploading a draft to a public detector or tool.
 - **Don't over-install.** If they're cautious, set up project-local, lite mode,

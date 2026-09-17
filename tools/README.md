@@ -1,14 +1,14 @@
 # Bundled tools
 
 Small, local, privacy-respecting checkers you can run from day one. **The three
-Chinese tools need nothing installed** (Python 3 standard library only) — they work
+Chinese tools need nothing installed** (Python 3 standard library only). They work
 out of the box. The English tools need one or two free offline programs.
 
 > Everything here runs **on your machine**; drafts never leave it. Never paste an
 > unpublished draft into a cloud "AI detector."
 >
 > These are generalized from one researcher's toolkit. Adapt the word lists and
-> rules to *your* field and voice — they're starting points, not gospel.
+> rules to *your* field and voice. They're starting points, not gospel.
 
 | Folder | Tool | One line |
 |--------|------|----------|
@@ -36,38 +36,38 @@ out of the box. The English tools need one or two free offline programs.
 | `en/` | `bundle_diag.py` | lexical bundles the draft over-uses relative to your field corpus |
 | `en/` | `metadiscourse_en.py` | Hyland stance / engagement / boosting-hedging markers vs your field corpus |
 
-## Chinese (`tools/zh-tw/`) — zero installs
+## Chinese (`tools/zh-tw/`): zero installs
 
 | Tool | What it does | Run |
 |------|--------------|-----|
 | `zh_localize.py` | Flags mainland-Mandarin terms (反饋→回饋…) + 台/臺 consistency, with a false-positive whitelist. Report-only. The table is `zh_tw_terms.tsv` (~170 terms with context rules, vetted against Taiwan-authored journal papers; part-sourced from MIT-licensed projects, see `NOTICE.md`). | `python3 zh_localize.py draft.md` |
 | `zh_ai_style.py` | Chinese AI syntax fingerprint: em-dash/semicolon/rule-of-three density, convergence words, sentence burstiness (heuristic); density of the 「並非…而是」 not-X-but-Y frame (≥0.6/k → review each); every sentence over 120 Han characters listed (enumerations exempt). | `python3 zh_ai_style.py draft.md` |
-| `voice_lint.py` | Mechanically enforces YOUR voice rules (config-driven). Exits non-zero until clean — use as a pre-delivery gate. Four rule kinds: `hard` (counted), `soft` (density), `report` (listed, never counted — default: AI stock phrases), `headings` (one regex over Markdown/Typst heading lines; sentence-form or question titles are flagged, rewrite as noun phrases). | `python3 voice_lint.py draft.md [--rules voice_rules.json]` |
+| `voice_lint.py` | Mechanically enforces YOUR voice rules (config-driven). Exits non-zero until clean. Use as a pre-delivery gate. Four rule kinds: `hard` (counted), `soft` (density), `report` (listed, never counted: default AI stock phrases), `headings` (one regex over Markdown/Typst heading lines; sentence-form or question titles are flagged, rewrite as noun phrases). | `python3 voice_lint.py draft.md [--rules voice_rules.json]` |
 | `zh_gloss_scan.py` | Lists every full-width parenthetical of 12+ characters that is not a citation or a cross-reference. Decide each: plain-language note → a defining sentence at first mention, in place; specification list → keep; restatement → cut. Do not collect them into a glossary. Report-only. | `python3 zh_gloss_scan.py draft.md [--min 12]` |
 
 - `zh_ai_style.py` gets sharper if you point `--authored <folder>` at a folder of your
-  own `.txt` writing — then words *you* genuinely use aren't flagged as AI tells.
+  own `.txt` writing, then words *you* genuinely use aren't flagged as AI tells.
   🔴 Point it at a folder holding **only your own writing** (keep a `voice-samples/`
-  folder separate from your working drafts) — mixing AI drafts into the baseline
+  folder separate from your working drafts). Mixing AI drafts into the baseline
   cancels the diagnosis out. As a guard, files named with 草稿/draft/ai/claude/gpt are
   auto-skipped. Needs ~120+ Han chars to compute; for a short section use `voice_lint`.
 - `voice_lint.py` ships generic defaults. Copy `templates/voice_rules.template.json`
   → `voice_rules.json`, edit it to match your own habits (what *you* never write), and
   pass `--rules voice_rules.json`. Build it from your `VOICE_PROFILE` (see `templates/`).
 
-## Claims (`tools/claims/`) — zero installs
+## Claims (`tools/claims/`): zero installs
 
 | Tool | What it does | Run |
 |------|--------------|-----|
-| `uncited_claims_scan.py` | Finds sentences that make a claim needing evidence — a number / % / p-value / N (quant), a causal verb (causal), "the first / only / to our knowledge" (super) — and carry **no citation marker**. English + Traditional Chinese triggers. Exits non-zero while unadjudicated findings remain. | `python3 uncited_claims_scan.py --src paper.md [--json report.json] [--only quant]` |
+| `uncited_claims_scan.py` | Finds sentences that make a claim needing evidence (a number / % / p-value / N (quant), a causal verb (causal), "the first / only / to our knowledge" (super)) and carry **no citation marker**. English + Traditional Chinese triggers. Exits non-zero while unadjudicated findings remain. | `python3 uncited_claims_scan.py --src paper.md [--json report.json] [--only quant]` |
 
 - Why it exists: citation-verification checks start from citation markers, so a
-  sentence with no marker is never checked — and in design research those are the
+  sentence with no marker is never checked, and in design research those are the
   load-bearing ones ("17 student posters showed…", "improved by 23%"). This is the only
   pass that looks at them. It does **not** judge whether the claim is true.
 - Each finding gets one of three dispositions: add a citation, name your own data
   source (put the number in the numbers ledger, see `regress/`), or soften the wording.
-  Then silence it with a waiver on that line — `<!--uncited-ok: own data run3.csv-->`
+  Then silence it with a waiver on that line: `<!--uncited-ok: own data run3.csv-->`
   (Markdown) or `% uncited-ok: …` (LaTeX). The reason is mandatory; empty waivers are
   ignored, and every waiver is listed in the report so one cannot silently cover a
   whole paragraph.
@@ -77,12 +77,12 @@ out of the box. The English tools need one or two free offline programs.
 
 | Tool | What it does | Run |
 |------|--------------|-----|
-| `overclaim_lint.py` | Flags wording that claims more than the evidence supports, in four categories (absolute / intensifier / evidence-strength / superlative), English and Traditional Chinese. **Report-only — never edits, never blocks.** | `python3 overclaim_lint.py draft.md [--lang auto\|en\|zh] [--json out.json]` |
+| `overclaim_lint.py` | Flags wording that claims more than the evidence supports, in four categories (absolute / intensifier / evidence-strength / superlative), English and Traditional Chinese. **Report-only: never edits, never blocks.** | `python3 overclaim_lint.py draft.md [--lang auto\|en\|zh] [--json out.json]` |
 
 - Why it exists: de-AI has two halves. Style tools remove convergence words and
   cadence; nothing else looks at *saying more than the data supports*. Strip the
   convergence words but leave "this proves", "all participants", "the only study",
-  and the draft still reads as machine-written — and unlike a cadence tic, an
+  and the draft still reads as machine-written, and unlike a cadence tic, an
   unsupported absolute is a **substantive** fault that costs a reviewer's trust in
   everything else you wrote.
 - **Judge every hit; do not batch-replace.** Evidence carries it → keep. A real 0/72
@@ -93,38 +93,38 @@ out of the box. The English tools need one or two free offline programs.
 - **Out of scope: quoted source text and object-language in quotation marks.** The
   scanner cannot tell whose words a sentence carries, so it will flag a quotation that
   is perfectly correct to keep verbatim. Skip those by hand.
-- Where it runs: English — after `ai_style_diag.py` / LanguageTool, before the
+- Where it runs: English: after `ai_style_diag.py` / LanguageTool, before the
   de-cadencing pass (`agents/de-cadencing-scholar.md`, whose tic #6 is this list).
-  Chinese — after `voice_lint.py` is clean, before `zh_ai_style.py`. Rerun on **every**
+  Chinese: after `voice_lint.py` is clean, before `zh_ai_style.py`. Rerun on **every**
   delivery: new paragraphs bring new absolutes back.
 - Exit code is 0 by design (it is a report). `--strict` exits 1 while candidates remain,
-  for a CI gate — use it only if you want delivery blocked on a list that always needs
+  for a CI gate. Use it only if you want delivery blocked on a list that always needs
   a human decision.
 
-## Rebuttal (`tools/rebuttal/`) — zero installs
+## Rebuttal (`tools/rebuttal/`): zero installs
 
 | Tool | What it does | Run |
 |------|--------------|-----|
 | `check_response.py` | Completeness check for a response-to-reviewers letter: every point answered, every promised change mapped to a real location, every DECLINE carrying evidence, no orphan point numbers. | `python3 check_response.py --points points.tsv --revisions revisions.tsv --letter letter.md` |
 
 - Templates for all three files are in the same folder. It checks **completeness, not
-  quality** — every point being answered doesn't mean it's answered well.
+  quality**: every point being answered doesn't mean it's answered well.
 - The three failures it exists to stop: a point never answered, a change promised but
   never made, and point numbers renumbered without updating the letter.
 
-## Submissions (`tools/submissions/`) — zero installs
+## Submissions (`tools/submissions/`): zero installs
 
 | Tool | What it does | Run |
 |------|--------------|-----|
 | `check_submissions.py` | Duplicate-submission guard + status overview from one central ledger. Flags the same manuscript under review in two places, stale statuses, and moved project folders. | `python3 check_submissions.py --ledger SUBMISSIONS.tsv` |
 
 - 🔴 **Keep ONE ledger, above all your project folders.** Simultaneous submission is a
-  *cross-project* problem — a retitled manuscript sent to a second venue looks clean
+  *cross-project* problem. A retitled manuscript sent to a second venue looks clean
   from inside either folder. A copy per project defeats the whole point.
 - Never change a `manuscript_id` when you retarget to another venue; that id is what
   makes the guard work. Rows marked `unknown` provide **no** protection.
 
-## Regression suite (`tools/regress/`) — zero installs
+## Regression suite (`tools/regress/`): zero installs
 
 | Tool | What it does | Run |
 |------|--------------|-----|
@@ -134,7 +134,7 @@ out of the box. The English tools need one or two free offline programs.
 - Start by copying `rules.template.json` → `regress.json` and
   `numbers-ledger.template.md` → `numbers-ledger.md` next to your manuscript.
   Unconfigured rules are reported as `[INFO] … NOT guarding` rather than passing
-  silently — fill them in, or accept that they guard nothing.
+  silently. Fill them in, or accept that they guard nothing.
 - 🔴 Only add a rule for an error that **really happened** and has a clear mechanical
   criterion. Prefer a miss to a false alarm: unclear criteria go to INFO, never FAIL.
 - 🔴 Keep **one** numbers ledger and record values **as written in the manuscript**
@@ -143,7 +143,7 @@ out of the box. The English tools need one or two free offline programs.
 - After writing a rule, inject the error back once and confirm it rings; then run
   `dead_rule_check.py`. A check that never fires is worse than no check.
 
-## Figures (`tools/figures/`) — needs numpy + Pillow
+## Figures (`tools/figures/`): needs numpy + Pillow
 
 | Tool | What it does | Run |
 |------|--------------|-----|
@@ -153,41 +153,41 @@ out of the box. The English tools need one or two free offline programs.
   vision deficiency; a figure separating series by hue alone fails for both. This shows
   up in review as "the figure is hard to read" without the author learning why.
 - 🔴 **Open the simulated images.** "These two collapse" is reliable; "this figure is
-  fine" is not a guarantee — the simulation is a linear approximation, not a model of
+  fine" is not a guarantee. The simulation is a linear approximation, not a model of
   vision. Add `pymupdf` if you want to check PDF figures.
 
-## References (`tools/refs/`) — zero installs
+## References (`tools/refs/`): zero installs
 
 | Tool | What it does | Run |
 |------|--------------|-----|
-| `snowball.py` | Citation snowballing: forward ("who cites X"), backward ("what X cites"), related. Multi-seed aggregation — papers hitting more seeds (`seed_hits`) are the most likely should-have-read literature. OpenAlex primary, Semantic Scholar fallback on quota; free keyless APIs, stdlib only. | `python3 snowball.py --doi <doi> --direction forward` |
+| `snowball.py` | Citation snowballing: forward ("who cites X"), backward ("what X cites"), related. Multi-seed aggregation. Papers hitting more seeds (`seed_hits`) are the most likely should-have-read literature. OpenAlex primary, Semantic Scholar fallback on quota; free keyless APIs, stdlib only. | `python3 snowball.py --doi <doi> --direction forward` |
 | `pdf_fetch.py` | Fetch reference PDFs in three layers (bib entries without a DOI are read from `eprint`/arXiv URLs, then resolved by **exact** title match on arXiv → OpenAlex, throttled; only books/chapters come back as `MANUAL`): open-access resolvers (adds Europe PMC / CORE / OpenAIRE) → `curl_cffi` TLS impersonation → a real Chrome on a persistent profile, which is what actually clears Cloudflare at ACM/Wiley/SAGE/AIP/Elsevier (TLS impersonation alone does not). Misses are tagged `PAYWALL` / `CAPTCHA` / `NO-LINK` so you know which are worth another five minutes. **Not stdlib**: `pip install curl_cffi patchright`; without them it degrades to urllib + OA sources and says so. Only fetches what you are entitled to. | `python3 pdf_fetch.py --bib references.bib --out refs-pdf` |
 | `retraction_scan.py` | Retraction check for everything you cite: each DOI is asked of Crossref (Retraction Watch data arrives as `update-to` / `updated-by` relations) **and** OpenAlex (`is_retracted`); flagged if either says so. Input: a `.bib`, a one-DOI-per-line file, or DOIs on the command line. Exit 1 = retracted found, 2 = some queries failed. | `python3 retraction_scan.py --bib references.bib [--out report.json]` |
-| `lit_map.py` | Literature map: co-citation ranking within a batch of literature (candidate classics — a starting point, judged by hand, see `method/RIGOR_PROCESS.md` stage 3) + most-cited recent work in a year window. Query by `title_and_abstract` (full-text search surfaces cross-field noise); OpenAlex bills by usage, 429 = daily quota spent. | `python3 lit_map.py --query "<topic>" --from-year 2010 --limit 200 --out map.md [--csv refs.csv] [--save-json]` |
+| `lit_map.py` | Literature map: co-citation ranking within a batch of literature (candidate classics, a starting point, judged by hand, see `method/RIGOR_PROCESS.md` stage 3) + most-cited recent work in a year window. Query by `title_and_abstract` (full-text search surfaces cross-field noise); OpenAlex bills by usage, 429 = daily quota spent. | `python3 lit_map.py --query "<topic>" --from-year 2010 --limit 200 --out map.md [--csv refs.csv] [--save-json]` |
 
 - A 429 from OpenAlex is a **daily quota wall** (resets midnight UTC), not "no
-  results" — rerun later. `--email you@example.org` is optional but gets you the
+  results". Rerun later. `--email you@example.org` is optional but gets you the
   polite (faster) pool.
 - 🔴 `retraction_scan.py` reports **`NO_DOI` entries separately and never counts them
   as scanned**: retraction matching runs on DOI records, so a book or early paper
-  without a DOI is outside what the tool can check — not verified, and rerunning will
+  without a DOI is outside what the tool can check. It is not verified, and rerunning will
   not change it. `API_ERROR` is likewise not a pass; the exit code says the scan is
   incomplete. A `RETRACTED` hit still needs a human to read the notice.
 - `lit_map.py --dois seeds.txt` takes a hand-picked seed set instead of a query.
   For a full bibliometric science map from the same raw data, pass `--save-json`
   and hand it to R's `bibliometrix` (see `setup/TOOLS.md`).
 
-## Method decision (`tools/method/`) — zero installs (except the optional Tea wrapper)
+## Method decision (`tools/method/`): zero installs (except the optional Tea wrapper)
 
 | Tool | What it does | Run |
 |------|--------------|-----|
 | `method_decision_check.py` | Format gate for `method-decision.md`: checks the required sections exist (claims, comparable-studies table, analysis-method table, candidates with independent-check field, claim-alignment table, premortem). Recognizes both the English template and the zh-TW one. Passing proves the sections exist, not that the method is right. | `python3 method_decision_check.py method-decision.md [--selftest]` |
 | `analysis_plan_check.py` | Format + timing gate for `analysis-plan.md`: checks required sections exist and, in the default mode, that the plan's commit date precedes the recorded data-collection start date. `--phase6` instead checks the deviations section was filled in (or explicitly says "no deviations") before delivery. | `python3 analysis_plan_check.py analysis-plan.md [--phase6] [--selftest]` |
-| `tea_second_opinion.py` | Optional wrapper around Tea (tealang, needs its own environment — see `setup/TOOLS.md`): describe hypotheses and variable types, get a second opinion on which classic statistical test fits. Covers classic tests only, not mixed/ordinal models — one input alongside the comparison table, not a verdict. | `python3 tea_second_opinion.py --spec spec.json` |
+| `tea_second_opinion.py` | Optional wrapper around Tea (tealang, needs its own environment, see `setup/TOOLS.md`): describe hypotheses and variable types, get a second opinion on which classic statistical test fits. Covers classic tests only, not mixed/ordinal models, one input alongside the comparison table, not a verdict. | `python3 tea_second_opinion.py --spec spec.json` |
 
 - Both check scripts exist to catch the same failure mode as `dead_rule_check.py`
   elsewhere in this kit: "the section is in the file" is not the same as "the
-  section says something real" — they check structure, and the judgment (is this
+  section says something real". They check structure, and the judgment (is this
   the right method, does the independent-check field name an actual person) stays
   with the author and Claude.
 - `analysis_plan_check.py`'s timing check is the one hard gate in the whole method
@@ -195,15 +195,15 @@ out of the box. The English tools need one or two free offline programs.
   ahead of the data, so the check is deliberately strict about the date rather than
   just checking the file exists.
 
-## English (`tools/en/`) — one or two free installs
+## English (`tools/en/`): one or two free installs
 
 | Tool | What it does | Needs |
 |------|--------------|-------|
 | `lt_check.sh` | Offline grammar + US/UK spelling-consistency (LanguageTool), markup stripped by the bundled pandoc filter. Auto-mounts optional LanguageTool n-gram data (~15 GB, `~/Corpora/lt-ngrams` or `$LT_NGRAMS`) for statistical confusable-pair detection (affect/effect); runs fine without it. | `brew install languagetool pandoc` |
-| `ai_style_diag.py` | English AI fingerprint as **percentiles** vs a baseline corpus of published papers in your field, including **LLM convergence-word density** (`en_slop_terms.tsv` beside the script: 162 terms derived from sam-paech/slop-forensics, MIT, minus words HCI papers use anyway — rebuild the filter against your own field's corpus if the vocabularies overlap) and a **contrast-sentence total** (`not…but` + "X, not Y" + `rather than` + `instead of` + `not only`, `--show-contrast` lists every hit; `--gate` exits non-zero above the baseline's 90th percentile). The words/sentences that carry each number are printed. | a corpus you assemble; `pdftotext` only for PDF input |
-| `biber_diag.py` | Grammatical-register check: dozens of Biber-style features (nominalization rate, sentence-final gerund clauses, passive voice, and more) vs the same baseline corpus, reported as percentiles with items outside the baseline's 5th/95th flagged individually — a single overall percentile can hide a feature sitting at several times the baseline median. | pybiber + spaCy in a dedicated env — see `setup/TOOLS.md` |
-| `bundle_diag.py` | Lexical bundles (recurring 3–5-word phrases) the draft uses far more than the baseline does — the phrase-level layer between single convergence words and whole-sentence cadence. | same corpus as `ai_style_diag.py` |
-| `metadiscourse_en.py` | Hyland stance / engagement / boosting-hedging markers vs the baseline — a draft that under-uses hedges and reader-engagement relative to expert writing reads more certain than the evidence supports. `--matches` prints which sentences carry each marker. | same corpus as `ai_style_diag.py` |
+| `ai_style_diag.py` | English AI fingerprint as **percentiles** vs a baseline corpus of published papers in your field, including **LLM convergence-word density** (`en_slop_terms.tsv` beside the script: 162 terms derived from sam-paech/slop-forensics, MIT, minus words HCI papers use anyway. Rebuild the filter against your own field's corpus if the vocabularies overlap) and a **contrast-sentence total** (`not…but` + "X, not Y" + `rather than` + `instead of` + `not only`, `--show-contrast` lists every hit; `--gate` exits non-zero above the baseline's 90th percentile). The words/sentences that carry each number are printed. | a corpus you assemble; `pdftotext` only for PDF input |
+| `biber_diag.py` | Grammatical-register check: dozens of Biber-style features (nominalization rate, sentence-final gerund clauses, passive voice, and more) vs the same baseline corpus, reported as percentiles with items outside the baseline's 5th/95th flagged individually. A single overall percentile can hide a feature sitting at several times the baseline median. | pybiber + spaCy in a dedicated env, see `setup/TOOLS.md` |
+| `bundle_diag.py` | Lexical bundles (recurring 3–5-word phrases) the draft uses far more than the baseline does, the phrase-level layer between single convergence words and whole-sentence cadence. | same corpus as `ai_style_diag.py` |
+| `metadiscourse_en.py` | Hyland stance / engagement / boosting-hedging markers vs the baseline. A draft that under-uses hedges and reader-engagement relative to expert writing reads more certain than the evidence supports. `--matches` prints which sentences carry each marker. | same corpus as `ai_style_diag.py` |
 
 ```bash
 # LanguageTool grammar deep-pass
@@ -219,12 +219,12 @@ python3 tools/en/metadiscourse_en.py draft.md --corpus ~/my-field-corpus --match
 ```
 
 🔴 **`ai_style_diag.py` corpus hygiene:** the baseline holds **only other people's
-published papers** — never your own drafts/posters/co-authored work, or the diagnosis
+published papers**: never your own drafts/posters/co-authored work, or the diagnosis
 cancels itself out. Exclude any of your own files with `--exclude yourname`. As a
 second line of defence the tool also drops versioned draft filenames (`*_v0.0.48.txt`)
 and files whose first 3000 characters carry anonymised-submission or template markers
 (`ANONYMOUS AUTHOR`, `Affiliations withheld`, venue placeholder titles), and prints
-`excluded N (reasons)` — a measured 56%-contaminated baseline had hidden three
+`excluded N (reasons)`: a measured 56%-contaminated baseline had hidden three
 metrics that should have read above the 90th percentile.
 
 ## What is NOT bundled (and why)
@@ -234,16 +234,16 @@ metrics that should have read above the 90th percentile.
   redistributed. `zh_localize.py` covers the common mainland-vs-Taiwan cases; a full
   term-consistency check is a "bring your own term DB" upgrade.
 - **Statistics, literature RAG, batch summarization**: these need heavier local
-  infrastructure (R, a vector DB, a local LLM). See `../setup/TOOLS.md` — they're
+  infrastructure (R, a vector DB, a local LLM). See `../setup/TOOLS.md`. They're
   optional full-mode upgrades, and your Claude can help you stand up your own.
 - **Anyone's corpora or drafts**: never shipped. The kit ships methods and tools, not
   writing or data.
 
-## Vocabulary — `tools/vocab/`
+## Vocabulary: `tools/vocab/`
 
 | Script | What it does | Needs |
 |--------|--------------|-------|
-| `fetch_awl.py` | Downloads the official "AWL Sublist Families" document (Victoria University of Wellington) and writes `data/academic-vocab/awl_families.tsv` — `headword`, `sublist`, `related_forms` — so `paper-review` Layer 3 can grep it. The AWL is CC BY-NC-ND 3.0; the ND term forbids redistributing a re-formatted copy, so the kit ships the fetcher, not the data, and the TSV is git-ignored. HTML sublist pages are the fallback source (`--source html`). | none (internet) |
+| `fetch_awl.py` | Downloads the official "AWL Sublist Families" document (Victoria University of Wellington) and writes `data/academic-vocab/awl_families.tsv` (`headword`, `sublist`, `related_forms`) so `paper-review` Layer 3 can grep it. The AWL is CC BY-NC-ND 3.0; the ND term forbids redistributing a re-formatted copy, so the kit ships the fetcher, not the data, and the TSV is git-ignored. HTML sublist pages are the fallback source (`--source html`). | none (internet) |
 
 ```bash
 python3 tools/vocab/fetch_awl.py            # once; writes data/academic-vocab/awl_families.tsv

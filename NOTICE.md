@@ -7,11 +7,11 @@
 
 - 檢視、clone、下載、在自己的電腦上安裝與改寫本 repo 的方法文件、skill 範本與工具，
   用於你自己的研究、教學與寫作。
-- 把它介紹給別人——直接給 GitHub 網址即可，不必再轉傳檔案。
+- 把它介紹給別人，直接給 GitHub 網址即可，不必再轉傳檔案。
 
 ## 你自己產出的東西是你的
 
-用這套方法與工具，為你自己的論文／提案生成的稿件、骨架、聲音檔、客製 skill——
+用這套方法與工具，為你自己的論文／提案生成的稿件、骨架、聲音檔、客製 skill，
 **那些都是你的**，不受本須知限制。本須知只約束「再散布這個 repo 本身」與第三方資料。
 
 ## 授權（兩種內容、兩種授權）
@@ -38,7 +38,7 @@
 
 `data/academic-vocab/` 收錄的學術詞表為第三方資料，非本專案原創，各有自己的授權：
 
-- **AWL**（Academic Word List, Coxhead 2000）：**CC BY-NC-ND 3.0**——需標示出處、限非商業、
+- **AWL**（Academic Word List, Coxhead 2000）：**CC BY-NC-ND 3.0**，需標示出處、限非商業、
   不得改作。因為 ND 條款，**本 repo 不隨包附上 AWL**：你執行 `tools/vocab/fetch_awl.py` 從
   Victoria University of Wellington 官方頁面下載並在自己電腦上轉成 TSV（該檔已列入 .gitignore，
   不會被提交）。引用請寫 Coxhead (2000)。

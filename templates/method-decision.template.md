@@ -4,7 +4,7 @@
 > `method/METHOD_CARDS.md`. Save this as `method-decision.md` at the project root, then run
 > `python3 <kit path>/tools/method/method_decision_check.py method-decision.md`.
 > 🔴 Check the literature before deciding, even when you already think you know the answer.
-> Every study in section 3 must be read at least to the method (design, sample, analysis) —
+> Every study in section 3 must be read at least to the method (design, sample, analysis):
 > abstract-only reads get `[abstract only]`, and at most half of the table may be abstract-only.
 
 - Date:
@@ -111,7 +111,7 @@
 
 ## 7. Premortem
 
-<!-- Assume a year from now this paper was rejected, or this project stalled — the most likely
+<!-- Assume a year from now this paper was rejected, or this project stalled. List the most likely
      method-related reasons, each with a preventive action -->
 1.
 2.
@@ -125,4 +125,4 @@
 - Preregistration:
 - Ethics submission timeline:
 - Data collection checkpoints (who, when, how you confirm data actually arrived and is usable):
-- Pre-data-collection plan (`analysis-plan.md` needed/not needed, why — needed if collecting new data or claiming an effect):
+- Pre-data-collection plan (`analysis-plan.md` needed/not needed, and why. It is needed if collecting new data or claiming an effect):

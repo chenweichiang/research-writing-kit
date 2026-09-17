@@ -1,4 +1,4 @@
-# The Method — Philosophy
+# The Method: Philosophy
 
 > Why this workflow is shaped the way it is. If you only read one file to
 > understand the spirit of the kit, read this one.
@@ -14,16 +14,16 @@ away an author's real thinking.
 So the method inverts it. **Build the argument skeleton first.** Every section is
 a node with four parts:
 
-- **Claim** — what this passage is trying to establish.
-- **Move** — which argumentative move it uses (open a gap, concede-then-rebut,
+- **Claim**: what this passage is trying to establish.
+- **Move**: which argumentative move it uses (open a gap, concede-then-rebut,
   reframe, ground in a concrete case…). See `ARGUMENTATION.md`.
-- **Evidence** — which *verified* source, case, or analysis result backs it, with
+- **Evidence**: which *verified* source, case, or analysis result backs it, with
   a citation.
-- **So-what** — what this node does for the whole paper.
+- **So-what**: what this node does for the whole paper.
 
 Prose is then written *bound to the skeleton*, with no room to wander into filler.
 This is the anti-homogenization mechanism: the sameness comes from words the model
-invents on its own, so we don't let it invent — we let it phrase an argument the
+invents on its own, so we don't let it invent. We let it phrase an argument the
 author owns.
 
 ## Division of labor
@@ -40,7 +40,7 @@ The author is never asked to trust a black box. The reason Claude does the
 verifying and self-checking is precisely so that what reaches the author is
 *already clean enough to judge*. A half-checked draft wastes the author's
 attention; the point of the labor split is to spend Claude's effort so the human
-spends theirs only on what's genuinely theirs — the ideas.
+spends theirs only on what's genuinely theirs, the ideas.
 
 ## Two modes
 
@@ -58,7 +58,7 @@ something substantial, not to approve an outline first.
 ## Why "sounds like the author" matters
 
 When you write in the author's native language and you have samples of their real
-writing, match their voice. Not as flattery — because the author's voice carries
+writing, match their voice. Not as flattery, because the author's voice carries
 their thinking, and generic academic prose quietly replaces the author's argument
 with the model's defaults. Preserve their sentence rhythm, their connectives,
 their register. **Passages the author wrote themselves are assets: preserve first,
@@ -66,14 +66,14 @@ rewrite only when necessary.**
 
 Where you have no voice samples (common for a second language the author doesn't
 write themselves), don't fake a voice. Aim instead for *faithful, strong academic
-prose in the venue's register*, and — critically — give the author a way to check
+prose in the venue's register*, and, critically, give the author a way to check
 that the meaning is right (e.g. a back-translation into a language they read).
 
 ## Honesty is built in, not bolted on
 
 - **No fabricated citations.** This is the first rule for a reason (`IRON-RULES.md`).
 - **Report effect sizes and confidence intervals, not just p-values.** Don't
-  claim "no effect" from a non-significant p — that requires an equivalence test.
+  claim "no effect" from a non-significant p, since that requires an equivalence test.
 - **Data stays local.** Unpublished drafts and raw/participant data never go to a
   cloud tool or a public AI detector.
 - **De-AI before delivery, and review with fresh eyes.** The writer's own

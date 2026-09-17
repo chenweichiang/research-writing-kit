@@ -1,6 +1,6 @@
-# Venue Notes — <VENUE> (<YEAR / CYCLE>)
+# Venue Notes: <VENUE> (<YEAR / CYCLE>)
 
-> Researched fresh each time from the venue's **official current** call — specs
+> Researched fresh each time from the venue's **official current** call. Specs
 > change yearly, don't trust memory. Written to during scouting, ticked against at
 > the final format check.
 

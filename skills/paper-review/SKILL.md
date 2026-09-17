@@ -3,7 +3,7 @@ name: paper-review
 description: Five-layer quality check for an academic draft (any language). Use when the author says "check this paper", "proofread", "catch typos", "look at this as a reviewer", "paper review", "check before I submit", asks whether the reported statistics are self-consistent / the numbers look suspicious, wants the draft checked against a reporting guideline (COREQ / SRQR / TREND / CONSORT / STROBE / PRISMA), or asks "which declarations am I missing before submitting". Reads the project's `ADJUDICATED.md` before reviewing (settled items are not re-raised). Mechanical layers run local tools when available (statistics = statcheck + scrutiny recomputation, not hand-rolled, when R is installed); semantic and logic layers are done by Claude under an anti-bias rubric. Unpublished drafts never leave the machine.
 ---
 
-# Paper Review — five-layer quality check
+# Paper Review: five-layer quality check
 
 > Generated from the Research Writing Kit; adapt to the author.
 > Iron rules: **unpublished drafts never go to the cloud** (never suggest a public
@@ -13,9 +13,9 @@ description: Five-layer quality check for an academic draft (any language). Use 
 > Author profile (filled at setup): field `<FIELD>` · language(s) `<LANGUAGE>` ·
 > venues `<VENUES>` · mode `<lite | full>`.
 
-## Step 0 — Scope
+## Step 0: Scope
 🔴 **Read the project's `ADJUDICATED.md` first** (if there is none, ask whether an
-equivalent record exists). Items listed there were checked and settled — an apparent
+equivalent record exists). Items listed there were checked and settled: an apparent
 mismatch between a data field and the paper's wording, a number format that follows a
 convention, a term kept on purpose. Do not re-raise them unless you have **new
 evidence, stated explicitly**. A review that rediscovers a settled item costs a round
@@ -29,44 +29,44 @@ Confirm (or infer): file path; language (own / second / mixed); target venue
 > paper-review; "help me fix / rewrite / resubmit" → `co-author` (Phase 0.5 onboards the
 > existing draft). If the author asks for edits mid-review, hand over rather than drift.
 
-## Layer 1 — Mechanical (bundled tools first, if usable; else careful read)
+## Layer 1: Mechanical (bundled tools first, if usable; else careful read)
 - **Bundled, zero-install (Chinese drafts):** run `tools/zh-tw/zh_localize.py` (Taiwan
   terms + 台/臺) and `tools/zh-tw/zh_ai_style.py` (Chinese AI fingerprint; also reports
-  the 「並非…而是」 frame density and lists sentences over 120 characters) directly —
-  they need nothing installed. For the author's voice gate, `tools/zh-tw/voice_lint.py`
+  the 「並非…而是」 frame density and lists sentences over 120 characters) directly.
+  They need nothing installed. For the author's voice gate, `tools/zh-tw/voice_lint.py`
   (also flags sentence-form headings and stock closers). `tools/zh-tw/zh_gloss_scan.py`
   inventories parenthetical asides of 12+ characters for the term-first-mention check
   in Layer 3.
 - **Bundled (English drafts):** `tools/en/lt_check.sh` (grammar + US/UK spelling) if
   LanguageTool is installed; `tools/en/ai_style_diag.py` if the author built a corpus.
-- **Bundled, zero-install (either language):** `tools/claims/overclaim_lint.py` — the
+- **Bundled, zero-install (either language):** `tools/claims/overclaim_lint.py`: the
   overclaim candidates (`all / never / the only / proves / clearly / significantly`
   non-statistically, and the Chinese equivalents). Report-only; findings are adjudicated
   in Layer 3, not auto-fixed.
-- **Quantitative drafts (if R + the packages are installed — see `setup/TOOLS.md`):**
+- **Quantitative drafts (if R + the packages are installed, see `setup/TOOLS.md`):**
   reported statistics get *recomputed*, not eyeballed. `statcheck` re-derives each
   APA-style test report (`t(28)=2.20, p=.03`) and flags rows where the p value doesn't
-  match — `decision_error=TRUE` (the significance conclusion flips) is the serious kind.
+  match: `decision_error=TRUE` (the significance conclusion flips) is the serious kind.
   `scrutiny`'s GRIM test checks whether a reported mean is mathematically possible given
-  N (integer scales) — `consistency=FALSE` means ask for the raw data. Limits: statcheck
+  N (integer scales): `consistency=FALSE` means ask for the raw data. Limits: statcheck
   only parses APA-style reporting; mixed-model / CLMM tables escape it, so check those
   by hand against the stated method. **Don't hand-roll the recomputation when the
   packages are available.**
-- **Lite / nothing installed:** do a careful mechanical pass yourself — typos,
+- **Lite / nothing installed:** do a careful mechanical pass yourself: typos,
   spacing/punctuation consistency, agreement, article/number, tense, US/UK mixing.
   For statistics, recompute what you can from the reported numbers and mark the
   verdicts lower-confidence than a package-verified pass.
 Report, don't auto-apply; show a diff before any change. Collect into a "mechanical
 fixes" list; filter false positives (proper nouns, terms of art).
 
-### 1e — Figure colour accessibility (run whenever there are figures)
+### 1e: Figure colour accessibility (run whenever there are figures)
 
 ```bash
 python3 tools/figures/figure_a11y.py figures/*.png
 ```
 
 Journals are mostly printed in black and white, and ~8% of men have a red-green colour
-vision deficiency — a figure that separates series by hue alone collapses for both.
+vision deficiency. A figure that separates series by hue alone collapses for both.
 Most venues' figure guidelines say outright that colour must not be the only carrier.
 
 - **FAIL** = two colours collapse under a CVD simulation while being far apart in the
@@ -76,20 +76,20 @@ Most venues' figure guidelines say outright that colour must not be the only car
 - 🔴 **Open the simulated images it writes.** The simulation is a linear approximation:
   "these two collapse" is reliable, "this figure is fine" is not a guarantee.
 
-## Layer 2 — Semantic proofreading (Claude, strictly constrained)
-Constraints (counter LLM over-correction): **minimal edit** — change only what's
+## Layer 2: Semantic proofreading (Claude, strictly constrained)
+Constraints (counter LLM over-correction): **minimal edit**: change only what's
 wrong, don't rewrite or alter the author's register; output `before → after` per
 line; **never add or delete words you didn't flag**; mark uncertain ones `[?]` for the
 author; put the total edit count at the top.
 
-## Layer 3 — Wording (de-AI + corpus anchoring)
+## Layer 3: Wording (de-AI + corpus anchoring)
 1. Flag **LLM convergence words** (empirically AI-tells): e.g. *delve, intricate,
    notably, crucial, pivotal, multifaceted, underscore, leverage, comprehensive, realm,
-   landscape, testament, seamless, robust* (when overused) — and the equivalents in the
+   landscape, testament, seamless, robust* (when overused), and the equivalents in the
    author's language. Suggest more natural replacements.
 2. Anchor key wording (contribution sentences, method verbs) to real academic
-   frequency. **Bundled:** grep `data/academic-vocab/` — `avl_core_words.tsv` /
-   `awl_families.tsv` (not shipped — if absent, run `tools/vocab/fetch_awl.py` once; it is git-ignored) for single-word diction (informal word not in the list + has an
+   frequency. **Bundled:** grep `data/academic-vocab/`: `avl_core_words.tsv` /
+   `awl_families.tsv` (not shipped, if absent run `tools/vocab/fetch_awl.py` once; it is git-ignored) for single-word diction (informal word not in the list + has an
    academic synonym → suggest upgrading), `acl_collocations.tsv` for phrase
    collocations. With a field corpus (full mode) also check real frequency there.
    🔴 Word lists are anchors, not auto-replace: the final call is Claude reading the
@@ -102,7 +102,7 @@ author; put the total edit count at the top.
 3a. **Register.** Headings are noun phrases (a full-sentence or question heading is
    rewritten; `voice_lint.py` scans heading lines); over-long sentences are split unless
    they are enumerations. These came from a co-author's "not academic enough" verdict on
-   a draft that every tool had passed — the tools measure them now, the judgement is
+   a draft that every tool had passed. The tools measure them now, the judgement is
    still yours.
 3b. **Contrast-sentence total** (same rule in every language, look at the total, not
    any single form): English = *not…but* + "X, not Y" + *rather than* + *instead of* +
@@ -110,7 +110,7 @@ author; put the total edit count at the top.
    baseline's 90th percentile, with every hit listed); the bundled Chinese equivalent is
    並非／不是…而是 + 而非 + 而不是 + 不在於…而在於 + 與其…不如
    (`tools/zh-tw/zh_ai_style.py`, reported per thousand Han characters against a Chinese
-   baseline). Keep only load-bearing contrasts; **state everything else plainly — do not
+   baseline). Keep only load-bearing contrasts; **state everything else plainly. Do not
    swap to a different contrast shape** (*rather than* → "X, not Y" is the same tic
    wearing different clothes; a real revision drives the *total* down, not just one
    variant of it).
@@ -120,32 +120,32 @@ author; put the total edit count at the top.
    **same-genre, pre-2022** published papers by other people (never the author's own
    drafts) and prints the words that carry it. **Also run the grammar layer**
    `tools/en/biber_diag.py` (dozens of Biber-style register features against the
-   baseline — flags e.g. heavy nominalization or sentence-final gerund clauses, which a
+   baseline: flags e.g. heavy nominalization or sentence-final gerund clauses, which a
    convergence-word scan alone misses; fix by converting the nominalization back to a
    verb or splitting the trailing "-ing" clause into its own sentence), **the bundle
    layer** `tools/en/bundle_diag.py` (lexical bundles the draft repeats far more than
    the baseline does), and **the metadiscourse layer** `tools/en/metadiscourse_en.py`
-   (Hyland stance / engagement / boosting-hedging markers against the baseline — a
+   (Hyland stance / engagement / boosting-hedging markers against the baseline. A
    draft that under-uses hedges and reader-engagement relative to the baseline reads
    more certain than the evidence supports). **Look at the multiple, not only the
    percentile**: a feature sitting at 5× the baseline median but only the 69th
-   percentile still needs fixing — the percentile alone can hide a long tail. Do
+   percentile still needs fixing. The percentile alone can hide a long tail. Do
    punctuation surgery only on pure fillers; keep rhetoric doing conceptual work.
-   Compare before/after. ⚠️ Never use a cloud detector — unpublished drafts stay local,
+   Compare before/after. ⚠️ Never use a cloud detector. Unpublished drafts stay local,
    and academic prose gives high false positives.
 5. **Overclaim pass** (`tools/claims/overclaim_lint.py` from Layer 1, judged here).
    De-AI is not finished when the convergence words are gone: a draft that still says
    *proves*, *all*, *the only*, *clearly* reads as machine-written **and** hands a
    reviewer a substantive objection. Per candidate: does the reported evidence carry
-   this word? Yes → keep (a real 0/72 or 100% result is data — softening data is its
+   this word? Yes → keep (a real 0/72 or 100% result is data. Softening data is its
    own error). No → converge (all→most, never→rarely, prove→show/suggest, the
    only→one of the few, clearly→delete, the most X→a more X). **Quoted source text
-   and object-language in quotation marks are out of scope** — the scanner cannot tell
+   and object-language in quotation marks are out of scope**: the scanner cannot tell
    whose words they are, so skip them by hand. Minimal edit, with a quote, as elsewhere
    in this layer.
 
-## Layer 4 — Logic / argument / RQ (reviewer simulation — anti-bias rubric)
-**Anti-bias instructions (mandatory — LLM reviewers empirically inflate scores):**
+## Layer 4: Logic / argument / RQ (reviewer simulation, anti-bias rubric)
+**Anti-bias instructions (mandatory: LLM reviewers empirically inflate scores):**
 task = **find weaknesses**, no praise; assume you must write the reject and see if the
 author can rebut; ignore length, author/institution prestige, confident tone; **every
 criticism carries a quote + location**, no quote → not allowed.
@@ -160,18 +160,18 @@ Rubric (score each 🔴fatal / 🟡major / 🟢minor):
    honest about what it omits?
 4. **Method rigor:** effect sizes + CIs? multiple-comparison correction? Likert handled
    as ordinal? seeds? (qualitative: reliability / codebook / audit trail).
-   - **4a. Qualitative — four items a qualitative reviewer always asks:** (i) **saturation**
-     — is the criterion stated? (there is no power analysis for interviews; arguing
+   - **4a. Qualitative, four items a qualitative reviewer always asks:** (i) **saturation**:
+     is the criterion stated? (there is no power analysis for interviews; arguing
      sample size with statistical logic reads as inexperience); (ii) **reflexivity /
-     positionality** — if the researcher is also the participants' teacher, that is a
+     positionality**: if the researcher is also the participants' teacher, that is a
      power relation with systematic effects on what students say; what was done to
-     reduce it? (iii) **member checking** — done, or a reason given; (iv) 🔴 **quote
-     translation procedure** — when interview quotes are translated for the paper: who
+     reduce it? (iii) **member checking**: done, or a reason given; (iv) 🔴 **quote
+     translation procedure**, when interview quotes are translated for the paper: who
      translated, was it checked, are original-language quotes provided? Keep this
-     separate from the back-translation iron rule for the *author's own* prose — that
+     separate from the back-translation iron rule for the *author's own* prose. That
      rule is about sign-off, this one is about evidence fidelity. Most often omitted,
      most often caught.
-   - **4b. Reporting guideline:** pick by design — COREQ / SRQR (qualitative), TREND
+   - **4b. Reporting guideline:** pick by design: COREQ / SRQR (qualitative), TREND
      (non-randomized intervention), CONSORT (RCT), STROBE (observational), PRISMA
      (systematic review). If the target journal names one, that one wins; a required
      checklist that isn't attached means "revise before review".
@@ -181,31 +181,31 @@ Rubric (score each 🔴fatal / 🟡major / 🟢minor):
 5. **Related work:** positioned clearly? strawman? recent work in the last ~3 years that
    should be cited but isn't?
 6. **Venue fit + current submission spec:** check the venue's **official current** page
-   for length/format/blind rules — don't hardcode from memory, specs change yearly.
-7. **Submission declarations — six items.** Missing ones are desk-reject or
+   for length/format/blind rules, don't hardcode from memory, specs change yearly.
+7. **Submission declarations, six items.** Missing ones are desk-reject or
    post-publication-accountability problems, not formatting. Check each for *required /
    present / accurate*:
-   - 🔴 **Generative-AI use disclosure** — tools and tasks listed per the venue's policy
+   - 🔴 **Generative-AI use disclosure**: tools and tasks listed per the venue's policy
      (most ACM venues and journals now require it). Check it **matches reality**: a draft
      co-written with an LLM that declares "language polishing only" is a false
      disclosure. The same policies forbid uploading a manuscript to a public LLM for
-     review — the external basis for this skill's "drafts stay local" rule.
-   - **Research ethics** — approval or exemption number and institution in the Method;
+     review, the external basis for this skill's "drafts stay local" rule.
+   - **Research ethics**: approval or exemption number and institution in the Method;
      consent and identifiable-data handling stated.
-   - **Data and code availability** — present, and true? ("available" with no link, or a
+   - **Data and code availability**: present, and true? ("available" with no link, or a
      key raw file that in fact isn't shared).
-   - **Author contributions (CRediT)** — with multiple authors, especially students.
-   - **Competing interests and funding** — disclosed, or an explicit "none".
-   - **Pre-registration** — for quantitative effect claims: link present? Any hint of
+   - **Author contributions (CRediT)**: with multiple authors, especially students.
+   - **Competing interests and funding**: disclosed, or an explicit "none".
+   - **Pre-registration**, for quantitative effect claims: link present? Any hint of
      one that doesn't exist, or a post-hoc registration written as if prior?
-   > Rule: **"the venue didn't ask" ≠ "not needed"** — AI disclosure and ethics go in
+   > Rule: **"the venue didn't ask" ≠ "not needed"**: AI disclosure and ethics go in
    > regardless. Reviewing your own pipeline's draft: same table as `co-author` 6-2a.
 
-## Layer 5 — Citation check (optional)
+## Layer 5: Citation check (optional)
 1. List all "claim + citation" pairs for human checking (citation hallucination is real).
    With a local PDF library (full mode), verify "does source X support claim Y" against
    the PDFs via `verify-citations`. Never upload unpublished text.
-2. 🔴 **Uncited-claim scan** — the item most often skipped and most worth running:
+2. 🔴 **Uncited-claim scan**, the item most often skipped and most worth running:
 
    ```bash
    python3 tools/claims/uncited_claims_scan.py --src <draft>
@@ -213,7 +213,7 @@ Rubric (score each 🔴fatal / 🟡major / 🟢minor):
 
    Step 1 only covers sentences that carry a citation marker. Quantitative, causal and
    superlative claims *without* one ("41 students showed…", "improved by 23%", "the
-   first to…") are a structural blind spot of citation verification — and they are
+   first to…") are a structural blind spot of citation verification, and they are
    where the author's own evidence lives. Regex only, no LLM, any language. Each hit:
    add a citation · point to the data source · soften the wording. When reviewing
    someone else's draft this layer is where "where does that number come from?" gets

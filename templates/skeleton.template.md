@@ -1,4 +1,4 @@
-# Skeleton — <PAPER / PROPOSAL TITLE>
+# Skeleton: <PAPER / PROPOSAL TITLE>
 
 > The source of truth for the argument. Lives in the project folder; any new
 > session reads this + `venue-notes.md` before writing. Substantive changes during
@@ -15,8 +15,8 @@ Output language:
 ### Node: <short label>
 - **Claim:**
 - **Move:** <open-gap / concede-rebut / reframe / ground-in-case / eliminate-alts /
-  build-chain / contrast — pick the one that earns *this* claim>
-- **Evidence:** <verified source + citation> — status: <verified / ❓unverified / needed>
+  build-chain / contrast, pick the one that earns *this* claim>
+- **Evidence:** <verified source + citation>, status: <verified / ❓unverified / needed>
   - *Source card (if author hasn't read it):* who did what / found what / which claim it
     supports / key quoted line
 - **So-what:** <what this node does for the whole paper>

@@ -2,7 +2,7 @@
 
 [![version](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![updated](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![code MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![docs CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**Version `v1.7.0`** (2026-09-17) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
+**Version `v1.7.1`** (2026-09-17) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
 
 **中文版 → [README.md](README.md)**
 
@@ -82,7 +82,7 @@ Open Claude Code in the folder where your paper lives and say what you want in o
 | **"Don't make that mistake again" / "fixing A broke B"** | Document regression: turn a caught mistake into a standing check, rescan the whole project after every edit, block it if it comes back | `/doc-regress` → `tools/regress/regress.py` |
 | **"Has anything I cite been retracted?"** | Retraction scan: the whole bibliography checked against Crossref and OpenAlex, rerun before every delivery | `tools/refs/retraction_scan.py` |
 | **"This sentence has no citation. Does it hold up?"** | Uncited-claims scan: finds quantitative, causal, and superlative sentences with no citation; for each one, add a citation, point to your own data, or soften the wording | `tools/claims/uncited_claims_scan.py` |
-| **"Am I saying more than my data supports?"** | Overclaim scan: finds *all / never / the only / proves / clearly* and their Chinese equivalents — the other half of the de-AI pass | `tools/claims/overclaim_lint.py` |
+| **"Am I saying more than my data supports?"** | Overclaim scan: finds *all / never / the only / proves / clearly* and their Chinese equivalents (the other half of the de-AI pass) | `tools/claims/overclaim_lint.py` |
 | **"Do the numbers in the draft match the analysis output?"** | Numbers ledger reconciliation: every number traced back to the computation that produced it; update the ledger before the draft, and the regression check blocks old values from coming back | `/doc-regress` §3.5 |
 | **"Typeset this as a submission PDF" / "Chinese PDF"** | Typesets in the venue's template; a second-language draft is delivered together with its back-translation | `/build-pdf` |
 | **"Which statements am I still missing before I submit?"** | The six submission statements: AI-use disclosure, ethics/IRB, data availability, CRediT author contributions, conflicts of interest, preregistration | `/co-author` Phase 6-2a, `/paper-review` item 7 |
@@ -163,7 +163,7 @@ Once installed, each one triggers either by saying what you want or by typing `/
 | `refs/snowball.py` | Citation snowballing: who cited this, what it cites, related work; aggregates and ranks across several seeds | none (needs internet) |
 | `refs/retraction_scan.py` | Retraction scan: a `.bib` or a DOI list checked against Crossref update relations and OpenAlex `is_retracted`, two sources; entries without a DOI are listed separately and not counted as scanned | none (needs internet) |
 | `claims/uncited_claims_scan.py` | Quantitative / causal / superlative claims with no citation (`.md`, `.tex`, `.qmd`; English and Chinese); after you decide each one, an exemption note can be added | none |
-| `claims/overclaim_lint.py` | Overclaim candidates in four categories (absolute / intensifier / evidence-strength / superlative), English and Traditional Chinese. **Report-only** — you judge each one against your evidence | none |
+| `claims/overclaim_lint.py` | Overclaim candidates in four categories (absolute / intensifier / evidence-strength / superlative), English and Traditional Chinese. **Report-only.** You judge each one against your evidence | none |
 | `regress/regress.py` | Document regression: scans the whole project by the project's `regress.json`; built-in rules for dangling citations, personal data, leftover to-dos, old values coming back, and missing attribution; project rules go in `--extra my_rules.py` | none |
 | `regress/dead_rule_check.py` | Rule health check: which rules can never fire again (their anchor text has been edited away) | none |
 | `regress/rules.template.json`, `regress/numbers-ledger.template.md` | Blank templates for the regression config and the numbers ledger | — |
@@ -285,6 +285,19 @@ uncited claims, regression) need no model; just run the scripts.
 
 ## Version history
 
+- **v1.7.1** (2026-09-17): **The documents drop their em dashes.** The kit teaches that em dashes
+  are a visible sign of AI prose, yet its own documents carried more than ten per thousand words.
+  English em dashes went from 794 to 13 (10.4 to 0.2 per thousand words). The rest sit inside quoted
+  sources, paper titles, or tables where `—` means "none". Chinese `——` went to zero. Each dash became
+  a period, comma, parenthesis, or colon depending on its job, and semicolons and contrast sentences
+  did not increase. The first pass turned some dashes into mid-sentence colons, which is the same
+  rhythm in another shape, so a second pass turned about 180 of them back into sentences or
+  connectives. The colons left are headings, lists, and table fields (mid-sentence colons 8.6 to 9.9
+  per thousand words). Checks after the cleanup: the template checker gives the same output as
+  before, the method cards keep the same quotations and DOIs, and every tool selftest passes.
+  Also fixes a v1.7.0 problem: the YAML description in `skills/co-author/SKILL.md` contained a colon
+  followed by a space, which a strict YAML parser rejects. All skill and agent frontmatter now parses.
+
 - **v1.7.0** (2026-09-17): **Research-method decisions, a rigorous research process, and counting
   contrast sentences in total.**
   ① **Method decisions** (`method/METHOD_DECISION.md`, `method/METHOD_CARDS.md`): check comparable
@@ -334,14 +347,14 @@ uncited claims, regression) need no model; just run the scripts.
   the MIT slop-forensics list minus words HCI papers use anyway), as a percentile against your
   corpus, with the words that carry it printed.
   ③ **Retrieval: no DOI does not mean unobtainable.** The old version kept only bib entries with a
-  `doi`, so arXiv preprints (bib has only `eprint`) were never attempted — 13 of 24 entries in a
+  `doi`, so arXiv preprints (bib has only `eprint`) were never attempted. That was 13 of 24 entries in a
   measured bib, all free; 10/24 → 23/24 after the fix. Now `eprint` / arXiv URLs are read, then the
   title is resolved on arXiv and OpenAlex by **exact match only** (near-matches are the collisions:
   `LoRA` vs `QA-LoRA`); only books and chapters go back to you as `MANUAL`. arXiv calls are
   throttled (3 s) with 429 back-off. fetch-refs also records that "the file matches" is not
   "the file is complete" (MIT Press book links return a preview).
   ④ **verify-citations writes back field lessons:** `UNGROUNDED` means "this verdict cannot be
-  trusted", not "this verdict is wrong" — in a 41-citation draft the one real error was the one
+  trusted", not "this verdict is wrong". In a 41-citation draft the one real error was the one
   both readers had judged unsupported while both their quotes failed grounding; the move is to
   read the passage yourself. `10.5860/choice.*` is a structural false match for books (every
   academic book has a same-titled review there); titles of three words or fewer have no
@@ -352,31 +365,31 @@ uncited claims, regression) need no model; just run the scripts.
   get it" becomes a conclusion with a next step.** Adds `tools/refs/pdf_fetch.py`: open-access
   sources (adding Europe PMC / CORE / OpenAIRE) → `curl_cffi` TLS impersonation → **a real Chrome
   on a persistent profile**. The old text said Cloudflare-fronted publishers "can only be
-  downloaded by hand in a browser" — the observation was right, the conclusion premature, written
+  downloaded by hand in a browser". The observation was right and the conclusion premature, written
   before browser automation had been tried. Measured: TLS impersonation recovers edge 403s at
   T&F-type sites, but ACM / Wiley / SAGE / AIP / Elsevier still answer `cf-mitigated: challenge`;
   a real browser clears all of them. **More important than the hit rate is the classification:**
   every miss is `PAYWALL` (no entitlement, the tool cannot help) / `CAPTCHA` (a human passes it
   once, with an expiry) / `NO-LINK` (the tool can still be improved). A real 46-entry bibliography
-  went 11/46 → 30/46 with `NO-LINK` at zero — every remaining miss is an access gap the user can
+  went 11/46 → 30/46 with `NO-LINK` at zero, so every remaining miss is an access gap the user can
   act on. Three things recorded so they are not relearned: `/doi/pdf/` is often not a PDF (Wiley
   returns a viewer shell; always check for `%PDF-` magic bytes); Elsevier URLs carry a one-time
   token and cannot be constructed (intercept the response body); link discovery must read
   class / aria-label (an icon link's textContent is empty). ❌ And one verified dead end:
-  **Zotero translation-server cannot return PDF links** — metadata all correct, `attachments`
-  always null; it is a bibliographic service, not a retrieval service.
+  **Zotero translation-server cannot return PDF links** (metadata all correct, `attachments`
+  always null); it is a bibliographic service, not a retrieval service.
 
-- **v1.4.0** (2026-08-29): **The de-AI pass gets its missing half — removing overclaims.**
+- **v1.4.0** (2026-08-29): **The de-AI pass gets its missing half (removing overclaims).**
   Adds `tools/claims/overclaim_lint.py` (English + Traditional Chinese; four categories:
   absolute, intensifier, evidence-strength, superlative; **report-only, never edits**).
   Why: strip the convergence words and the cadence but leave *proves*, *all*, *the only*,
-  *clearly*, and the draft still reads as machine-written — and unlike a rhythm tic, an
+  *clearly*, and the draft still reads as machine-written. And unlike a rhythm tic, an
   unsupported absolute is a **substantive** fault. A reviewer who reads "this proves" under
   an n=12 study stops trusting everything else in the paper. Every hit is judged by hand:
   evidence carries it → keep (a real 0/72 or 100% result *is* data, and softening data is
   its own dishonesty); it doesn't → converge. **Quoted source text and object-language in
   quotation marks are out of scope.** Wired into `/co-author` Phase 5 and 6-3 (rerun every
-  delivery — each round of new prose grows the absolutes back), `/paper-review` Layers 1
+  delivery, because each round of new prose grows the absolutes back), `/paper-review` Layers 1
   and 3, and `method/WORKFLOW.md` Phases 5 and 6; `de-cadencing-scholar` goes from five
   tics to six.
 

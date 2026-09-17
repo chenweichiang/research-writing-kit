@@ -1,4 +1,4 @@
-# Lite mode — zero installs, just Claude + the web
+# Lite mode: zero installs, just Claude + the web
 
 > The default path for most people, especially non-technical authors. Everything in
 > the method works here; the optional local tools (`TOOLS.md`) only make it faster or
@@ -10,28 +10,28 @@
   install). Citation graphs tell you what to cite; the web fetches open-access PDFs.
   **Literature map** (candidate classics for a topic, Phase 1 / `method/RIGOR_PROCESS.md`
   stage 3): without `tools/refs/lit_map.py`, pull the reference lists of 5–8 seed
-  papers by hand and count which sources recur across them — recurring across
+  papers by hand and count which sources recur across them. Recurring across
   *different authors/venues* is the signal, not any single paper's citation count.
 - **Verification:** Claude reads the actual source (open-access PDF or the publisher
   page you can view) and checks the claim's direction. Paywalled + no OA → `❓unverified`.
 - **Method decision** (Phase 3.0): without `tools/method/method_decision_check.py`,
-  still do the procedure by hand — read 8 comparable studies' methods sections, fill
+  still do the procedure by hand: read 8 comparable studies' methods sections, fill
   the comparison table in `templates/method-decision.template.md` in prose, and check
   off each required section yourself before the author signs off. The check script
   only verifies the sections exist; doing it in prose is not a lesser version of the
   judgment, just of the format nagging.
 - **Pre-data-collection plan** (if new data / an effect claim is coming): still write
-  `analysis-plan.md` from the template and get eyes on it *before* collecting anything
-  — this step's value comes from timing, not tooling, so lite mode has no excuse to
+  `analysis-plan.md` from the template and get eyes on it *before* collecting anything.
+  This step's value comes from timing, not tooling, so lite mode has no excuse to
   skip it. Note the commit or send date by hand instead of relying on
   `analysis_plan_check.py` to verify it.
 - **Method / analysis:** Claude describes the design honestly and states what analysis
   is appropriate; simple summaries done carefully. (Heavy stats want full mode.)
 - **Language / de-AI:** Claude does the convergence-word and AI-syntax passes by hand,
-  compares before/after, and — for a second language — produces an independent
+  compares before/after, and (for a second language) produces an independent
   back-translation. (Local linters/corpora are a full-mode upgrade.) **Contrast
   sentences** (*not X but Y*, *X, not Y*, *rather than*, *instead of*, *not only*):
-  without `ai_style_diag.py --gate`, count them by hand every revision round — list
+  without `ai_style_diag.py --gate`, count them by hand every revision round: list
   each hit with its shape, get a total, and track whether the total is going down
   round over round, not just whether any single occurrence looks fine in isolation.
   The same rule applies without the tool: fixing an overage by rewriting one shape
@@ -43,7 +43,7 @@
   (`tools/refs/retraction_scan.py`), uncited-claims scan
   (`tools/claims/uncited_claims_scan.py`), and document-regression checks
   (`tools/regress/`, via the `doc-regress` skill) need only Python 3 and, for the
-  retraction scan, the network — no install. Lite mode is not an excuse to skip them.
+  retraction scan, the network. No install. Lite mode is not an excuse to skip them.
 
 ## The one honesty caveat in lite mode
 Lite mode can't run local statistical tests or a corpus-anchored style baseline. That's
@@ -54,4 +54,4 @@ don't overstate what a by-hand check proves.
 ## When to suggest upgrading
 Only when the author hits a real wall: many papers to fetch behind a paywall, a genuine
 quantitative analysis, or a high-stakes de-AI pass before a top-venue submission. Then
-point them at `TOOLS.md` — one tool at a time, never a big-bang install.
+point them at `TOOLS.md`: one tool at a time, never a big-bang install.

@@ -1,9 +1,9 @@
 ---
 name: rebuttal
-description: Point-by-point response to reviewers, plus the revision table that backs it. Use when the author says "the reviews came back", "write a rebuttal", "respond to the reviewers", "major/minor revision", "point-by-point response", "response to reviewers", "R&R", or "revision table". Core rule — never change something that was right just to please a reviewer, and never leave a point unanswered.
+description: Point-by-point response to reviewers, plus the revision table that backs it. Use when the author says "the reviews came back", "write a rebuttal", "respond to the reviewers", "major/minor revision", "point-by-point response", "response to reviewers", "R&R", or "revision table". The core rule is to never change something that was right just to please a reviewer, and never leave a point unanswered.
 ---
 
-# rebuttal — response to reviewers & revision table
+# rebuttal: response to reviewers & revision table
 
 > Generated from the Research Writing Kit; adapt to the author.
 
@@ -19,22 +19,22 @@ Three failures, none of them about ability:
 
 **🔴 The letter is an academic argument, not proof of obedience.** Reviewers can
 misread, can ask for things outside the study's scope, and can contradict each other.
-Accepting needs a reason; declining needs a better one — unreasoned compliance is as
+Accepting needs a reason; declining needs a better one. Unreasoned compliance is as
 unprofessional as unreasoned refusal.
 
-## Phase 1 — Split (do not merge, do not skip)
+## Phase 1: Split (do not merge, do not skip)
 
 Break the reviews into the smallest answerable units, numbered `R<reviewer>.<n>`
-(the editor's own letter is `E.<n>`). **One sentence with two demands is two rows** —
+(the editor's own letter is `E.<n>`). **One sentence with two demands is two rows**:
 merging is how you answer half of something the reviewer remembers asking in full.
 
 Tag each: **type** (substantive / addition / clarity / format / misread), **severity**
-(BLOCK / MAJOR / MINOR), and **conflict** — when two reviewers want opposite things,
+(BLOCK / MAJOR / MINOR), and **conflict**: when two reviewers want opposite things,
 flag it, then say so explicitly in the letter and explain which way you went.
 
 Record in `rebuttal/points.tsv` (template in `tools/rebuttal/`).
 
-## Phase 2 — Decide every verdict *before* editing
+## Phase 2: Decide every verdict *before* editing
 
 | Verdict | When | Requires |
 |---|---|---|
@@ -44,20 +44,20 @@ Record in `rebuttal/points.tsv` (template in `tools/rebuttal/`).
 
 Deciding while you edit means drifting into accepting everything.
 
-🔴 **The right fix for a `misread` is not to comply — it is to rewrite so it cannot be
+🔴 **The right fix for a `misread` is not to comply. It is to rewrite so it cannot be
 misread again.** If a reviewer read it wrong, the passage was probably unclear. Explain
 the intent in the letter *and* fix the passage; that persuades more than defending it.
 
-## Phase 3 — Revise, with locations
+## Phase 3: Revise, with locations
 
 Record every change in `rebuttal/revisions.tsv`: `point_id | location | before | after`.
 
-- `location` must be findable: `S4.2, 2nd paragraph` — not "the Method section"
+- `location` must be findable: `S4.2, 2nd paragraph`, not "the Method section"
 - `DECLINE` rows use `-` for location but **must** fill `evidence`
 - If the manuscript is in git: one commit per point, message starting with the point id.
   The table can then be generated from the log.
 
-## Phase 4 — Write the letter
+## Phase 4: Write the letter
 
 Four beats per point: **quote it → respond → say where you changed it → paste the new text.**
 
@@ -68,10 +68,10 @@ you should handle now.
 
 Think in the author's language, write in the venue's. **An English letter goes through
 `paper-review` Layer 3 and a de-cadencing pass** (`agents/de-cadencing-scholar.md`,
-file path only) before it ships — editors read many letters and an LLM-polished
+file path only) before it ships. Editors read many letters and an LLM-polished
 cadence is as visible there as in the paper.
 
-## Phase 5 — Verify before sending 🔴
+## Phase 5: Verify before sending 🔴
 
 ```bash
 python3 tools/rebuttal/check_response.py \
@@ -91,16 +91,16 @@ orphan point numbers (the classic renumbering slip). Non-zero exit = not ready t
 - **clean** manuscript, plus a **marked** one where required
   (`latexdiff old.tex new.tex > diff.tex`, or tracked changes in Word)
 
-## Venue differences — check the current cycle, don't assume
+## Venue differences, check the current cycle, don't assume
 
 Response rules differ as much as submission rules. Look them up for the current cycle
 and **record them in the project's `venue-notes.md`** (the same file `co-author`
 Track B writes), so the next revision round doesn't rediscover them:
 
 - **ACM/IEEE conference rebuttals**: often a hard character limit, and usually **no new
-  experiments** — clarification only
+  experiments**, clarification only
 - **Journal major revision**: normally unlimited, expects point-by-point + marked copy
-- **Double-blind**: nothing in the letter may identify you — institution, project name,
+- **Double-blind**: nothing in the letter may identify you, institution, project name,
   or a self-citation phrased as your own
 
 ## Not this skill

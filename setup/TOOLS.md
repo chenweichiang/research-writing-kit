@@ -1,4 +1,4 @@
-# Full mode — optional local power-ups (graceful degradation map)
+# Full mode: optional local power-ups (graceful degradation map)
 
 > None of this is required. Lite mode (`LITE.md`) does the whole method with just
 > Claude + the web. Add these **one at a time, only when the author hits a real wall.**
@@ -6,7 +6,7 @@
 > skill must gate every reference to these behind "if installed."
 >
 > 📦 **Already bundled in `tools/`** (no big install): the Chinese checkers
-> (`zh_localize`, `zh_ai_style`, `voice_lint` — zero-install, Python stdlib), the
+> (`zh_localize`, `zh_ai_style`, `voice_lint`, zero-install, Python stdlib), the
 > English `lt_check.sh` (needs `brew install languagetool pandoc`) + `ai_style_diag.py`
 > (needs a corpus you assemble), `bundle_diag.py` + `metadiscourse_en.py` (zero-install,
 > same corpus), and the zero-install scanners `tools/refs/snowball.py`,
@@ -20,25 +20,25 @@
 | Capability | Lite (default, no install) | Full (optional upgrade) |
 |-----------|----------------------------|--------------------------|
 | **Find literature** | WebSearch + Semantic Scholar / OpenAlex / Crossref | + a local full-text RAG over PDFs you hold (semantic search "which paper, which page") |
-| **Citation snowballing** (who cites X / what X cites / similar work) | ✅bundled `tools/refs/snowball.py` — Python stdlib only, free keyless APIs, works day one | (already full-strength; `--email` is optional politeness) |
-| **Fetch reference PDFs** | Open-access resolvers (Unpaywall/arXiv/author pages) | ✅bundled `tools/refs/pdf_fetch.py` — layered: OA resolvers (+ Europe PMC / CORE / OpenAIRE, which the usual four miss) → `curl_cffi` (TLS impersonation, fixes edge-403s) → **a real Chrome on a persistent profile** (`pip install curl_cffi patchright`; patchright drives your installed Chrome, no second browser downloaded). Cloudflare-fronted publishers (ACM/Wiley/SAGE/AIP/Elsevier) are reachable this way — a TLS-impersonating client alone is *not* enough. Add your institutional access (library VPN / sign-in in that profile) for subscription full texts. **Misses are classified** `PAYWALL` / `CAPTCHA` / `NO-LINK`, which is the part that actually saves you time |
+| **Citation snowballing** (who cites X / what X cites / similar work) | ✅bundled `tools/refs/snowball.py`: Python stdlib only, free keyless APIs, works day one | (already full-strength; `--email` is optional politeness) |
+| **Fetch reference PDFs** | Open-access resolvers (Unpaywall/arXiv/author pages) | ✅bundled `tools/refs/pdf_fetch.py`, layered: OA resolvers (+ Europe PMC / CORE / OpenAIRE, which the usual four miss) → `curl_cffi` (TLS impersonation, fixes edge-403s) → **a real Chrome on a persistent profile** (`pip install curl_cffi patchright`; patchright drives your installed Chrome, no second browser downloaded). Cloudflare-fronted publishers (ACM/Wiley/SAGE/AIP/Elsevier) are reachable this way. A TLS-impersonating client alone is *not* enough. Add your institutional access (library VPN / sign-in in that profile) for subscription full texts. **Misses are classified** `PAYWALL` / `CAPTCHA` / `NO-LINK`, which is the part that actually saves you time |
 | **Verify citations** | Claude reads OA source, checks direction | + a multi-agent adversarial pass over a local PDF library (skeptic template: `agents/citation-skeptic.md`) |
-| **Retraction scan** (has anything I cite been retracted?) | ✅bundled `tools/refs/retraction_scan.py` — whole `.bib` against Crossref update relations + OpenAlex `is_retracted`; stdlib, needs only the network. Re-run before *every* delivery; RETRACTED hits are hand-checked (fuzzy matching misfires) | (already full-strength) |
-| **Uncited-claims scan** (quantitative / causal / superlative sentences with no citation) | ✅bundled `tools/claims/uncited_claims_scan.py` — pure regex, zero LLM, Chinese + English. Each hit: cite it, point to your own data (ledger), or soften the wording; suppress with an inline waiver that carries a reason | (already full-strength) |
+| **Retraction scan** (has anything I cite been retracted?) | ✅bundled `tools/refs/retraction_scan.py`: whole `.bib` against Crossref update relations + OpenAlex `is_retracted`; stdlib, needs only the network. Re-run before *every* delivery; RETRACTED hits are hand-checked (fuzzy matching misfires) | (already full-strength) |
+| **Uncited-claims scan** (quantitative / causal / superlative sentences with no citation) | ✅bundled `tools/claims/uncited_claims_scan.py`: pure regex, zero LLM, Chinese + English. Each hit: cite it, point to your own data (ledger), or soften the wording; suppress with an inline waiver that carries a reason | (already full-strength) |
 | **Document regression** (a caught error becomes a standing check) | ✅bundled `tools/regress/regress.py` + `dead_rule_check.py`, driven by a rules file (start from `rules.template.json`) kept *in the author's project*; includes the numbers-ledger checks (stale value recurs → FAIL, current value missing from draft → WARN). Method in `skills/doc-regress` | (already full-strength) |
-| **Scanned / CJK PDF extraction** | Render pages to images and read visually (slow) | **MinerU** (`uv tool install mineru` or `pipx install mineru`) — scans, CJK layouts, tables, formulas → clean markdown |
-| **Statistics / analysis** | Honest description + simple summaries | R (mixed models via `lme4`/`afex`, ordinal via `ordinal::clmm`, post-hoc via `emmeans`) / Python / a persistent Jupyter kernel — data stays local. **Bayesian, three roads:** formula-expressible hierarchical regression → `brms`; evidence for the null (BF01) → `BayesFactor`; discrete latent variables, custom distributions or samplers, JAGS ports → `nimble` (Stan cannot sample discrete parameters). All three report priors + convergence |
-| **Design diagnosis** (can this design answer the question at all?) | Claude reasons about confounds and states the claim's ceiling honestly | R `DeclareDesign` — declare model / inquiry / data strategy / answer strategy, run Monte-Carlo diagnosis, read **coverage** (should be ≈.95), not just power; then `simr` for sample size. Only when new data will be collected *and* an effect claimed |
-| **Statistical-consistency check of a draft** | Recompute reported numbers by hand, mark lower-confidence | R packages **statcheck** (recompute APA-style p values) + **scrutiny** (GRIM: is that mean possible given N) — `install.packages(c("statcheck","scrutiny"))`. **Run the local R packages, not the web versions** — see "Not recommended" below |
-| **Grammar / style linting** | Claude's by-hand passes | ✅bundled `tools/en/lt_check.sh` (LanguageTool, offline) — `brew install languagetool pandoc`; optional LanguageTool n-gram data (~15 GB, auto-detected at `~/Corpora/lt-ngrams` or `$LT_NGRAMS`) adds statistical confusable-pair detection (affect/effect). Optional extras: **Harper** (offline, millisecond first pass on every save — editor plugin or CLI; LanguageTool stays the authoritative second pass) and, for Chinese, **autocorrect** (`brew install autocorrect`: full/half-width punctuation and CJK–Latin spacing) |
-| **De-AI / voice checking** | Convergence-word + AI-syntax passes by hand | ✅bundled `tools/en/ai_style_diag.py` (percentiles vs a corpus you assemble — published papers only, never your own drafts) |
-| **Grammatical-register check** (beyond convergence words — nominalization, gerund clauses, dozens of Biber-style features) | Eyeball register by hand; the overclaim and convergence-word passes still run | ✅bundled `tools/en/biber_diag.py`, needs **pybiber + spaCy** in a dedicated environment (keeps their pinned dependency versions off your main Python): `python3 -m venv ~/.venvs/biber && ~/.venvs/biber/bin/pip install pybiber spacy && ~/.venvs/biber/bin/python -m spacy download en_core_web_sm`, then `~/.venvs/biber/bin/python tools/en/biber_diag.py draft.md` |
+| **Scanned / CJK PDF extraction** | Render pages to images and read visually (slow) | **MinerU** (`uv tool install mineru` or `pipx install mineru`): scans, CJK layouts, tables, formulas → clean markdown |
+| **Statistics / analysis** | Honest description + simple summaries | R (mixed models via `lme4`/`afex`, ordinal via `ordinal::clmm`, post-hoc via `emmeans`) / Python / a persistent Jupyter kernel. Data stays local. **Bayesian, three roads:** formula-expressible hierarchical regression → `brms`; evidence for the null (BF01) → `BayesFactor`; discrete latent variables, custom distributions or samplers, JAGS ports → `nimble` (Stan cannot sample discrete parameters). All three report priors + convergence |
+| **Design diagnosis** (can this design answer the question at all?) | Claude reasons about confounds and states the claim's ceiling honestly | R `DeclareDesign`: declare model / inquiry / data strategy / answer strategy, run Monte-Carlo diagnosis, read **coverage** (should be ≈.95), not just power; then `simr` for sample size. Only when new data will be collected *and* an effect claimed |
+| **Statistical-consistency check of a draft** | Recompute reported numbers by hand, mark lower-confidence | R packages **statcheck** (recompute APA-style p values) + **scrutiny** (GRIM: is that mean possible given N): `install.packages(c("statcheck","scrutiny"))`. **Run the local R packages, not the web versions**: see "Not recommended" below |
+| **Grammar / style linting** | Claude's by-hand passes | ✅bundled `tools/en/lt_check.sh` (LanguageTool, offline): `brew install languagetool pandoc`; optional LanguageTool n-gram data (~15 GB, auto-detected at `~/Corpora/lt-ngrams` or `$LT_NGRAMS`) adds statistical confusable-pair detection (affect/effect). Optional extras: **Harper** (offline, millisecond first pass on every save: editor plugin or CLI; LanguageTool stays the authoritative second pass) and, for Chinese, **autocorrect** (`brew install autocorrect`: full/half-width punctuation and CJK–Latin spacing) |
+| **De-AI / voice checking** | Convergence-word + AI-syntax passes by hand | ✅bundled `tools/en/ai_style_diag.py` (percentiles vs a corpus you assemble, published papers only, never your own drafts) |
+| **Grammatical-register check** (beyond convergence words: nominalization, gerund clauses, dozens of Biber-style features) | Eyeball register by hand; the overclaim and convergence-word passes still run | ✅bundled `tools/en/biber_diag.py`, needs **pybiber + spaCy** in a dedicated environment (keeps their pinned dependency versions off your main Python): `python3 -m venv ~/.venvs/biber && ~/.venvs/biber/bin/pip install pybiber spacy && ~/.venvs/biber/bin/python -m spacy download en_core_web_sm`, then `~/.venvs/biber/bin/python tools/en/biber_diag.py draft.md` |
 | **Lexical-bundle / metadiscourse checks** | Claude reads for repeated phrases and hedging/boosting by hand | ✅bundled, zero-install: `tools/en/bundle_diag.py` (over-used lexical bundles vs your corpus), `tools/en/metadiscourse_en.py` (Hyland stance/engagement/boosting-hedging markers vs your corpus) |
-| **Literature mapping / bibliometrics** (candidate classics by co-citation, full science maps) | ✅bundled `tools/refs/lit_map.py` (zero-install; a candidate list, judged by hand — see `method/RIGOR_PROCESS.md` stage 3) | + R **bibliometrix** and **openalexR** (`install.packages("bibliometrix")`, `remotes::install_github("ropensci/openalexR")`) for a full co-citation/science map from `lit_map.py --save-json`'s raw data; **PRISMA2020** (`install.packages("PRISMA2020")`) draws the flow diagram for a systematic/scoping review |
-| **Large-scale literature screening** (hundreds of candidates, systematic/scoping review) | Read and triage by hand — fine under ~50–100 items | **ASReview** (`asreview lab`) in its own environment: `python3 -m venv ~/.venvs/asreview && ~/.venvs/asreview/bin/pip install asreview`. Active-learning screening; simulation studies report it can cut screening effort substantially at high recall targets — still a human decision per item, not an oracle |
-| **Second opinion on which statistical test fits** | `method/METHOD_CARDS.md`'s decision index + the comparison table from Phase 3.0 | **Tea** (tealang) in its own environment (it pins to Python 3.10–3.13, likely to conflict with a newer default interpreter): `python3.11 -m venv ~/.venvs/tea && ~/.venvs/tea/bin/pip install tea-lang` — describes hypotheses and variable types, suggests a test. Covers classic tests only, not mixed/ordinal models; treat its answer as one input alongside the comparison table, not a verdict |
-| **Argument mapping** (visualize the skeleton's move structure) | Prose skeleton nodes are enough for most drafts | **Argdown** (`npm install -g @argdown/cli`) renders a `.argdown` outline as an argument map — useful for a paper with an unusually tangled rebuttal structure, optional otherwise |
-| **Chinese metadiscourse scale** (optional, Traditional-Chinese-Taiwan add-on) | `tools/zh-tw/zh_ai_style.py`'s heuristic metadiscourse markers | **zh-metadiscourse-scale** — a *scale*, not a detector; read its own documentation on what it does and does not claim before using it as a checklist item, not a pass/fail gate |
+| **Literature mapping / bibliometrics** (candidate classics by co-citation, full science maps) | ✅bundled `tools/refs/lit_map.py` (zero-install; a candidate list, judged by hand, see `method/RIGOR_PROCESS.md` stage 3) | + R **bibliometrix** and **openalexR** (`install.packages("bibliometrix")`, `remotes::install_github("ropensci/openalexR")`) for a full co-citation/science map from `lit_map.py --save-json`'s raw data; **PRISMA2020** (`install.packages("PRISMA2020")`) draws the flow diagram for a systematic/scoping review |
+| **Large-scale literature screening** (hundreds of candidates, systematic/scoping review) | Read and triage by hand, fine under ~50–100 items | **ASReview** (`asreview lab`) in its own environment: `python3 -m venv ~/.venvs/asreview && ~/.venvs/asreview/bin/pip install asreview`. Active-learning screening; simulation studies report it can cut screening effort substantially at high recall targets, still a human decision per item, not an oracle |
+| **Second opinion on which statistical test fits** | `method/METHOD_CARDS.md`'s decision index + the comparison table from Phase 3.0 | **Tea** (tealang) in its own environment (it pins to Python 3.10–3.13, likely to conflict with a newer default interpreter): `python3.11 -m venv ~/.venvs/tea && ~/.venvs/tea/bin/pip install tea-lang`: describes hypotheses and variable types, suggests a test. Covers classic tests only, not mixed/ordinal models; treat its answer as one input alongside the comparison table, not a verdict |
+| **Argument mapping** (visualize the skeleton's move structure) | Prose skeleton nodes are enough for most drafts | **Argdown** (`npm install -g @argdown/cli`) renders a `.argdown` outline as an argument map, useful for a paper with an unusually tangled rebuttal structure, optional otherwise |
+| **Chinese metadiscourse scale** (optional, Traditional-Chinese-Taiwan add-on) | `tools/zh-tw/zh_ai_style.py`'s heuristic metadiscourse markers | **zh-metadiscourse-scale**: a *scale*, not a detector; read its own documentation on what it does and does not claim before using it as a checklist item, not a pass/fail gate |
 | **Traditional-Chinese-Taiwan** | Claude checks by hand | ✅bundled `tools/zh-tw/` (zero install): `zh_localize` (Taiwan terms), `zh_ai_style` (Chinese AI-tic + contrast-sentence total + long sentences, both ends), `voice_lint` (your voice rules + heading scan), `zh_gloss_scan` (parenthetical asides). Official-term DB check = bring-your-own DB; optional scale = `zh-metadiscourse-scale` above. |
 | **PDF / typesetting** | Cleanest export + "layout still needs a pass" | Typst or Quarto/LaTeX with the venue's template and embedded fonts |
 
@@ -50,45 +50,45 @@ runs statistics locally must mention them.
 - **scipy ≥ 1.17 `mannwhitneyu` with float32 input returns a wrong U and p, silently**
   (a regression introduced in 1.17.0; 1.16.x is unaffected; scipy issue #24777, still
   open at the time of writing). Pin `scipy<1.17` in the analysis environment, **and**
-  cast inputs to float64 anyway as defense in depth — a collaborator's venv may not be
+  cast inputs to float64 anyway as defense in depth. A collaborator's venv may not be
   pinned. Upgrading other packages can drag scipy up; assert the version after any
   environment change.
-- **η² from `effectsize` on an `afex` / `Anova.mlm` object** — the overlapping-factor-
+- **η² from `effectsize` on an `afex` / `Anova.mlm` object**: the overlapping-factor-
   name fix is unconfirmed; cross-check against the effect sizes `afex` reports itself.
   If they disagree, report neither until you know why.
 - General rule: **suspiciously tidy numbers are a red flag** (an effect of exactly 0.5,
   exactly 2×, identical CIs across groups). That is usually a constant leaking from a
-  broken pipeline, not a result — go back to the log and the exit code before it
+  broken pipeline, not a result. Go back to the log and the exit code before it
   enters the draft.
 
 ## Not recommended (and the lite alternative)
 
 These looked useful during a survey of the field's tooling and were rejected for a
-concrete reason — listed so you don't re-discover the same dead end:
+concrete reason, listed so you don't re-discover the same dead end:
 
-- **SciScore, Penelope.ai** — upload the full manuscript to a third party. Lite
+- **SciScore, Penelope.ai**: upload the full manuscript to a third party. Lite
   alternative: the reporting-guideline checklist in `paper-review` Layer 4, done
   by hand.
-- **statcheck and rSPRITE's web versions** — send your data to an external server.
+- **statcheck and rSPRITE's web versions**: send your data to an external server.
   Lite alternative: the local R packages (`statcheck`, `scrutiny`), already in the
-  table above — same checks, nothing leaves your machine.
-- **Consensus, SciSpace** — uploaded documents are processed in the cloud, and
+  table above, same checks, nothing leaves your machine.
+- **Consensus, SciSpace**: uploaded documents are processed in the cloud, and
   neither publishes an independent accuracy evaluation you can check. Lite
   alternative: WebSearch + Semantic Scholar/OpenAlex, read the sources yourself.
-- **CollabCoder** — a genuinely useful qualitative-coding comparison design, but it
+- **CollabCoder**: a genuinely useful qualitative-coding comparison design, but it
   requires an OpenAI API key and sends interview data to OpenAI's servers. Lite
   alternative: a second human coder + `irr`-style agreement statistics in R.
-- **PaperQA2** — defaults to calling a cloud model, and stands up a second search
+- **PaperQA2**: defaults to calling a cloud model, and stands up a second search
   index that will drift from whatever local literature store you already keep.
   Lite alternative: your own local RAG (full mode) or WebSearch + manual reading
   (lite mode).
 
 ## Principles for the installer
 - **Privacy is non-negotiable in both modes:** unpublished drafts and raw data stay
-  local. No cloud detectors, no public LLM uploads — that rule doesn't relax in full mode.
+  local. No cloud detectors, no public LLM uploads. That rule doesn't relax in full mode.
 - **Corpus hygiene** (if you build a style baseline): the baseline holds **only other
   people's published papers**. Never mix in the author's own drafts/posters/co-authored
-  work or admin junk — comparing the author's style against a baseline containing their
+  work or admin junk. Comparing the author's style against a baseline containing their
   own writing makes the de-AI diagnosis cancel itself out.
 - **Don't over-install.** A cautious first-timer needs none of this. Suggest the single
   tool that unblocks the specific wall they hit, and stop.

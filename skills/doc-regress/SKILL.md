@@ -1,9 +1,9 @@
 ---
 name: doc-regress
-description: Build an "error regression suite" for a long document — once a mistake is caught, write it down as a standing check that scans the whole project and blocks the mistake from coming back. Use when the author says "don't let this happen again", "it gets worse every time I edit", "fixing A broke B", "set up regression checks for this paper", "keep this error from recurring", "I don't know whether the fix actually landed everywhere", or when a paper's numbers live in more than one place (text + tables + abstract). Works for papers, proposals, bids, teaching materials — any long document revised many times. The rules live in the author's project, version-controlled with the draft; this skill supplies the method, the bundled scaffold (`tools/regress/`) and the generic rules.
+description: Build an "error regression suite" for a long document. Once a mistake is caught, write it down as a standing check that scans the whole project and blocks the mistake from coming back. Use when the author says "don't let this happen again", "it gets worse every time I edit", "fixing A broke B", "set up regression checks for this paper", "keep this error from recurring", "I don't know whether the fix actually landed everywhere", or when a paper's numbers live in more than one place (text + tables + abstract). Works for papers, proposals, bids, teaching materials, any long document revised many times. The rules live in the author's project, version-controlled with the draft; this skill supplies the method, the bundled scaffold (`tools/regress/`) and the generic rules.
 ---
 
-# doc-regress — error regression suite for long documents
+# doc-regress: error regression suite for long documents
 
 > Generated from the Research Writing Kit; adapt to the project.
 > This skill **does not edit the manuscript**. It builds scanners and reports what
@@ -42,7 +42,7 @@ One line: *"look at this draft" = paper-review; "make sure this never happens ag
 
 ### 2. Put the config in the project; the runner stays in the kit
 Copy `tools/regress/rules.template.json` into the author's project as `regress.json`
-and commit it there — the config *is* that project's error history and must travel
+and commit it there. The config *is* that project's error history and must travel
 with the draft. The runner is the kit's `tools/regress/regress.py` (kit path is in
 CLAUDE.md):
 
@@ -52,18 +52,18 @@ python3 tools/regress/regress.py --config regress.json --json     # for CI / scr
 ```
 
 Paths inside the config are relative to `--root` (default: the config's directory).
-The generic rules are all **config-driven** — a rule whose key is empty reports itself
+The generic rules are all **config-driven**, a rule whose key is empty reports itself
 as *unconfigured* rather than silently passing:
 - **R1 / R1-BIB citation integrity** (`ref_list` for numbered lists, `bib_files` for
-  BibTeX) — dangling citation = FAIL; entry never cited = INFO.
+  BibTeX): dangling citation = FAIL; entry never cited = INFO.
 - **R2 personal-data patterns** (`pii_patterns`, regexes for your country's ID /
-  phone / account formats) — identifying data must not ride along in a deliverable.
-- **R6 internal-note leakage** (`internal_words`) — TODOs, drafting prompts,
+  phone / account formats): identifying data must not ride along in a deliverable.
+- **R6 internal-note leakage** (`internal_words`): TODOs, drafting prompts,
   instructions to the AI must not appear in the delivered version.
-- **R-ATTR** (`entities`) — an entity must be accompanied by an attribution marker.
-- **R-CORR** (`banned_claims`) — a corrected statement must not come back.
-- **R-FACT** (`fact_ledger`) — known-wrong values FAIL near the fact's keyword.
-- **R-STALE / R-LEDGER** (`ledger`) — the numbers ledger, §3.5.
+- **R-ATTR** (`entities`): an entity must be accompanied by an attribution marker.
+- **R-CORR** (`banned_claims`): a corrected statement must not come back.
+- **R-FACT** (`fact_ledger`): known-wrong values FAIL near the fact's keyword.
+- **R-STALE / R-LEDGER** (`ledger`): the numbers ledger, §3.5.
 
 ### 3. Turn every real mistake into one rule
 Ask "what has this document gotten wrong before?" and write each as a rule. **This is
@@ -72,7 +72,7 @@ config-driven shapes above (attribution marker → `entities`; a corrected state
 `banned_claims`, with *why* it was wrong and the source; known-wrong values →
 `fact_ledger`; numbers that live in several places → the ledger). A mistake that needs
 code goes in a project file `my_rules.py` exposing `RULES = [fn(ctx), ...]`, run with
-`--extra my_rules.py` — also committed with the draft.
+`--extra my_rules.py`, also committed with the draft.
 
 ### 3.5 Number-heavy documents: keep a numbers ledger
 
@@ -87,8 +87,8 @@ IRR_ADD   9.20   8.22~[Aa]dditive|transitions   analysis/markers.py   §4.1 Tabl
 ```
 
 Two rules read it:
-- **R-STALE** — an old value recurs near its anchor → FAIL.
-- **R-LEDGER** — the current value is nowhere in the draft → WARN (may be a rewording).
+- **R-STALE**: an old value recurs near its anchor → FAIL.
+- **R-LEDGER**: the current value is nowhere in the draft → WARN (may be a rewording).
 
 Calibration learned the hard way:
 - 🔴 **Separators must not collide with regex.** Old values are separated by `;`; `|`
@@ -102,7 +102,7 @@ Calibration learned the hard way:
   match); "94 % of the time", not `0.942`. Exact values go in a notes column. Split
   compound values (`3.63→4.23`, `0.75/0.73`, `0.67–0.87`) so each end is checked.
 - R-STALE only guards a row whose *old* column is filled. A first-version ledger with
-  `—` everywhere has run but defends nothing — don't count it as a verified line.
+  `—` everywhere has run but defends nothing. Don't count it as a verified line.
 
 The workflow becomes: **re-run analysis → update the ledger → then edit the draft → run
 regress to confirm both agree.** The order matters: editing the draft first means
@@ -111,13 +111,13 @@ exit code) if the analysis is re-run often.
 
 ### 4. Injection self-test (do not skip)
 Every rule gets one test case: inject the mistake back in and confirm the rule fires.
-**A check that never fires is worse than none — it gives false confidence.**
+**A check that never fires is worse than none. It gives false confidence.**
 
 🔴 **Test execution, not registration.** A rule can be listed and still never run:
 one that only understands numeric `[12]` references returns immediately on a BibTeX
 project, reports `FAIL 0`, and citation integrity is never checked while the light
 stays green. Two guards: the kit's generic rules report *unconfigured* instead of
-returning quietly — treat that line as "not defended", not as a pass — and the bundled
+returning quietly (treat that line as "not defended", not as a pass) and the bundled
 detector checks the project's own rule code:
 
 ```bash
@@ -127,7 +127,7 @@ python3 tools/regress/dead_rule_check.py my_rules.py
 It instruments each rule and counts the lines actually executed; below ~25 % it names
 the rule as dead (an early return usually means a required setting is empty). Exit
 code 1 = at least one dead rule; suitable for CI. A rule that doesn't apply to this
-project is **removed from `RULES` with a note**, not left in place — a permanently dead
+project is **removed from `RULES` with a note**, not left in place. A permanently dead
 rule trains everyone to ignore the red.
 
 Two more calibrations:
@@ -146,8 +146,8 @@ change to the draft or the ledger.
 Long documents get reviewed many times, and one class of finding is "looks wrong,
 was checked, is right": a participant description that seems to contradict a data
 field, a number format that follows a convention, a term kept on purpose. Once
-settled, the decision usually sinks into one review report and is never seen again —
-so **the next reviewer (human or agent) re-checks it and asks the author the same
+settled, the decision usually sinks into one review report and is never seen again.
+So **the next reviewer (human or agent) re-checks it and asks the author the same
 question again**. Clean-context subagents do this most; their strength is the cost.
 
 Keep `ADJUDICATED.md` in the project root: *apparent contradiction → ruling → basis
@@ -161,7 +161,7 @@ clean final reviewer.
 1. **Miss rather than mis-flag.** Unclear criteria → INFO, never FAIL. A false alarm's
    cost is "edited the correct thing into a wrong one", which is worse than a miss.
    Corollary: **bare small integers and common decimals are never registered as wrong
-   values on their own — always with an anchor.** (A registered "32" matched a model
+   values on their own, always with an anchor.** (A registered "32" matched a model
    name `…-32B`; "64" matched another group's *correct* new value.)
 2. **Every mismatch a script reports is checked against the raw source by a human
    before anything is edited.** (A checker once reported five "orphan" references; they
@@ -177,7 +177,7 @@ clean final reviewer.
 5. **Your own additions are the audit blind spot; they get a separate pass.** Attention
    naturally goes to existing text. A sentence added to fill a widened date range
    passed every mechanical check and seven review rounds before the author caught it.
-   **Structural fixes may not be made with facts** — if the range can't be filled,
+   **Structural fixes may not be made with facts**: if the range can't be filled,
    change the range.
 
 ## Output
