@@ -2,7 +2,7 @@
 
 [![版本](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![最近更新](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![程式 MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![文件 CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**版本 `v1.7.2`**（2026-09-17）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
+**版本 `v1.8.0`**（2026-09-20）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
 **English → [README.en.md](README.en.md)**
 
@@ -281,6 +281,12 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 
 ## 版本紀錄
 
+- **v1.8.0**（2026-09-20）：**修掉三處「寫了但沒接上」的失效，並補上能抓到這類失效的偵測。** 一次稽查抓到的共同特徵是：失敗長得像正常結果。
+  `tools/refs/pdf_fetch.py` 的 OpenAIRE 用 `\.pdf` 正則在整包 JSON 上撈，實測五個 DOI 全部零命中，因為它回的是機構典藏的**紀錄頁**，很少以 `.pdf` 結尾；呼叫成功、清單是空的，所以一直沒人發現。改成正確解析 JSON，並把紀錄頁交給瀏覽器層（只收 `instance` 子樹下的網址，否則會混進作者機構首頁與出版社授權頁）。
+  同一支檔案裡，`fetch_pdf` 的 `extra_urls` 參數從來沒有人傳過、`cookies_for()` 一次都沒被呼叫，而 `http_get` 的 urllib 後備路徑根本忽略 `cookies`。三者合起來等於整條機構典藏路線與 cookie 移交都只存在於文件裡。實測修好後，一個 ACM 全文閘道網址直接取回 16 頁論文。
+  `tools/regress/dead_rule_check.py` 原本只驗「已註冊的規則有沒有執行到 body」，對**根本沒註冊**的規則完全盲目，那才是更徹底的失效，而且偵測器會說「無死規則」。新增未註冊偵測，並加 `RULES_DEREGISTERED = {"規則名": "理由"}` 慣例，讓「刻意除役」的註記放在機器讀得到的地方。
+  `tools/regress/regress.py` 的 `ledger_rows` 把「沒設定」與「設定了但檔案不見」吞成同一個空清單，結果帳本被搬走時報的是「請設定 ledger」，對著一個你沒有的問題給建議，而兩條帳本規則已悄悄停止守備。
+  `skills/verify-citations` 補上 OpenLibrary 端點的實測：`/api/books?bibkeys=` 現已一律回 404（站台正常），照它寫的程式會對每一本書回報「不在 OpenLibrary」；改用 `/isbn/<isbn>.json`。另註明 `search.json?q=isbn:` 是模糊檢索（用一個合法但不存在的 ISBN 去查會回三筆、第一筆無關），且它的 doc 是作品層、會聚合多版本 ISBN，光比對 ISBN 仍可能把別本書的作者年份接到這本書的題名上。
 - **v1.7.2**（2026-09-17）：**隱私說明改成照實寫。** 舊版多處寫「未發表稿件永遠留在你的電腦」，但 Claude Code 是雲端模型，它讀到的稿件與資料會傳到 Anthropic 處理，這句話不成立。
   現在的說法是：隨包工具與統計在本機跑、線上檢索只送書目資料、稿件不交給第三方服務，並在〈隱私〉明講 Claude Code 會送出它讀到的內容，有受試者資料或保密要求時要先確認機構規定。README、`CLAUDE.md`、`method/`、`setup/`、三個 skill 與 `tools/` 說明一併改。
 - **v1.7.1**（2026-09-17）：**文件清掉長破折號。** 套件在教「長破折號是 AI 文字的明顯痕跡」，自己的文件卻每千詞有 10 個以上。

@@ -136,6 +136,10 @@ def http_get(url, timeout=45, cookies=None, referer=None, impersonate="chrome"):
             return (r.status_code, r.headers.get("content-type", ""), r.content, dict(r.headers))
         except Exception as ex:
             return (-1, "", b"", {"x-error": "%s: %s" % (type(ex).__name__, ex)})
+    if cookies:
+        # The old fallback ignored `cookies` entirely: a caller could hand over a
+        # cf_clearance cookie and not one of them would be sent. Silent no-op.
+        hdr["Cookie"] = "; ".join("%s=%s" % (k, v) for k, v in cookies.items())
     try:
         req = urllib.request.Request(url, headers=hdr)
         r = urllib.request.urlopen(req, timeout=timeout)
@@ -765,17 +769,79 @@ def core_urls(doi, api_key=None):
     return out
 
 
-def openaire_urls(doi):
+_PDFISH = re.compile(r"\.pdf($|[?#])|/pdf/|/epdf/|pdfdirect|/content/pdf/|type=pdf|ft_gateway"
+                     r"|fulltext.*\.pdf", re.I)
+_URL_JUNK = re.compile(r"(namespace\.openaire\.eu|openaire\.eu/schema|dblp\.org"
+                       r"|^https?://doi\.org/)", re.I)
+
+
+def _walk_urls(obj, path=""):
+    """Recurse with the JSON path. OpenAIRE's legacy JSON puts the same field
+    sometimes as an object and sometimes as a list, with the value wrapped in `$`,
+    so a fixed path misses things - but ignoring the path entirely drags in junk:
+      - `rels.rel.websiteurl` = the authors' institution home pages
+      - `instance[N].license` = publisher licence pages
+    Both are pure waste for the browser layer. So: only leaves under an `instance`
+    subtree whose path contains `.url`."""
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            yield from _walk_urls(v, f"{path}.{k}")
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            yield from _walk_urls(v, f"{path}[{i}]")
+    elif isinstance(obj, str) and obj.startswith("http"):
+        if "instance" in path and ".url" in path:
+            yield obj
+
+
+def _openaire_raw(doi):
+    r"""Return (direct PDF urls, landing pages), both pinned to the DOI.
+
+    🔴 Fixed 2026-09-19 - this source had been returning nothing, silently.
+       The old code ran `re.findall(r'https?://...\.pdf', raw)` over the whole JSON
+       blob. Measured against five DOIs (Wiley/ACM/SAGE/Elsevier/BJET): **zero hits
+       every time**. OpenAIRE returns instance/webresource *landing pages* (e.g. an
+       institutional repository record), which rarely end in `.pdf`. It returned an
+       empty list without raising, so nothing ever looked wrong.
+    ⇒ Parse the JSON properly, and hand the landing pages to the browser layer -
+       that is the layer that can find a PDF on a rendered page.
+    ⚠️ Pin the DOI. The biggest risk with any loose match is picking up **another
+       paper's** url; drop anything whose url embeds a different DOI."""
     if not doi:
-        return []
+        return ([], [])
     try:
         req = urllib.request.Request(
             "https://api.openaire.eu/search/publications?doi=%s&format=json&size=1"
             % urllib.parse.quote(doi), headers={"User-Agent": UA})
         raw = urllib.request.urlopen(req, timeout=20).read().decode("utf-8", "ignore")
+        data = json.loads(raw)
     except Exception:
-        return ""
-    return [u for u in re.findall(r'https?://[^"\'<>\s]+?\.pdf', raw)][:3]
+        return ([], [])
+    tgt = doi.lower().rstrip(".")
+    pdfs, landings = [], []
+    for u in _walk_urls(data):
+        if _URL_JUNK.search(u):
+            continue
+        m = re.search(r"10\.\d{4,9}/[^\s\"'<>]+", u)
+        if m and m.group(0).lower().rstrip(".").rstrip("/") not in tgt:
+            continue                      # url carries a different DOI - not our paper
+        (pdfs if _PDFISH.search(u) else landings).append(u)
+    ded = lambda xs: list(dict.fromkeys(xs))
+    return (ded(pdfs)[:3], ded(landings)[:4])
+
+
+def openaire_urls(doi):
+    """Direct-PDF urls only, so the signature stays compatible with extra_oa_urls()."""
+    return _openaire_raw(doi)[0]
+
+
+def oa_landing_urls(doi):
+    """Repository / publisher landing pages. **Not** for direct download - fetching
+    one gives you HTML - but for BrowserSession.fetch_pdf(extra_urls=...), which
+    looks for a PDF link on the rendered page. Author-deposited accepted manuscripts
+    in institutional repositories are one of the highest-yield routes, and the old
+    code threw these urls away."""
+    return _openaire_raw(doi)[1]
 
 
 def extra_oa_urls(doi):
@@ -971,6 +1037,9 @@ def main():
     for key, doi, arx in entries:                  # L0/L1: open access first
         data = b""
         urls = (["https://arxiv.org/pdf/%s" % arx] if arx else []) + (extra_oa_urls(doi) if doi else [])
+        # Landing pages are kept apart from `urls` on purpose: downloading one gives
+        # HTML, which fails looks_pdf() and ends the trail there. They go to L2.
+        land = oa_landing_urls(doi) if doi else []
         for u in urls:
             st, ct, body, _h = http_get(u)
             if 200 <= st < 300 and looks_pdf(body):
@@ -981,7 +1050,7 @@ def main():
             print("  [OK]   %-34s open-access (%d b)" % (key[:34], len(data)), flush=True)
             got += 1
         elif doi:
-            pending.append((key, doi))
+            pending.append((key, doi, land, urls))
         else:
             # arXiv id known but the PDF did not come: nothing for the browser layer to
             # navigate to (the old code would have built https://doi.org/None).
@@ -991,8 +1060,37 @@ def main():
         print("\nbrowser layer: %d item(s) - a Chrome window will open; leave it alone"
               % len(pending), flush=True)
         with BrowserSession(profile=a.profile, headless=a.headless, verbose=False) as bs:
-            for key, doi in pending:
-                data, src, how = bs.fetch_pdf("https://doi.org/" + doi, doi=doi)
+            for key, doi, land, cands in pending:
+                # fetch_pdf has always accepted extra_urls; nothing ever passed any,
+                # so the whole repository route was unused.
+                data, src, how = bs.fetch_pdf("https://doi.org/" + doi, doi=doi,
+                                              extra_urls=land)
+                # Passing extra_urls is not enough on its own: fetch_pdf goes
+                # "in-page fetch -> **return on paywall** -> navigate", and the big
+                # publishers always short-circuit at the paywall, so the navigation
+                # step never sees extra_urls. Retry each repository page as a landing
+                # page in its own right (it has its own link discovery).
+                if not data and land and how[:8] in ("NO-LINK ", "CHALLENG", "TIMEOUT ",
+                                                     "PAYWALL "):
+                    for alt in land:
+                        d2, s2, h2 = bs.fetch_pdf(alt, doi=doi, budget=60)
+                        if d2:
+                            data, src, how = d2, s2, "repo | " + h2
+                            break
+                # L3 cookie handoff: the browser may have earned a cf_clearance and
+                # still found no link on the page. Retry the L0 candidates with those
+                # cookies. Skip it for paywalls and captchas - no subscription and
+                # "needs a human" are not fixed by cookies.
+                if not data and cands and how[:8] in ("NO-LINK ", "CHALLENG", "TIMEOUT "):
+                    for u in cands[:6]:
+                        ck = bs.cookies_for(urllib.parse.urlsplit(u).netloc.split(":")[0])
+                        if not ck:
+                            continue
+                        st, _ct, body, _h = http_get(u, cookies=ck,
+                                                     referer="https://doi.org/" + doi)
+                        if 200 <= st < 300 and looks_pdf(body):
+                            data, src, how = body, u, "cookie-handoff | OK"
+                            break
                 if data:
                     open(os.path.join(a.out, _safe(key) + ".pdf"), "wb").write(data)
                     print("  [OK]   %-34s %s (%d b)" % (key[:34], how, len(data)), flush=True)
@@ -1003,7 +1101,7 @@ def main():
         print("\nbrowser layer unavailable (pip install patchright); %d item(s) left"
               % len(pending), flush=True)
     elif pending:
-        for key, doi in pending:
+        for key, doi, _land, _cands in pending:
             print("  [MISS] %-34s no open-access copy; browser layer off (doi %s)"
                   % (key[:34], doi), flush=True)
 

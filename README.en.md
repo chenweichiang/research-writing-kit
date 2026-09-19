@@ -2,7 +2,7 @@
 
 [![version](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![updated](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![code MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![docs CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**Version `v1.7.2`** (2026-09-17) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
+**Version `v1.8.0`** (2026-09-20) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
 
 **中文版 → [README.md](README.md)**
 
@@ -286,6 +286,12 @@ uncited claims, regression) need no model; just run the scripts.
 
 ## Version history
 
+- **v1.8.0** (2026-09-20): **Three "written but never wired" failures fixed, plus the detection that can catch this class.** What they had in common: the failure looked like a normal result.
+  In `tools/refs/pdf_fetch.py`, OpenAIRE was parsed with a `\.pdf` regex over the whole JSON blob, and got zero hits across five DOIs, because what it returns are repository **landing pages**, which rarely end in `.pdf`. The call succeeded and the list came back empty, so nothing ever looked wrong. It now parses the JSON and hands landing pages to the browser layer (only urls under an `instance` subtree; without that filter you pull in the authors' institution home pages and publisher licence pages).
+  In the same file, `fetch_pdf`'s `extra_urls` had never been passed by anything, `cookies_for()` was never called, and the urllib fallback in `http_get` ignored `cookies` outright, so the whole repository route and the cookie handoff existed only in the documentation. After the fix, one ACM full-text gateway url pulled down a 16-page paper directly.
+  `tools/regress/dead_rule_check.py` only ever measured whether a *registered* rule executes its body, and was blind to rules that were never registered at all, which is the more complete failure and one where the detector reported "no dead rules". It now reports unregistered rules, and adds a `RULES_DEREGISTERED = {"name": "why"}` convention so that a deliberate deregistration is noted somewhere a machine can read.
+  `ledger_rows` in `tools/regress/regress.py` folded "not configured" and "configured but the file is missing" into the same empty list, so a moved ledger produced "point `ledger` at your numbers ledger", which is advice for a problem you do not have, while both ledger rules had quietly stopped guarding.
+  `skills/verify-citations` records what OpenLibrary actually does now: `/api/books?bibkeys=` returns 404 for everything while the site is up, so code written against it reports "not in OpenLibrary" for every book; use `/isbn/<isbn>.json` instead. It also warns that `search.json?q=isbn:` is a fuzzy search (a valid but nonexistent ISBN returned three hits, the first unrelated) whose docs are work-level and aggregate editions' ISBNs, so ISBN membership alone can attach one book's author and year to another book's title.
 - **v1.7.2** (2026-09-17): **The privacy statement now says what actually happens.** Earlier versions said in several places that
   unpublished drafts always stay on your computer. Claude Code is a cloud model, so the drafts and data it reads are sent to Anthropic,
   and that sentence was not true. The kit now says: the bundled tools and statistics run locally, online lookups send only bibliographic

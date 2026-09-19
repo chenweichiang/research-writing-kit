@@ -32,6 +32,7 @@ import importlib.util
 import inspect
 import io
 import pathlib
+import re
 import sys
 
 
@@ -55,6 +56,44 @@ def rules_from_main_ast(path, mod):
             if len(fns) >= 2:
                 return fns
     return None
+
+
+RULE_NAME = re.compile(r"^r(_|\d+_)")
+
+
+def unregistered_rules(path, mod, registered):
+    """Module-level functions that look like rules (`r_*` / `r1_*`) but are **not in
+    RULES at all**.
+
+    🔴 Added 2026-09-19. This script only ever measured whether a *registered* rule
+    executes its body, so it was blind to the more complete failure: a rule that
+    never enters the loop. Real case: a regress skeleton shipped `r_stale_values`
+    and `r_ledger_present` written but unregistered - FAIL 0 in every report, and
+    this detector said "no dead rules" every time. The detector was handing out the
+    false green light it exists to catch.
+
+    ⚠️ Name-matching is a heuristic, so the output says "suspected" and asks for a
+    human call: deliberately keeping a function unregistered is legitimate (a helper
+    for project rules, or a rule replaced by a better one). Declare it in
+    `RULES_DEREGISTERED = {"name": "why"}` and this stops reporting it - which also
+    puts the required note somewhere a machine can read, instead of buried in some
+    other function's docstring."""
+    names = set()
+    for n in ast.parse(pathlib.Path(path).read_text(encoding="utf-8")).body:
+        if isinstance(n, ast.FunctionDef) and RULE_NAME.match(n.name):
+            names.add(n.name)
+    reg = {getattr(f, "__name__", "") for f in registered}
+    reg.discard("<lambda>")
+    src = pathlib.Path(path).read_text(encoding="utf-8")
+    dereg = getattr(mod, "RULES_DEREGISTERED", None) or {}
+    out = []
+    for nm in sorted(names - reg):
+        if nm in dereg:
+            continue
+        if re.search(r"lambda[^\n]*\b" + nm + r"\s*\(", src):   # lambda wrapper counts
+            continue
+        out.append(nm)
+    return out
 
 
 def main():
@@ -125,8 +164,19 @@ def main():
         dead += bad
         print(f"{('[FAIL]' if bad else '[OK]'):<7}{name:<26} {len(hit):4d}/{total:3d} lines "
               f"({pct:5.1f}%)" + ("  <- early return: the setting it needs is probably empty" if bad else ""))
-    print(f"\n[{'FAIL' if dead else 'OK'}] {dead} dead rule(s)" if dead else "\n[OK] no dead rules")
-    return 1 if dead else 0
+    orphan = unregistered_rules(a.regress_py, R, rules)
+    if orphan:
+        print(f"\n[FAIL] {len(orphan)} suspected rule(s) **never registered in RULES** "
+              f"(they never enter the loop, so the execution check above cannot see them):")
+        for nm in orphan:
+            print(f"        - {nm}")
+        print("        Fix: add it to RULES, or declare it in RULES_DEREGISTERED "
+              "= {\"name\": \"why\"}. Written-but-not-wired is worse than not written, "
+              "because the report goes green.")
+    tail = f"; {len(orphan)} unregistered" if orphan else ""
+    print(f"\n[{'FAIL' if dead else 'OK'}] {dead} dead rule(s){tail}"
+          if dead else f"\n[{'FAIL' if orphan else 'OK'}] no dead rules{tail}")
+    return 1 if (dead or orphan) else 0
 
 
 if __name__ == "__main__":

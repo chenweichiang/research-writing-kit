@@ -61,6 +61,21 @@ For each "claim + citation" pair in the draft:
 3. **Authoritative ID check:** DOI via Crossref, ISBN via OpenLibrary, to confirm the
    reference resolves to a real, correctly-described work. Entries with neither →
    OpenAlex title search, Semantic Scholar as fallback (preprints, forthcoming).
+   🔴 **OpenLibrary endpoints (checked 2026-09-19).** `…/api/books?bibkeys=ISBN:…`
+   now returns 404 for everything while the site itself is up, so code written
+   against it reports "not in OpenLibrary" for every book — a verification that
+   silently never happens. Use `https://openlibrary.org/isbn/<isbn>.json`: it is
+   exact and 404s only when the book really is absent.
+   ⚠️ `search.json?q=isbn:<isbn>` is a **fuzzy** search, not a lookup: a
+   nonexistent-but-valid ISBN came back with three hits, the first an unrelated
+   book. If you use it to add author/year, keep only a doc whose `isbn` field
+   actually contains your ISBN **and** whose title matches the exact record —
+   OpenLibrary search docs are work-level and aggregate many editions' ISBNs, so
+   ISBN membership alone let one book's author and year attach to another book's
+   title.
+   ⚠️ Separate "the API failed" from "the book is not there". Only the second is a
+   finding about the bibliography; the first is a finding about your run, and
+   folding them together is how a broken checker looks like a clean report.
 4. Verdict per pair: **supported / partially / unsupported / wrong-direction /
    ❓unverifiable**, each with a quoted line from the source, plus a **severity
    weighted by the citation's purpose**: a mismatch on a citation used as

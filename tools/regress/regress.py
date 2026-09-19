@@ -223,7 +223,18 @@ def ledger_rows(ctx):
     Accepts a markdown table (`| id | current | stale | source | where | note |`)
     or a TSV with the same column order. `#` lines, header and separator rows skipped."""
     path = ctx.cfg.get("ledger")
-    if not path or not (ctx.root / path).exists():
+    if not path:
+        return []
+    if not (ctx.root / path).exists():
+        # 🔴 The old code folded "not configured" and "configured but the file is
+        # gone" into the same empty list, so a moved or renamed ledger surfaced as
+        # "point `ledger` at your numbers ledger" - advice for a problem you do not
+        # have, while both ledger rules quietly stopped guarding anything.
+        if not any(w["rule"] == "R-LEDGER-CFG" for w in ctx.WARN):
+            ctx.rec("WARN", "R-LEDGER-CFG",
+                    f"ledger is set to {path} but the file is not there - both ledger "
+                    f"rules are NOT guarding",
+                    "fix the path, or set `ledger` back to null and note why")
         return []
     out = []
     for line in (ctx.root / path).read_text(encoding="utf-8").split("\n"):

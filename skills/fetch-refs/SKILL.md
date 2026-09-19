@@ -106,6 +106,20 @@ the author could act on.
 - **`/doi/pdf/` is often not a PDF.** Wiley's returns a 49 KB HTML viewer shell (the
   file is at `/doi/pdfdirect/`); SAGE's `/doi/reader/` and `/doi/epub/` are shells too;
   T&F's returns the landing page itself. **Always check the `%PDF-` magic bytes**.
+
+- 🔴 **A source can return HTTP 200 and still be dead (measured 2026-09-19).**
+  OpenAIRE was parsed with a `\.pdf` regex over the whole JSON blob: zero hits on
+  every DOI tried, because what it returns are repository **landing pages**. The
+  call succeeded, the list came back empty, and nothing ever looked wrong. If a
+  source has never produced a file, test it with a DOI you know it holds before
+  assuming the source simply has poor coverage.
+- **Landing pages belong to the browser layer, not the HTTP layer.** Downloading one
+  gives HTML that fails the magic-byte check, and the trail ends there. Pass them as
+  `extra_urls`, and — because the fetch order is "in-page fetch → return on paywall →
+  navigate" — also retry each repository page as a landing page of its own, or the
+  big publishers short-circuit before those urls are ever tried.
+- **Pin the identifier on anything fuzzy.** Loose matching in repository APIs
+  returns other papers; drop any url that embeds a different DOI.
   Never the extension or the content-type.
 - **You cannot build Elsevier's URL.** It is `/pii/{PII}/pdfft?md5=…`, a one-time
   per-session token readable only off the rendered page, and it then returns an HTML
