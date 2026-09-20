@@ -151,22 +151,31 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | `zh-tw/zh_ai_style.py` | 中文 AI 句法指紋：破折號、三連並列、趨同詞、句長節奏、「並非…而是」密度、120 字以上長句清單；可對照你自己的親筆語料 | 不用 |
 | `zh-tw/voice_lint.py` | 你自己的聲音硬規則（吃 `voice_rules.json`），交稿前守門，不乾淨不放行；另掃句型標題、八股套語，並列出 AI 套話候選供人判 | 不用 |
 | `zh-tw/zh_gloss_scan.py` | 括號夾註盤點：列出 12 字以上、非引用非指路的夾註，供你決定改定義句、保留或刪 | 不用 |
+| `zh-tw/zh_tw_terms.py` | 台灣慣用語詞表的讀取與比對模組，`zh_localize.py` 靠它；不直接執行 | — |
 | `en/lt_check.sh` | 英文文法＋美英拼字一致性（離線 LanguageTool）；有 n-gram 資料會自動加掛易混詞偵測 | `brew install languagetool pandoc` |
 | `en/lt_strip_noprose.lua` | `lt_check.sh` 用的 pandoc 濾鏡，剝掉非散文再送檢；不直接執行 | （隨 pandoc） |
 | `en/ai_style_diag.py` | 英文 AI 指紋：對照你領域已發表論文語料的百分位；含 LLM 趨同詞密度並印出命中的詞；自動排除自家草稿與模板檔以免污染基線 | 自備語料；讀 PDF 需 `pdftotext`（`brew install poppler`） |
 | `en/en_slop_terms.tsv` | `ai_style_diag.py` 用的英文 LLM 趨同詞表（162 條，取自 slop-forensics 再篩掉 HCI 論文本來就常用的詞）；不直接執行 | — |
+| `en/bundle_diag.py` | 詞束過度使用診斷（英文與繁中皆可）：LLM 寫作會反覆用同一批固定搭配，這支量它的密度並列出命中 | 不用 |
+| `en/metadiscourse_en.py` | 英文後設論述量測（Hyland 框架）：避險、強調、態度標記等各類的密度。**這是量表不是偵測器**，用來看自己的分布落在哪，不用來判定誰寫的 | 不用 |
+| `en/biber_diag.py` | 英文句法特徵比較（Biber tagger），對照你領域的語料看自己偏在哪；**跑在獨立的選配環境**，套件其餘部分都不需要它 | `pip install pybiber spacy` 加語言模型（建議另開虛擬環境） |
 | `figures/figure_a11y.py` | 圖表色覺可及性：三種色盲模擬＋灰階對比，寫出模擬圖供目檢 | `pip install numpy pillow`（PDF 另需 `pymupdf`） |
 | `refs/pdf_fetch.py` | 取檔分三層：OA 源（增補 Europe PMC／CORE／OpenAIRE）→ curl_cffi TLS 偽裝 → 真實 Chrome 持久 profile。**最後一層才是 Cloudflare 出版社（ACM／Wiley／SAGE／AIP／Elsevier）能到手的原因**，只做 TLS 偽裝不夠。拿不到的一律分類成 `PAYWALL`／`CAPTCHA`／`NO-LINK`；沒有 DOI 的條目讀 arXiv `eprint`，再不行以標題在 arXiv／OpenAlex 精確比對，只有專書才交回人工 | `pip install curl_cffi patchright`（沒裝則退回 stdlib＋OA 源） |
 | `refs/snowball.py` | 引用滾雪球：誰引用了這篇／這篇引了誰／相近研究，多種子聚合排序 | 不用（需網路） |
 | `refs/retraction_scan.py` | 撤稿掃描：`.bib` 或 DOI 清單對 Crossref 更新關係＋OpenAlex `is_retracted` 雙源查核；無 DOI 條目另列不算已掃 | 不用（需網路） |
+| `refs/lit_map.py` | 文獻地圖：一批同主題文獻**彼此共同引用**誰的排行（不是全球被引數），當「這個領域的經典」候選；結果要人工判定 | 不用（需網路） |
 | `claims/uncited_claims_scan.py` | 沒掛引用的量化／因果／最高級宣稱（`.md`／`.tex`／`.qmd`，中英通吃）；逐筆裁決後可加豁免註記 | 不用 |
 | `claims/overclaim_lint.py` | 過度宣稱候選（絕對化／程度誇大／證據強度／最高級，中英雙語詞表）；**只報不改**，每筆人判「資料撐不撐得起」 | 不用 |
+| `method/method_decision_check.py` | 方法決策備忘錄的**格式**閘門：有沒有真的比對過同類研究、每個宣稱有沒有對應的方法支撐；**不判斷方法選得對不對** | 不用 |
+| `method/analysis_plan_check.py` | 資料收集前計畫的閘門：分析方法、樣本數依據、偏離登記等欄位齊不齊；這一關事後補不回來 | 不用 |
+| `method/tea_second_opinion.py` | 統計的第二意見：給它資料與研究設計，它自動挑並跑對應的檢定，用來對照你自己選的那個 | Tea（Python 3.10–3.13，會釘舊版 numpy／pandas，**給它自己的虛擬環境**） |
 | `regress/regress.py` | 文件回歸：照專案的 `regress.json` 掃全庫；內建懸空引用、個資、待辦、舊值復發、歸屬缺漏等規則，專案自訂規則用 `--extra my_rules.py` | 不用 |
-| `regress/dead_rule_check.py` | 規則健檢：哪條規則已永遠不會觸發（錨點文字改掉了） | 不用 |
+| `regress/dead_rule_check.py` | 規則健檢三項：哪條規則永遠不會觸發（錨點文字改掉了）、哪條寫了卻沒註冊進 `RULES`、哪條呼叫了檔案裡不存在的函式 | 不用 |
 | `regress/rules.template.json`、`regress/numbers-ledger.template.md` | 回歸規則設定檔與數字帳本的空白模板 | — |
 | `rebuttal/check_response.py` | 回應信完整性：每點都答了嗎／說要改的真的改了嗎／不接受的有沒有依據 | 不用 |
 | `rebuttal/points.template.tsv`、`revisions.template.tsv`、`response-letter.template.md` | 審稿意見拆點表、修訂對照表、回應信模板 | — |
 | `submissions/check_submissions.py` | 一稿多投防護＋投稿狀態總覽（同一份稿件不得同時在兩處審查） | 不用 |
+| `submissions/style_reaudit.py` | 文風量測規則改過之後，照投稿台帳把所有進行中與審查中的稿件重量一次，避免舊稿停在舊標準 | 不用 |
 | `submissions/SUBMISSIONS.template.tsv` | 投稿狀態表模板 | — |
 | `vocab/fetch_awl.py` | 從 Victoria University of Wellington 官方頁面抓 Coxhead 的 AWL 詞表，轉成 `data/academic-vocab/awl_families.tsv`（AWL 授權不得改作，所以 kit 不隨包、請你自己抓；跑一次即可） | 不用（需網路） |
 
@@ -264,6 +273,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 - **present-video**（發表影片一條龍：TTS 克隆本人聲音／Whisper 聽寫驗證／本機生圖）：超出論文與提案的範圍，且每一段都要自架模型。
 - **paper-healthcheck**：檢查的是作者**本機工具鏈本身**有沒有斷、有沒有新版，不是檢查稿件；你的工具鏈長什麼樣它不知道。
 - **contradiction_scan／backfill_from_lit**（庫裡有沒有人反駁我／缺的 PDF 先從本機補）：需要本機文獻全文索引與本機 LLM 做極性判斷；`setup/TOOLS.md` 只給方向，不給實作。
+- **派工分工表**（哪一步派哪個型號的子代理）：那綁作者的訂閱方案與當下的型號版本，換一家或換一代就不成立。**判準有出貨**（哪一步是機械可降級、哪一步是判斷要用最強的，寫在各 skill 與兩個 subagent 範本裡），型號沒有，因為你手上有哪幾級模型只有你知道。
 - **zh_term_check**（整篇術語譯名對照樂詞網）：需要樂詞網資料庫，得自己下載建庫（bring your own）；單詞查詢請你的 Claude 上網查即可。
 
 ---
@@ -275,7 +285,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 的安裝流程幫你客製，不要照抄原版。
 
 兩個原則：**乾淨二審只給檔案路徑**（不餵主對話的寫稿史，否則盲點共享）；**終審與引用二審是判斷活，
-用你的主力模型，別為省錢降級**。機械層的掃描（撤稿、無引用宣稱、回歸）不需要模型，直接跑腳本。
+用你手上最強的一級模型，別為省錢降級**。機械層的掃描（撤稿、無引用宣稱、回歸）不需要模型，直接跑腳本。
 
 ---
 
@@ -283,6 +293,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 
 - **v1.8.1**（2026-09-20）：**引用二審改判為判斷工作，並補上兩處偵測與警告。**
   套件對「引用二審該用哪一級模型」原本有兩種相反說法：README 說二審是判斷工作、要用最強的模型，`skills/verify-citations` 與 `agents/citation-skeptic` 卻說二審是讀引、用便宜快的就夠。兩種說法都寫於 2026-08-25，從一開始就沒有一致過，而會被直接裝進 `~/.claude/agents/` 的是後者。作者自己的引用集上實測，同一批題目最強的一級判斷正確率 0.95、中間一級 0.75；二審是整條查核的最後一道關，交給弱模型等於把最後一關的正確率降掉兩成。兩處都改成判斷工作要用最強的模型，並把機械的那一半（逐篇讀 PDF 回引句）與要下判斷的那一半分開寫。
+  同一批把 README 的工具表補齊：那張表的標題寫「全部」，實際只列了 26 支裡的 17 支，v1.7.0 移進來的八支（英文三支診斷、方法三支閘門、文獻地圖、投稿重量）與台灣用語詞表模組從來沒被列上去，標題寫「全部」卻少三分之一比沒列更誤導。`dead_rule_check.py` 的描述也還停在只驗執行率的舊版，補成三項。另在〈刻意不收的環節〉寫明：派工分工表不出貨（綁作者的訂閱與型號版本），判準有出貨（哪一步機械可降級、哪一步要判斷）。
   `skills/verify-citations` 另補作者欄粒度的警告：Crossref 的 `family` 是姓氏、OpenLibrary 的 `author_name` 是全名，只比整串會讓 bib 寫「Depocas」的條目對不上「Alain Depocas」，把正確的引用報成錯的（實際誤報過兩筆）。
   `tools/regress/dead_rule_check.py` 加未定義呼叫偵測：規則呼叫了檔案裡不存在的函式時，執行到那一行就 NameError，而執行率檢查看不出來，因為崩掉的規則執行行數本來就少，會被歸成「early return，設定可能是空的」，診斷方向完全錯。這個檢查是純靜態的，所以在拿不到設定檔而提早結束的路徑上照樣會報。
 - **v1.8.0**（2026-09-20）：**修掉三處「寫了但沒接上」的失效，並補上能抓到這類失效的偵測。** 一次稽查抓到的共同特徵是：失敗長得像正常結果。
