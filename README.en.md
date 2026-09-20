@@ -2,7 +2,7 @@
 
 [![version](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![updated](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![code MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![docs CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**Version `v1.8.0`** (2026-09-20) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
+**Version `v1.8.1`** (2026-09-20) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
 
 **中文版 → [README.md](README.md)**
 
@@ -286,6 +286,10 @@ uncited claims, regression) need no model; just run the scripts.
 
 ## Version history
 
+- **v1.8.1** (2026-09-20): **The citation second review is judgment work, and the kit now says so consistently.**
+  The kit carried two contradictory instructions about which tier of model runs the second review. The README called it judgment work for your strongest model, while `skills/verify-citations` and `agents/citation-skeptic` called it a read-and-quote job a cheaper model handles. Both were written on 2026-08-25, so they were never consistent, and the one that gets installed into `~/.claude/agents/` was the wrong one. Measured on the author's own citation set, the strongest tier was right 0.95 of the time against 0.75 for the mid tier on the same items. The second review is the last gate in the whole check, so running it on a weaker model drops that gate by twenty points. Both places now call it judgment work, and separate the mechanical half (per-source readers returning quotes) from the half that decides.
+  `skills/verify-citations` also warns about author-field granularity: Crossref's `family` is a surname while OpenLibrary's `author_name` is a full name, so comparing whole strings only means a bib entry written "Depocas" never matches "Alain Depocas" and a correct reference is reported as wrong. Two entries were misreported that way.
+  `tools/regress/dead_rule_check.py` gains undefined-call detection. When a rule calls a function the file does not define, it raises NameError on that line, and the execution-rate check cannot see it: a rule that crashes executes few lines, so it is filed under "early return, the setting is probably empty" and the diagnosis points the wrong way. The check is static, so it is reported even on the paths that exit early without a config.
 - **v1.8.0** (2026-09-20): **Three "written but never wired" failures fixed, plus the detection that can catch this class.** What they had in common: the failure looked like a normal result.
   In `tools/refs/pdf_fetch.py`, OpenAIRE was parsed with a `\.pdf` regex over the whole JSON blob, and got zero hits across five DOIs, because what it returns are repository **landing pages**, which rarely end in `.pdf`. The call succeeded and the list came back empty, so nothing ever looked wrong. It now parses the JSON and hands landing pages to the browser layer (only urls under an `instance` subtree; without that filter you pull in the authors' institution home pages and publisher licence pages).
   In the same file, `fetch_pdf`'s `extra_urls` had never been passed by anything, `cookies_for()` was never called, and the urllib fallback in `http_get` ignored `cookies` outright, so the whole repository route and the cookie handoff existed only in the documentation. After the fix, one ACM full-text gateway url pulled down a 16-page paper directly.

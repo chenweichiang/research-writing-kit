@@ -76,6 +76,12 @@ For each "claim + citation" pair in the draft:
    ⚠️ Separate "the API failed" from "the book is not there". Only the second is a
    finding about the bibliography; the first is a finding about your run, and
    folding them together is how a broken checker looks like a clean report.
+   ⚠️ **Author fields arrive at different granularities.** Crossref's `family` is a
+   surname; OpenLibrary's `author_name` is a full name ("Alain Depocas"). Compare the
+   folded whole string *and* its last token on both sides, or a bib entry written as
+   "Depocas" fails to match "Alain Depocas" and a correct reference gets reported as
+   wrong. Two entries were misreported this way before both forms were kept. Keep
+   particles attached too ("van Dijk", "de Souza"), since a bib may write either form.
 4. Verdict per pair: **supported / partially / unsupported / wrong-direction /
    ❓unverifiable**, each with a quoted line from the source, plus a **severity
    weighted by the citation's purpose**: a mismatch on a citation used as
@@ -122,10 +128,14 @@ foundational works (→ the presumption-of-correctness rules in the template).
 - **Republished works:** a year mismatch between the cited version (an early web
   text) and the DOI's version (a later journal reprint) is usually deliberate. Flag
   as ⚠️ for a human, not as an error.
-- **Model choice:** reading a PDF and returning a quote is mechanical. A cheaper,
-  faster model is fine for the per-source readers and for the skeptic second review;
-  keep the strongest model for the whole-draft synthesis and the final report. If
-  subagents are used, set the model explicitly on each rather than inheriting.
+- **Model choice:** the two halves of this skill want different models. Reading a PDF
+  and returning a quote is mechanical, so the per-source readers run fine on a cheaper,
+  faster model. The skeptic second review is not mechanical: it decides whether a
+  source contradicts a claim, and on the author's own citation set the strongest tier
+  was right 0.95 of the time against 0.75 for the mid tier. Run the second review, the
+  whole-draft synthesis and the final report on the strongest model available. If
+  subagents are used, set the model explicitly on each rather than inheriting, so the
+  split survives whatever the main session happens to be running.
 - Never upload the unpublished draft to a third-party cloud service to do this.
 
 ## Not this skill

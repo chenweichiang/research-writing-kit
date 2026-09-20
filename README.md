@@ -2,7 +2,7 @@
 
 [![版本](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![最近更新](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![程式 MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![文件 CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**版本 `v1.8.0`**（2026-09-20）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
+**版本 `v1.8.1`**（2026-09-20）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
 **English → [README.en.md](README.en.md)**
 
@@ -281,6 +281,10 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 
 ## 版本紀錄
 
+- **v1.8.1**（2026-09-20）：**引用二審改判為判斷工作，並補上兩處偵測與警告。**
+  套件對「引用二審該用哪一級模型」原本有兩種相反說法：README 說二審是判斷工作、要用最強的模型，`skills/verify-citations` 與 `agents/citation-skeptic` 卻說二審是讀引、用便宜快的就夠。兩種說法都寫於 2026-08-25，從一開始就沒有一致過，而會被直接裝進 `~/.claude/agents/` 的是後者。作者自己的引用集上實測，同一批題目最強的一級判斷正確率 0.95、中間一級 0.75；二審是整條查核的最後一道關，交給弱模型等於把最後一關的正確率降掉兩成。兩處都改成判斷工作要用最強的模型，並把機械的那一半（逐篇讀 PDF 回引句）與要下判斷的那一半分開寫。
+  `skills/verify-citations` 另補作者欄粒度的警告：Crossref 的 `family` 是姓氏、OpenLibrary 的 `author_name` 是全名，只比整串會讓 bib 寫「Depocas」的條目對不上「Alain Depocas」，把正確的引用報成錯的（實際誤報過兩筆）。
+  `tools/regress/dead_rule_check.py` 加未定義呼叫偵測：規則呼叫了檔案裡不存在的函式時，執行到那一行就 NameError，而執行率檢查看不出來，因為崩掉的規則執行行數本來就少，會被歸成「early return，設定可能是空的」，診斷方向完全錯。這個檢查是純靜態的，所以在拿不到設定檔而提早結束的路徑上照樣會報。
 - **v1.8.0**（2026-09-20）：**修掉三處「寫了但沒接上」的失效，並補上能抓到這類失效的偵測。** 一次稽查抓到的共同特徵是：失敗長得像正常結果。
   `tools/refs/pdf_fetch.py` 的 OpenAIRE 用 `\.pdf` 正則在整包 JSON 上撈，實測五個 DOI 全部零命中，因為它回的是機構典藏的**紀錄頁**，很少以 `.pdf` 結尾；呼叫成功、清單是空的，所以一直沒人發現。改成正確解析 JSON，並把紀錄頁交給瀏覽器層（只收 `instance` 子樹下的網址，否則會混進作者機構首頁與出版社授權頁）。
   同一支檔案裡，`fetch_pdf` 的 `extra_urls` 參數從來沒有人傳過、`cookies_for()` 一次都沒被呼叫，而 `http_get` 的 urllib 後備路徑根本忽略 `cookies`。三者合起來等於整條機構典藏路線與 cookie 移交都只存在於文件裡。實測修好後，一個 ACM 全文閘道網址直接取回 16 頁論文。

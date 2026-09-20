@@ -23,10 +23,11 @@ standalone skeletons (module-level RULES of zero-argument functions, or a
 Usage:
   dead_rule_check.py path/to/regress.py --config regress.json [--root DIR]
                      [--extra my_rules.py] [--threshold 25]
-Exit codes: 0 = no dead rule; 1 = dead rule(s); 2 = could not load
+Exit codes: 0 = clean; 1 = dead, unregistered, or undefined-call rule(s); 2 = could not load
 """
 import argparse
 import ast
+import builtins
 import contextlib
 import importlib.util
 import inspect
@@ -96,6 +97,49 @@ def unregistered_rules(path, mod, registered):
     return out
 
 
+def undefined_calls(path):
+    """Calls to names that do not exist, so the rule raises NameError on that line.
+
+    🔴 Added 2026-09-20. A regress skeleton's citation rule called `fail()` and
+    `info()` while the file only defined `rec()`, so **every reporting path raised
+    NameError**, including the most important one (a dangling citation is a FAIL).
+    The runner's try/except caught it and printed a single WARN, so it did not look
+    broken, and it passed silently whenever there was nothing to report, which is
+    the common case.
+
+    The execution check above cannot see this. A rule that crashes executes few
+    lines, so it is filed under "early return, the setting is probably empty" and
+    the diagnosis points the wrong way.
+
+    ⚠️ Deliberately conservative: only module-visible names count, so it
+    under-reports rather than over-reports. Method calls (`ctx.rec(...)`) are not
+    examined here; a wrong attribute is caught by running the rule."""
+    t = ast.parse(pathlib.Path(path).read_text(encoding="utf-8"))
+    known = {n.name for n in ast.walk(t)
+             if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))}
+    known |= {n.id for n in ast.walk(t) if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Store)}
+    known |= {a.arg for n in ast.walk(t) if isinstance(n, (ast.FunctionDef, ast.Lambda))
+              for a in n.args.args}
+    known |= {a.asname or a.name.split(".")[0] for n in ast.walk(t)
+              if isinstance(n, (ast.Import, ast.ImportFrom)) for a in n.names}
+    return sorted({n.func.id for n in ast.walk(t)
+                   if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
+                   and n.func.id not in known and not hasattr(builtins, n.func.id)})
+
+
+def report_undefined(undef):
+    """Print the undefined-call finding. Static, so it is reported on every path,
+    including the early exits where no ctx could be built."""
+    if not undef:
+        return
+    print(f"\n[FAIL] {len(undef)} call(s) to undefined name(s): "
+          + ", ".join(f"{n}()" for n in undef))
+    print("        Every reporting path that reaches one raises NameError. The runner "
+          "may catch it and print a WARN, so the rule looks alive while it has never "
+          "reported anything. Usually a rule copied from another project that used a "
+          "different reporting helper.")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -112,11 +156,17 @@ def main():
     except Exception as e:  # noqa: BLE001
         print(f"[FAIL] cannot load {a.regress_py}: {type(e).__name__}: {e}")
         return 2
+    try:
+        undef = undefined_calls(a.regress_py)
+    except SyntaxError as e:
+        print(f"[FAIL] cannot parse {a.regress_py}: {e}")
+        return 2
     rules = list(getattr(R, "RULES", None) or [])
     if not rules:
         rules = rules_from_main_ast(a.regress_py, R) or []
     if not rules:
         print("[FAIL] no rule list found (neither module-level RULES nor `for fn in [...]` in main())")
+        report_undefined(undef)
         return 2
     if a.extra and hasattr(R, "load_extra"):
         rules += R.load_extra(a.extra)
@@ -125,6 +175,7 @@ def main():
     if hasattr(R, "load_config"):
         if not a.config:
             print("[FAIL] this regress.py needs --config (its rules take a ctx)")
+            report_undefined(undef)
             return 2
         ctx = R.load_config(a.config, a.root)
     else:  # standalone skeleton: try to hand it delivered text if it exposes one
@@ -173,10 +224,12 @@ def main():
         print("        Fix: add it to RULES, or declare it in RULES_DEREGISTERED "
               "= {\"name\": \"why\"}. Written-but-not-wired is worse than not written, "
               "because the report goes green.")
+    report_undefined(undef)
     tail = f"; {len(orphan)} unregistered" if orphan else ""
+    tail += f"; {len(undef)} undefined call(s)" if undef else ""
     print(f"\n[{'FAIL' if dead else 'OK'}] {dead} dead rule(s){tail}"
-          if dead else f"\n[{'FAIL' if orphan else 'OK'}] no dead rules{tail}")
-    return 1 if (dead or orphan) else 0
+          if dead else f"\n[{'FAIL' if (orphan or undef) else 'OK'}] no dead rules{tail}")
+    return 1 if (dead or orphan or undef) else 0
 
 
 if __name__ == "__main__":
