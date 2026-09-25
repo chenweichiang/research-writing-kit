@@ -109,3 +109,49 @@ def test_regress_clean_project(tmp_path):
 def test_dead_rule_check_flags_unconfigured_rules():
     r = run_tool("regress/dead_rule_check.py", REG / "regress.py", "--config", REG / "rules.template.json")
     assert r.returncode == 1 and "dead rule(s)" in r.stdout
+
+
+def _dead_lines(*args):
+    r = run_tool("regress/dead_rule_check.py", *args)
+    return r, {ln.split()[1]: ln for ln in r.stdout.splitlines() if ln.startswith(("[OK]", "[FAIL]"))
+               and len(ln.split()) > 2 and ln.split()[1].startswith("r")}
+
+
+def test_dead_rule_check_catches_guard_return_above_threshold():
+    """Negative samples: with an empty config both rules return on their guard, yet
+    execute more than 25 % of their lines, which the ratio alone called [OK]."""
+    r, lines = _dead_lines(REG / "regress.py", "--config", REG / "rules.template.json")
+    assert r.returncode == 1
+    for name in ("r_entity_attribution", "r_corrected_claims"):
+        assert lines[name].startswith("[FAIL]") and "guard return" in lines[name], lines[name]
+
+
+def test_dead_rule_check_passes_the_same_rules_once_configured(tmp_path):
+    cfg = _project(tmp_path, "# Intro\n\nThe studio was founded in 1988 by Lee (supervised).\n")
+    d = json.loads(cfg.read_text(encoding="utf-8"))
+    d["entities"] = {"names": ["Lee"], "marks": ["supervised"]}
+    cfg.write_text(json.dumps(d), encoding="utf-8")
+    _, lines = _dead_lines(REG / "regress.py", "--config", cfg)
+    for name in ("r_entity_attribution", "r_corrected_claims"):
+        assert lines[name].startswith("[OK]"), lines[name]
+
+
+def test_dead_rule_check_return_inside_loop_is_not_a_guard(tmp_path):
+    skel = tmp_path / "skel.py"
+    skel.write_text(
+        "ITEMS = ['a', 'b']\n"
+        "SETTING = []\n\n"
+        "def r_loop_return():\n"
+        "    for x in ITEMS:\n"
+        "        if x == 'a':\n"
+        "            return x\n"
+        "    return None\n\n"
+        "def r_short_guard():\n"
+        "    if not SETTING:\n"
+        "        return None\n"
+        "    return len(SETTING)\n\n"
+        "RULES = [r_loop_return, r_short_guard]\n", encoding="utf-8")
+    r, lines = _dead_lines(skel)
+    assert lines["r_loop_return"].startswith("[OK]"), lines["r_loop_return"]
+    assert lines["r_short_guard"].startswith("[FAIL]") and "guard return" in lines["r_short_guard"]
+    assert r.returncode == 1
