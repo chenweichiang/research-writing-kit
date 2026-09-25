@@ -111,6 +111,43 @@ def test_dead_rule_check_flags_unconfigured_rules():
     assert r.returncode == 1 and "dead rule(s)" in r.stdout
 
 
+def _stale_msgs(cfg):
+    r = run_tool("regress/regress.py", "--config", cfg, "--json")
+    out = json.loads(r.stdout)
+    return {lvl: [d for d in out[lvl] if d["rule"] in ("R-STALE", "R-LEDGER-CFG")]
+            for lvl in ("fail", "warn", "info")}
+
+
+def _set_ledger(cfg, value):
+    d = json.loads(cfg.read_text(encoding="utf-8"))
+    d["ledger"] = value
+    cfg.write_text(json.dumps(d), encoding="utf-8")
+
+
+def test_regress_stale_ledger_not_configured(tmp_path):
+    cfg = _project(tmp_path, "# Intro\n\nText.\n")
+    m = _stale_msgs(cfg)
+    assert not m["warn"] and len(m["info"]) == 1 and "not configured" in m["info"][0]["msg"]
+
+
+def test_regress_stale_ledger_file_missing_is_not_reported_as_unconfigured(tmp_path):
+    cfg = _project(tmp_path, "# Intro\n\nText.\n")
+    _set_ledger(cfg, "moved-away.md")
+    m = _stale_msgs(cfg)
+    assert [d["rule"] for d in m["warn"]] == ["R-LEDGER-CFG"]
+    assert "moved-away.md" in m["warn"][0]["msg"] and "not there" in m["warn"][0]["msg"]
+    assert not any("not configured" in d["msg"] for d in m["info"]), m["info"]
+
+
+def test_regress_stale_ledger_without_rows(tmp_path):
+    cfg = _project(tmp_path, "# Intro\n\nText.\n")
+    (tmp_path / "ledger.md").write_text("# numbers ledger\n", encoding="utf-8")
+    _set_ledger(cfg, "ledger.md")
+    m = _stale_msgs(cfg)
+    assert not m["warn"] and len(m["info"]) == 1
+    assert "no rows" in m["info"][0]["msg"] and "not configured" not in m["info"][0]["msg"]
+
+
 def _dead_lines(*args):
     r = run_tool("regress/dead_rule_check.py", *args)
     return r, {ln.split()[1]: ln for ln in r.stdout.splitlines() if ln.startswith(("[OK]", "[FAIL]"))
