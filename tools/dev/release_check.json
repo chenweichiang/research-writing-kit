@@ -1,0 +1,45 @@
+{
+  "_comment": "Settings for tools/dev/release_check.py (maintainer pre-release gate). Keys starting with _ are ignored. Regexes are Python syntax.",
+
+  "method_decision_fixtures": [
+    ["templates/method-decision.template.md", "tests/fixtures/method_decision_check.en.txt"],
+    ["setup/addons/zh-tw/templates/method-decision.zh-TW.md", "tests/fixtures/method_decision_check.zh-TW.txt"]
+  ],
+  "_method_decision_fixtures": "[template, baseline] pairs for check 2. Refresh a baseline on purpose with --update-fixtures, then review the diff.",
+
+  "dash_chars": ["\u2014", "\u2015", "\u2e3a", "\u2e3b"],
+  "_dash_chars": "check 3 counts these in added lines: em dash, horizontal bar, two- and three-em dash. The en dash (ranges like 2-4) is not counted.",
+
+  "localize_exclude": ["tools/zh-tw/zh_tw_terms.tsv"],
+  "_localize_exclude": "check 4 skips these paths: the term table lists mainland terms on purpose.",
+
+  "privacy_skip_files": ["tools/dev/release_check.json"],
+  "_privacy_skip_files": "check 5 skips these paths: this file names the institutions it searches for.",
+
+  "privacy_patterns": [
+    {"name": "e-mail address", "regex": "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"},
+    {"name": "macOS home path", "regex": "/Users/[^/\\s]+"},
+    {"name": "institution: NTUB", "regex": "北商|臺北商業大學|台北商業大學|(?i:National Taipei University of Business)|(?i:(?<![A-Za-z0-9])NTUB(?![A-Za-z0-9]))"},
+    {"name": "institution: NTHU", "regex": "(?<![釐澄廓])清大|清華大學|(?i:National Tsing Hua University)|(?i:(?<![A-Za-z0-9])NTHU(?![A-Za-z0-9]))"},
+    {"name": "author site domain", "regex": "(?i:interaction\\.tw)"},
+    {"name": "department / association", "regex": "創意科技產品設計|台灣科技藝術教育協會|臺灣科技藝術教育協會"}
+  ],
+  "_privacy_patterns": "check 5 scans every tracked (and untracked, non-ignored) text file. 清大 excludes 釐清大/澄清大/廓清大, which are ordinary words. Latin acronyms use ASCII-only boundaries because \\b treats Han characters as word characters.",
+
+  "privacy_allow_everywhere": [
+    "[A-Za-z0-9._%+-]+@example\\.(?:org|com|net)",
+    "git@github\\.com"
+  ],
+  "_privacy_allow_everywhere": "removed from every line before matching: RFC 2606 placeholder addresses and the git SSH host.",
+
+  "privacy_exempt_files": ["NOTICE.md", "README.md", "README.en.md"],
+  "privacy_exempt_allow": [
+    "Chiang Chenwei",
+    "江振維",
+    "Chiang, C\\.",
+    "github\\.com/chenweichiang/research-writing-kit",
+    "img\\.shields\\.io/github/[^)\\s]*chenweichiang/research-writing-kit[^)\\s]*",
+    "https://course\\.interaction\\.tw/research-writing-kit/(?:en/)?"
+  ],
+  "_privacy_exempt": "in privacy_exempt_files only, these author-attribution and repository/project-page strings are removed before matching; anything else in those files is still reported."
+}
