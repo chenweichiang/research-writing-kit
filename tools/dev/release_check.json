@@ -22,7 +22,7 @@
     {"name": "institution: NTUB", "regex": "北商|臺北商業大學|台北商業大學|(?i:National Taipei University of Business)|(?i:(?<![A-Za-z0-9])NTUB(?![A-Za-z0-9]))"},
     {"name": "institution: NTHU", "regex": "(?<![釐澄廓])清大|清華大學|(?i:National Tsing Hua University)|(?i:(?<![A-Za-z0-9])NTHU(?![A-Za-z0-9]))"},
     {"name": "author site domain", "regex": "(?i:interaction\\.tw)"},
-    {"name": "department / association", "regex": "創意科技產品設計|台灣科技藝術教育協會|臺灣科技藝術教育協會"}
+    {"name": "department / association", "regex": "創意科技(?:與)?產品設計|創科系|北商創科|台灣科技藝術教育協會|臺灣科技藝術教育協會"}
   ],
   "_privacy_patterns": "check 5 scans every tracked (and untracked, non-ignored) text file. 清大 excludes 釐清大/澄清大/廓清大, which are ordinary words. Latin acronyms use ASCII-only boundaries because \\b treats Han characters as word characters.",
 
