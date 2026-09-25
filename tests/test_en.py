@@ -1,9 +1,7 @@
 """tools/en: ai_style_diag, bundle_diag, metadiscourse_en, biber_diag, lt_check.sh.
 The corpus tools run against a synthetic 30-paper corpus built in a temp dir."""
-import os
 import pathlib
 import shutil
-import subprocess
 
 import pytest
 
@@ -75,36 +73,35 @@ def test_lt_check_argument_handling(tmp_path, draft):
     assert r.returncode == 0 and "LanguageTool" in r.stdout
 
 
-def _gnu_mktemp_rejects_bare_template():
-    r = subprocess.run(["mktemp", "-t", "ltcheck"], capture_output=True, text=True)
-    if r.returncode == 0:
-        pathlib.Path(r.stdout.strip()).unlink(missing_ok=True)
-    return r.returncode != 0
+def _run_lt_check(tmp_path, *args):
+    """Run lt_check.sh with the stub LanguageTool and a private TMPDIR, so the test
+    can see exactly what the script leaves behind."""
+    tmpdir = tmp_path / "tmpdir"
+    tmpdir.mkdir(exist_ok=True)
+    r = run_tool("en/lt_check.sh", *args, home=tmp_path,
+                 env={"LT": str(_fake_languagetool(tmp_path)), "TMPDIR": str(tmpdir)})
+    return r, tmpdir
 
 
-def _path_with_mktemp_shim(tmp_path):
-    """lt_check.sh calls `mktemp -t ltcheck`, which only BSD mktemp (macOS) accepts.
-    On GNU systems put a shim first on PATH that adds the X's, so the rest of the
-    script can still be exercised. The bug itself is pinned by the xfail test below."""
-    if not _gnu_mktemp_rejects_bare_template():
-        return {}
-    real = shutil.which("mktemp")
-    shim_dir = tmp_path / "shim"
-    shim_dir.mkdir()
-    shim = shim_dir / "mktemp"
-    shim.write_text(f'#!/usr/bin/env bash\nexec {real} "${{@:1:$#-1}}" "${{@: -1}}.XXXXXX"\n',
-                    encoding="utf-8")
-    shim.chmod(0o755)
-    return {"PATH": f"{shim_dir}:{os.environ['PATH']}"}
-
-
-@pytest.mark.xfail(_gnu_mktemp_rejects_bare_template(), strict=True,
-                   reason="existing bug: lt_check.sh uses `mktemp -t ltcheck`, rejected by GNU mktemp")
-def test_lt_check_runs_with_system_mktemp(tmp_path):
+def test_lt_check_runs_with_system_mktemp_and_cleans_up(tmp_path):
     f = tmp_path / "draft.txt"
     f.write_text("Plain text.\n", encoding="utf-8")
-    r = run_tool("en/lt_check.sh", f, home=tmp_path, env={"LT": str(_fake_languagetool(tmp_path))})
+    r, tmpdir = _run_lt_check(tmp_path, f)
     assert r.returncode == 0, r.stderr
+    assert "Plain text." in r.stdout
+    assert list(tmpdir.iterdir()) == [], "lt_check.sh left temp files behind"
+
+
+def test_lt_check_keep_leaves_the_file_it_checked(tmp_path):
+    f = tmp_path / "draft.txt"
+    f.write_text("Kept text.\n", encoding="utf-8")
+    r, tmpdir = _run_lt_check(tmp_path, f, "--keep")
+    assert r.returncode == 0, r.stderr
+    kept = pathlib.Path(r.stderr.split("[intermediate plain text: ", 1)[1].split("]", 1)[0])
+    assert kept.suffix == ".txt" and tmpdir in kept.parents
+    assert kept.read_text(encoding="utf-8") == "Kept text.\n"
+    # the path LanguageTool was given is the path that was kept
+    assert f"ARGS -l en-US {kept}" in r.stdout
 
 
 def _fake_languagetool(tmp_path):
@@ -118,8 +115,7 @@ def _fake_languagetool(tmp_path):
 def test_lt_check_plain_text_with_stub(tmp_path):
     f = tmp_path / "draft.txt"
     f.write_text("Their results was clear.\n", encoding="utf-8")
-    r = run_tool("en/lt_check.sh", f, "--variant", "en-GB", home=tmp_path,
-                 env={"LT": str(_fake_languagetool(tmp_path)), **_path_with_mktemp_shim(tmp_path)})
+    r, _ = _run_lt_check(tmp_path, f, "--variant", "en-GB")
     assert r.returncode == 0, r.stderr
     assert "ARGS -l en-GB" in r.stdout and "Their results was clear." in r.stdout
 
@@ -130,9 +126,9 @@ def test_lt_check_markdown_filter_strips_code_and_math(tmp_path):
     f = tmp_path / "draft.md"
     f.write_text("Prose stays here.\n\n```\ncode_block_text\n```\n\nInline `inline_code` and $x_math$ "
                  "and [@citekey2024].\n", encoding="utf-8")
-    r = run_tool("en/lt_check.sh", f, "--json", home=tmp_path,
-                 env={"LT": str(_fake_languagetool(tmp_path)), **_path_with_mktemp_shim(tmp_path)})
+    r, tmpdir = _run_lt_check(tmp_path, f, "--json")
     assert r.returncode == 0, r.stderr
     assert "Prose stays here." in r.stdout and "--json" in r.stdout
     for gone in ("code_block_text", "inline_code", "x_math", "citekey2024"):
         assert gone not in r.stdout
+    assert list(tmpdir.iterdir()) == []
