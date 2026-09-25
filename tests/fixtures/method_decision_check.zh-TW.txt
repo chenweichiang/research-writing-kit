@@ -1,0 +1,51 @@
+exit=1
+method-decision memo is missing 49 item(s):
+  - §1 has no research question
+  - §1 every RQ needs a question shape
+  - §1 the claims table is empty
+  - §2 missing: Participants and access (研究對象與取得管道)
+  - §2 missing: Researcher's relationship to participants (研究者與對象的關係)
+  - §2 missing: Data status (資料現況)
+  - §2 missing: Time, personnel, and budget (時間、人力、經費)
+  - §2 missing: Ethics review (倫理審查)
+  - §2 missing: Target venue (目標場域)
+  - §3 comparison table has only 0 studies, need at least 8
+  - §3 analysis-method comparison has only 0 rows, need at least 5 (check how comparable studies analyze this, whether or not you already knew)
+  - §3 the search trail is empty
+  - §4 missing: Default judgment before checking (查證前的預設判斷)
+  - §4 missing: What changed after checking (查證後的差異)
+  - §4 missing: Approaches considered before checking but dropped after, and why (查證前有、查證後放棄的做法與理由)
+  - §4 missing: Mainstream approach (主流做法)
+  - §4 missing: Recurring weaknesses in comparable studies (同類研究反覆出現的弱點)
+  - §4 missing: Differences from this study's conditions (與本題條件的差異)
+  - §5 an option has no method name
+  - §5 option 'A' missing: Corresponding method card (對應分析卡)
+  - §5 option 'A' missing: Claims it can support (能支撐的宣稱)
+  - §5 option 'A' missing: Claims it cannot support (不能支撐的宣稱)
+  - §5 option 'A' missing: Analysis method (分析方法)
+  - §5 option 'A' missing: How the core construct is measured or observed (核心構念怎麼測或觀察)
+  - §5 option 'A' missing: Independent check beyond the author (作者以外的獨立檢核)
+  - §5 option 'A' missing: Sample justification (樣本正當化方式)
+  - §5 option 'A' missing: Feasibility and cost (可行性與成本)
+  - §5 option 'A' missing: Likely reviewer objections (審稿人可能質疑)
+  - §5 an option has no method name
+  - §5 option 'B' missing: Corresponding method card (對應分析卡)
+  - §5 option 'B' missing: Claims it can support (能支撐的宣稱)
+  - §5 option 'B' missing: Claims it cannot support (不能支撐的宣稱)
+  - §5 option 'B' missing: Analysis method (分析方法)
+  - §5 option 'B' missing: How the core construct is measured or observed (核心構念怎麼測或觀察)
+  - §5 option 'B' missing: Independent check beyond the author (作者以外的獨立檢核)
+  - §5 option 'B' missing: Sample justification (樣本正當化方式)
+  - §5 option 'B' missing: Feasibility and cost (可行性與成本)
+  - §5 option 'B' missing: Likely reviewer objections (審稿人可能質疑)
+  - §6 missing: Adopted (採用)
+  - §6 missing: Rationale (理由)
+  - §6 missing: Rejected options and why (不採用的選項與理由)
+  - §7 premortem has only 1 item(s), need at least three
+  - §8 missing: Design diagnostics (S0) (設計診斷 S0)
+  - §8 missing: Sample size or information power calculation (樣本數或資訊力的計算)
+  - §8 missing: Reporting guideline (報告準則)
+  - §8 missing: Preregistration (預註冊)
+  - §8 missing: Ethics submission timeline (倫理審查送件時程)
+  - §8 missing: Data collection checkpoints (資料收集檢查點)
+  - §8 missing: Pre-data-collection plan (資料收集前計畫)
