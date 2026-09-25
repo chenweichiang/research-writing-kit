@@ -9,7 +9,12 @@ integrity had never been checked once.
 
 Checking "is the rule in the list" always passes. What must be checked is
 "does the rule's body execute". This script traces each rule with `sys.settrace`
-and counts distinct lines executed; below the threshold the rule is called dead.
+and calls it dead when either
+  - it left through a guard `return` (a `return` inside an `if` that comes before
+    the rule's real work), or
+  - the distinct lines it executed fall below the threshold.
+The line ratio alone is not enough: a short rule whose guard is two lines out of
+eight "executes" 25 % while checking nothing.
 
 Typical cause: the setting a rule needs is empty (ref_list / bib_files /
 entities / ...). Fix: fill it in, or remove the rule from RULES and note why.
@@ -35,6 +40,7 @@ import io
 import pathlib
 import re
 import sys
+import textwrap
 
 
 def load(path):
@@ -127,6 +133,57 @@ def undefined_calls(path):
                    and n.func.id not in known and not hasattr(builtins, n.func.id)})
 
 
+def guard_return_lines(f):
+    """Line numbers of the rule's guard returns: a `return` inside an `if` that is a
+    top-level statement of the body and is followed by more statements.
+
+    🔴 Added 2026-09-25. The line-ratio check alone passed r_entity_attribution
+    (4/11 lines, 36 %) and r_corrected_claims (3/11, 27 %) with an empty config:
+    both returned on the guard, checked nothing, and were reported [OK]. The
+    shorter the rule, the larger the share its guard takes, so a threshold cannot
+    separate "ran" from "bailed out". Which statement the rule left through can.
+
+    A `return` inside a loop is not a guard (the rule has started checking), and a
+    rule that ends with `if ...: return ...` has nothing after it to skip.
+    Returns an empty set when the source cannot be read (e.g. defined in exec)."""
+    try:
+        src, first = inspect.getsourcelines(f)
+        tree = ast.parse(textwrap.dedent("".join(src)))
+    except (OSError, TypeError, SyntaxError):
+        return set()
+    fn = next((n for n in tree.body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))), None)
+    if fn is None:
+        return set()
+    lines = set()
+    body = fn.body
+    for i, stmt in enumerate(body[:-1]):
+        if isinstance(stmt, ast.Return):
+            ret = [stmt]
+        elif isinstance(stmt, ast.If):
+            ret = [n for n in _walk_no_loops(stmt) if isinstance(n, ast.Return)]
+        else:
+            continue
+        for r in ret:
+            lines |= set(range(r.lineno + first - 1, (r.end_lineno or r.lineno) + first))
+    return lines
+
+
+def _walk_no_loops(node):
+    """ast.walk that does not descend into loops or nested functions."""
+    for child in ast.iter_child_nodes(node):
+        if isinstance(child, (ast.For, ast.AsyncFor, ast.While, ast.FunctionDef,
+                              ast.AsyncFunctionDef, ast.Lambda, ast.ClassDef)):
+            continue
+        yield child
+        yield from _walk_no_loops(child)
+
+
+def _reported(ctx):
+    """Number of FAIL/WARN entries in a kit-style ctx (0 for anything else)."""
+    return sum(len(getattr(ctx, k, None) or []) for k in ("FAIL", "WARN")
+               if isinstance(getattr(ctx, k, None), list))
+
+
 def report_undefined(undef):
     """Print the undefined-call finding. Static, so it is reported on every path,
     including the early exits where no ctx could be built."""
@@ -148,7 +205,8 @@ def main():
     ap.add_argument("--root", help="project root (default: config dir)")
     ap.add_argument("--extra", help="extra RULES file, as passed to regress.py")
     ap.add_argument("--threshold", type=float, default=25.0,
-                    help="executed-line %% below which a rule is called dead (default 25)")
+                    help="executed-line %% below which a rule is called dead, even without "
+                         "a guard return (default 25)")
     a = ap.parse_args()
 
     try:
@@ -186,7 +244,8 @@ def main():
                 break
 
     dead = 0
-    print(f"rules: {len(rules)} (threshold: <{a.threshold:.0f}% of lines executed = dead)")
+    print(f"rules: {len(rules)} (dead = left through a guard return, or "
+          f"<{a.threshold:.0f}% of lines executed)")
     for f in rules:
         name = getattr(f, "__name__", "<lambda>")
         if name == "<lambda>":
@@ -195,13 +254,19 @@ def main():
         code = f.__code__
         total = len({ln for _, _, ln in code.co_lines() if ln})
         hit = set()          # distinct line numbers executed (loops must not inflate)
+        left = []            # line the rule's own frame returned from
 
         def tr(fr, ev, _a):
-            if fr.f_code is code and ev == "line":
-                hit.add(fr.f_lineno)
+            if fr.f_code is code:
+                if ev == "line":
+                    hit.add(fr.f_lineno)
+                elif ev == "return":
+                    left.append(fr.f_lineno)
             return tr
 
+        guards = guard_return_lines(f)
         nparams = len(inspect.signature(f).parameters)
+        before = _reported(ctx)
         sys.settrace(tr)
         try:
             with contextlib.redirect_stdout(io.StringIO()):
@@ -211,10 +276,19 @@ def main():
         finally:
             sys.settrace(None)
         pct = len(hit) / total * 100 if total else 0.0
-        bad = pct < a.threshold
+        guarded = bool(left) and left[-1] in guards
+        bad = guarded or pct < a.threshold
         dead += bad
+        if not bad:
+            why = ""
+        elif guarded and _reported(ctx) > before:
+            why = f"  <- guard return at line {left[-1]} after reporting a FAIL/WARN: fix what it reported"
+        elif guarded:
+            why = f"  <- guard return at line {left[-1]}: the setting it needs is probably empty"
+        else:
+            why = "  <- barely executed: early return or crash"
         print(f"{('[FAIL]' if bad else '[OK]'):<7}{name:<26} {len(hit):4d}/{total:3d} lines "
-              f"({pct:5.1f}%)" + ("  <- early return: the setting it needs is probably empty" if bad else ""))
+              f"({pct:5.1f}%)" + why)
     orphan = unregistered_rules(a.regress_py, R, rules)
     if orphan:
         print(f"\n[FAIL] {len(orphan)} suspected rule(s) **never registered in RULES** "

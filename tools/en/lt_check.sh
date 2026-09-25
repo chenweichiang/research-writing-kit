@@ -56,8 +56,14 @@ case "$ext" in
   *)                    FROM="markdown" ;;
 esac
 
-TMP="$(mktemp -t ltcheck).txt"
-cleanup() { [[ "$KEEP" -eq 1 ]] || rm -f "$TMP"; }
+# A private temp dir holds the plain text, so the file written, handed to
+# LanguageTool and removed is one and the same path, and it keeps a .txt name.
+# `mktemp -d` with an explicit template works on both BSD (macOS) and GNU (Linux);
+# `mktemp -t name` does not (GNU wants X's in the name), and appending ".txt" to
+# mktemp's output created one file but wrote and deleted another.
+TMPD="$(mktemp -d "${TMPDIR:-/tmp}/ltcheck.XXXXXX")"
+TMP="$TMPD/plain.txt"
+cleanup() { [[ "$KEEP" -eq 1 ]] || rm -rf "$TMPD"; }
 trap cleanup EXIT
 
 if [[ -z "$FROM" ]]; then

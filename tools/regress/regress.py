@@ -285,7 +285,16 @@ def r_stale_values(ctx):
        chars from its value with a ±60 window: the rule never fired."""
     rows = ledger_rows(ctx)
     if not rows:
-        return ctx.unconfigured("R-STALE", "ledger", "point `ledger` at your numbers ledger")
+        # 🔴 Three different states end up here; each needs its own message. The
+        # old code said "not configured" for all three, so a ledger that had been
+        # moved or renamed was reported as if nobody had ever set one up.
+        path = ctx.cfg.get("ledger")
+        if not path:
+            return ctx.unconfigured("R-STALE", "ledger", "point `ledger` at your numbers ledger")
+        if not (ctx.root / path).exists():
+            return  # ledger_rows already recorded R-LEDGER-CFG: set, but the file is gone
+        return ctx.rec("INFO", "R-STALE", f"ledger {path} has no rows yet -> NOT guarding "
+                                          "(add rows: id | current | stale | source | where)")
     t = ctx.deliver_text()
     armed = 0
     for r in rows:
@@ -317,7 +326,7 @@ def r_ledger_present(ctx):
     Compound values split on `/`: `0.75/0.73` -> both must be present."""
     rows = ledger_rows(ctx)
     if not rows:
-        return  # R-STALE already reported the unconfigured ledger
+        return  # R-STALE / R-LEDGER-CFG already reported why the ledger is empty
     t = ctx.deliver_text()
     for r in rows:
         cur = r["cur"]
