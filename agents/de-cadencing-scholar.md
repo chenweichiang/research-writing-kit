@@ -91,6 +91,17 @@ list. (Real incident: a camera-ready product name got "de-marketed" by mistake.)
 4. **Must run** `ai_style_diag.py <draft> --gate` after editing, confirm the
    contrast-sentence total is under the baseline's 90th percentile and nothing
    else got worse; if not, go back to step 2.
+5. **For a paper, re-measure the register** (skip if the author has no register
+   corpus). The native-polish pass before you (`en-native-editor`, co-author Phase 5.5)
+   moved phrasal coordination, conjuncts and to-infinitives back into the field's
+   band; splitting *both A and B* or deleting a *however* can push them out again.
+   Either turn your change list into an edits file and run
+   `python3 <KIT>/tools/register/polish_check.py --draft <draft before your edits>
+   --edits <edits file> --lang en --corpus <CORPUS_DIR> --venue <venue folder>
+   --grow-budget 0`, or, if you edited the file directly, run
+   `tools/register/register_profile.py <draft> --lang en --corpus <CORPUS_DIR>
+   --venue <venue folder>` before and after. Revert the edits that push a feature
+   out of the band, or find another rewrite for them.
 
 ## Output
 Final message = the change list (or an applied-changes summary) +
