@@ -1,7 +1,7 @@
 # Bundled tools
 
-Small, local, privacy-respecting checkers you can run from day one. **The three
-Chinese tools need nothing installed** (Python 3 standard library only). They work
+Small, local, privacy-respecting checkers you can run from day one. **The Chinese
+tools need nothing installed** (Python 3 standard library only). They work
 out of the box. The English tools need one or two free offline programs.
 
 > Everything here runs **on your machine** and sends no draft text anywhere. Never paste an
@@ -16,6 +16,9 @@ out of the box. The English tools need one or two free offline programs.
 | `zh-tw/` | `zh_ai_style.py` | Chinese AI syntax fingerprint (+ contrast-sentence total, long-sentence list) |
 | `zh-tw/` | `voice_lint.py` | your own voice rules as a hard gate (+ heading scan, stock closers, AI-phrase candidates) |
 | `zh-tw/` | `zh_gloss_scan.py` | parenthetical asides to turn into definitions, keep, or cut |
+| `zh-tw/` | `zh_register.py` | Chinese register profile: 52 features (self-reference, translationese, linking, metadiscourse, stance, punctuation, sentence length) vs same-field Taiwan journal papers |
+| `register/` | `register_profile.py` | native-polish deviation list: which features sit outside the field's p10–p90 band, which way to move them, with bounds per line range (zh + en) |
+| `register/` | `polish_check.py` | checks an editor's change list before it touches the draft: invariants, word budget, forbidden forms, register direction; `--apply` writes back only when all pass |
 | `claims/` | `uncited_claims_scan.py` | sentences that claim (numbers / causes / firsts) but cite nothing |
 | `claims/` | `overclaim_lint.py` | wording that says more than the data supports (EN + zh-TW) |
 | `refs/` | `snowball.py` | forward / backward / related citation snowballing |
@@ -32,9 +35,9 @@ out of the box. The English tools need one or two free offline programs.
 | `submissions/` | `style_reaudit.py` | re-run style/de-AI measurement on every drafting/under-review manuscript after a rule change |
 | `figures/` | `figure_a11y.py` | colour-vision accessibility of figures |
 | `en/` | `lt_check.sh`, `ai_style_diag.py` | English grammar pass; English AI fingerprint vs your field (+ LLM convergence-word density, list in `en_slop_terms.tsv`) |
-| `en/` | `biber_diag.py` | grammatical-register check, Biber-style features vs your field (needs pybiber + spaCy, dedicated env) |
+| `en/` | `biber_diag.py` | grammatical-register check, Biber-style features vs your field, read by direction; `--groups` for one venue, `--json` (needs pybiber + spaCy, dedicated env) |
 | `en/` | `bundle_diag.py` | lexical bundles the draft over-uses relative to your field corpus |
-| `en/` | `metadiscourse_en.py` | Hyland stance / engagement / boosting-hedging markers vs your field corpus |
+| `en/` | `metadiscourse_en.py` | Hyland stance / engagement / boosting-hedging markers vs your field corpus, read by direction; `--groups` for one venue, `--json` |
 
 ## Chinese (`tools/zh-tw/`): zero installs
 
@@ -42,7 +45,8 @@ out of the box. The English tools need one or two free offline programs.
 |------|--------------|-----|
 | `zh_localize.py` | Flags mainland-Mandarin terms (反饋→回饋…) + 台/臺 consistency, with a false-positive whitelist. Report-only. The table is `zh_tw_terms.tsv` (~170 terms with context rules, vetted against Taiwan-authored journal papers; part-sourced from MIT-licensed projects, see `NOTICE.md`). | `python3 zh_localize.py draft.md` |
 | `zh_ai_style.py` | Chinese AI syntax fingerprint: em-dash/semicolon/rule-of-three density, convergence words, sentence burstiness (heuristic); density of the 「並非…而是」 not-X-but-Y frame (≥0.6/k → review each); every sentence over 120 Han characters listed (enumerations exempt). | `python3 zh_ai_style.py draft.md` |
-| `voice_lint.py` | Mechanically enforces YOUR voice rules (config-driven). Exits non-zero until clean. Use as a pre-delivery gate. Four rule kinds: `hard` (counted), `soft` (density), `report` (listed, never counted: default AI stock phrases), `headings` (one regex over Markdown/Typst heading lines; sentence-form or question titles are flagged, rewrite as noun phrases). | `python3 voice_lint.py draft.md [--rules voice_rules.json]` |
+| `voice_lint.py` | Mechanically enforces YOUR voice rules (config-driven). Exits non-zero until clean. Use as a pre-delivery gate. Four rule kinds: `hard` (counted), `soft` (density), `report` (listed, never counted: default AI stock phrases), `headings` (one regex over Markdown/Typst heading lines; sentence-form or question titles are flagged, rewrite as noun phrases). `--paper` for papers, proposals and applications: drops the rules that are personal habit but common in journal papers (semicolon, 乃/則是/抑或), reports 綜上所述/整體而言 instead of counting them, and keeps the general-quality rules; the rules file's `paper` section controls it. | `python3 voice_lint.py draft.md [--rules voice_rules.json] [--paper]` |
+| `zh_register.py` | Register profile of a Chinese draft against a corpus of same-field published papers you assemble: 52 features, 49 of them rates per 1000 Han characters (本研究/本文, 進行, 透過, 具有, 的/之, linking words, metadiscourse, stance, 「；」「：」, dashes, contrast frames) plus sentence and clause length, each with the corpus p10/median/p90 and the draft's percentile. Quotations in 「」 are not counted. Descriptive only; which way to fix is `tools/register/register_profile.py`'s job. Needs ≥30 papers (`<corpus>/<venue>/*.txt`); a `--venue` with ≥30 papers is used on its own. | `python3 zh_register.py draft.md --corpus <dir> [--venue J] [--json]` |
 | `zh_gloss_scan.py` | Lists every full-width parenthetical of 12+ characters that is not a citation or a cross-reference. Decide each: plain-language note → a defining sentence at first mention, in place; specification list → keep; restatement → cut. Do not collect them into a glossary. Report-only. | `python3 zh_gloss_scan.py draft.md [--min 12]` |
 
 - `zh_ai_style.py` gets sharper if you point `--authored <folder>` at a folder of your
@@ -54,6 +58,22 @@ out of the box. The English tools need one or two free offline programs.
 - `voice_lint.py` ships generic defaults. Copy `templates/voice_rules.template.json`
   → `voice_rules.json`, edit it to match your own habits (what *you* never write), and
   pass `--rules voice_rules.json`. Build it from your `VOICE_PROFILE` (see `templates/`).
+  Papers, proposals and applications follow the field's register, not your personal
+  voice, so run them with `--paper`.
+
+## Register and native polish (`tools/register/`): zero installs, needs a corpus
+
+The native-polish step (`method/WORKFLOW.md` Phase 5.5) defines "reads like a native
+scholar of this field" as "each register feature falls inside the p10–p90 band of
+same-field published papers", so the yardstick is a corpus you assemble, never the
+author's own drafts (see `setup/TOOLS.md` for the corpus layout and minimums).
+
+| Tool | What it does | Run |
+|------|--------------|-----|
+| `register_profile.py` | Applies a per-feature policy (band: back into the band from either side; cap: may only go down; locked: never up; report: stance, left to the author) to the measurements (`zh-tw/zh_register.py`; `en/metadiscourse_en.py` plus `en/biber_diag.py` when `--biber-python` or `$BIBER_PYTHON` points at its environment) and writes the deviation list an editor works from: to fix / locked / for the author / inside the band, with counts, bounds for the editor's line range and instances. `--exemplars N` picks paragraphs near the venue median as a feel reference. `--policy-file` overrides a policy. | `python3 register_profile.py draft.md --lang zh --corpus <dir> --venue J --lines 40-120 --out dev.md` |
+| `polish_check.py` | Applies a change list (`E = [("original", "replacement"), ...]`, read as data and never executed; JSON also accepted) to an in-memory copy and checks it: numbers, citations, comments, quoted text, math, LaTeX commands, Latin words (zh) and `--lock` terms unchanged; growth within `--grow-budget`; contrast frames, stock metadiscourse, dashes, sentence-initial 然而, mainland terms and `--forbid-file` forms not increased; no more over-long sentences; and, with a corpus, register direction for the whole draft. `--apply` writes back only when everything passes. | `python3 polish_check.py --draft draft.md --edits e.py --lang zh --corpus <dir> --venue J --grow-budget 10` |
+
+Both have `--selftest`, which builds a synthetic corpus in a temporary folder.
 
 ## Claims (`tools/claims/`): zero installs
 
@@ -201,9 +221,9 @@ out of the box. The English tools need one or two free offline programs.
 |------|--------------|-------|
 | `lt_check.sh` | Offline grammar + US/UK spelling-consistency (LanguageTool), markup stripped by the bundled pandoc filter. Auto-mounts optional LanguageTool n-gram data (~15 GB, `~/Corpora/lt-ngrams` or `$LT_NGRAMS`) for statistical confusable-pair detection (affect/effect); runs fine without it. | `brew install languagetool pandoc` |
 | `ai_style_diag.py` | English AI fingerprint as **percentiles** vs a baseline corpus of published papers in your field, including **LLM convergence-word density** (`en_slop_terms.tsv` beside the script: 162 terms derived from sam-paech/slop-forensics, MIT, minus words HCI papers use anyway. Rebuild the filter against your own field's corpus if the vocabularies overlap) and a **contrast-sentence total** (`not…but` + "X, not Y" + `rather than` + `instead of` + `not only`, `--show-contrast` lists every hit; `--gate` exits non-zero above the baseline's 90th percentile). The words/sentences that carry each number are printed. | a corpus you assemble; `pdftotext` only for PDF input |
-| `biber_diag.py` | Grammatical-register check: dozens of Biber-style features (nominalization rate, sentence-final gerund clauses, passive voice, and more) vs the same baseline corpus, reported as percentiles with items outside the baseline's 5th/95th flagged individually. A single overall percentile can hide a feature sitting at several times the baseline median. | pybiber + spaCy in a dedicated env, see `setup/TOOLS.md` |
+| `biber_diag.py` | Grammatical-register check: dozens of Biber-style features (nominalization rate, sentence-final gerund clauses, passive voice, and more) vs the same baseline corpus, reported as percentiles with items outside the baseline's 5th/95th flagged individually. A single overall percentile can hide a feature sitting at several times the baseline median. Read by direction: the Reinhart et al. fixes (nominalizations back to verbs, split trailing -ing clauses) apply only above p90; below p10 the fix runs the other way. `--groups <venue>` compares against one venue (whole corpus if it has under 30 papers), `--json` feeds `register/register_profile.py`. | pybiber + spaCy + polars in a dedicated env, see `setup/TOOLS.md` |
 | `bundle_diag.py` | Lexical bundles (recurring 3–5-word phrases) the draft uses far more than the baseline does, the phrase-level layer between single convergence words and whole-sentence cadence. | same corpus as `ai_style_diag.py` |
-| `metadiscourse_en.py` | Hyland stance / engagement / boosting-hedging markers vs the baseline. A draft that under-uses hedges and reader-engagement relative to expert writing reads more certain than the evidence supports. `--matches` prints which sentences carry each marker. | same corpus as `ai_style_diag.py` |
+| `metadiscourse_en.py` | Hyland stance / engagement / boosting-hedging markers vs the baseline, with p10/median/p90 per marker and a direction flag. A draft that under-uses hedges and reader-engagement relative to expert writing reads more certain than the evidence supports. `--matches` prints which sentences carry each marker; `--groups <venue>` compares against one venue; `--json` for `register/register_profile.py`. | same corpus as `ai_style_diag.py` |
 
 ```bash
 # LanguageTool grammar deep-pass
@@ -215,7 +235,9 @@ python3 tools/en/ai_style_diag.py draft.md --corpus ~/my-field-corpus
 python3 tools/en/ai_style_diag.py draft.md --corpus ~/my-field-corpus --gate           # revision-round gate
 python3 tools/en/bundle_diag.py draft.md --corpus ~/my-field-corpus
 python3 tools/en/metadiscourse_en.py draft.md --corpus ~/my-field-corpus --matches
+python3 tools/en/metadiscourse_en.py draft.md --corpus ~/my-field-corpus --groups <venue>  # one venue
 ~/.venvs/biber/bin/python tools/en/biber_diag.py draft.md --corpus ~/my-field-corpus   # dedicated env
+~/.venvs/biber/bin/python tools/en/biber_diag.py draft.md --corpus ~/my-field-corpus --groups <venue> --json
 ```
 
 🔴 **`ai_style_diag.py` corpus hygiene:** the baseline holds **only other people's

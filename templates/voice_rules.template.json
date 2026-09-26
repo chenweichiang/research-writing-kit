@@ -21,5 +21,17 @@
     ["AI stock phrases (candidates — judge each)", "(?<!「)(?:關鍵作用|扮演著|多維度|標誌著|生態系統|愈發|深厚的|持久的|奠定了?基礎)(?!」)"]
   ],
 
-  "headings": "為何|為什麼|是否|嗎[？?]?$|？|\\?$|，而|其實"
+  "headings": "為何|為什麼|是否|嗎[？?]?$|？|\\?$|，而|其實",
+
+  "_paper": "Used only with --paper (papers, grant proposals, applications). Those follow the register of same-field journal papers, not your voice, so drop the rules that are your personal habit but common in journal papers, and move some to report-only. 'drop' lists label prefixes of hard rules to remove; 'hard' and 'report' are appended. Check your field with tools/zh-tw/zh_register.py before adding more drops: the semicolon, 乃, 則是 and 抑或 are common in Taiwan journal papers.",
+  "paper": {
+    "drop": ["Semicolon", "Over-literary particles", "Stock closers"],
+    "hard": [
+      ["Over-literary particles (paper mode)", "此即"],
+      ["Stock closers (paper mode)", "(?<!「)(?:綜觀全案|總而言之|由此觀之|一言以蔽之|總的來說|大體而言)(?!」)"]
+    ],
+    "report": [
+      ["Summary closers (paper mode: report only, do not add new ones)", "(?<!「)(?:綜上所述|整體而言)(?!」)"]
+    ]
+  }
 }

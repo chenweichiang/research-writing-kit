@@ -14,9 +14,21 @@ Four kinds of rule: "hard" (pass/fail, counted), "soft" (density only), "report"
 
 No dependencies (Python 3 standard library only).
 
+Paper mode (--paper): papers, grant proposals and applications follow the register of
+same-field journal papers, not the author's personal voice (see
+tools/register/register_profile.py). Some voice rules are personal habits that journal
+papers break all the time: Taiwan journal papers use the semicolon, 乃, 則是 and 抑或
+routinely. In paper mode those rules are dropped, and 綜上所述/整體而言 move to report-only
+(journals use them; still, do not add new ones). Dashes, 此一/這一 pointing, colloquial
+words, sentence-initial 然而, self-congratulatory verdicts and sentence-form headings are
+still hard flags: those are general academic quality, not voice. The rules file's
+"paper" section says which rules to drop and what to add (see
+templates/voice_rules.template.json); without one the built-in DEFAULT_PAPER applies.
+
 Usage:
     python3 voice_lint.py <file.md|.txt|.typ>                 # built-in defaults
     python3 voice_lint.py <file> --rules voice_rules.json     # your own rules
+    python3 voice_lint.py <file> --paper [--rules ...]        # a paper: field register first
     cat file | python3 voice_lint.py -                        # stdin
 Exit code 1 if any hard-rule flags remain (usable in a pre-delivery gate).
 """
@@ -64,16 +76,34 @@ DEFAULT_REPORT = [
 # section titles are noun phrases; this scans Markdown `#` and Typst `=` heading lines.
 # Set "headings" to "" in your rules file to disable.
 DEFAULT_HEADINGS = r"為何|為什麼|是否|嗎[？?]?$|？|\?$|，而|其實"
+# Paper mode. "drop" = hard rules whose label starts with one of these prefixes are
+# removed; "hard" and "report" are appended. Prefixes match both the defaults above and
+# the labels in templates/voice_rules.template.json.
+DEFAULT_PAPER = {
+    "drop": ["Semicolon", "Over-literary particles", "Stock closers"],
+    "hard": [
+        ["Over-literary particles (paper mode: 乃/則是/抑或 are common in journals, not counted)", r"此即"],
+        ["Stock closers (paper mode)",
+         r"(?<!「)(?:綜觀全案|總而言之|由此觀之|一言以蔽之|總的來說|大體而言)(?!」)"],
+    ],
+    "report": [
+        ["Summary closers (paper mode: journals use them; report only, do not add new ones)",
+         r"(?<!「)(?:綜上所述|整體而言)(?!」)"],
+    ],
+}
 
 
-def load_rules(path):
-    if not path:
-        return DEFAULT_HARD, DEFAULT_SOFT, DEFAULT_REPORT, DEFAULT_HEADINGS
-    cfg = json.loads(Path(path).expanduser().read_text(encoding="utf-8"))
+def load_rules(path, paper=False):
+    cfg = json.loads(Path(path).expanduser().read_text(encoding="utf-8")) if path else {}
     hard = cfg.get("hard", DEFAULT_HARD)
     soft = cfg.get("soft", DEFAULT_SOFT)
     report = cfg.get("report", DEFAULT_REPORT)
     headings = cfg.get("headings", DEFAULT_HEADINGS)
+    if paper:
+        p = cfg.get("paper", DEFAULT_PAPER)
+        drop = tuple(p.get("drop", []))
+        hard = [r for r in hard if not (drop and r[0].startswith(drop))] + list(p.get("hard", []))
+        report = list(report) + list(p.get("report", []))
     return hard, soft, report, headings
 
 
@@ -94,6 +124,8 @@ def main():
         print(__doc__.strip() if __doc__ else "usage: see the header of this file")
         return
     args = sys.argv[1:]
+    paper = "--paper" in args
+    args = [a for a in args if a != "--paper"]
     rules_path = None
     if "--rules" in args:
         i = args.index("--rules")
@@ -106,7 +138,7 @@ def main():
     #    em-dashes — 4 false flags on a real draft. Masked, not deleted, so the
     #    line numbers reported below stay correct.
     raw = mask_nonprose(raw, layout=True)
-    hard, soft, report, headings = load_rules(rules_path)
+    hard, soft, report, headings = load_rules(rules_path, paper)
 
     lines_all = raw.split("\n")
     prose = [(i + 1, l) for i, l in enumerate(lines_all) if is_prose(l)]
@@ -147,7 +179,7 @@ def main():
     print("[?] Overclaims (absolutes, proof verbs, unsourced 'studies show'): run "
           "tools/claims/overclaim_lint.py — same report-only rule, judged per hit.")
 
-    print(f"\n{'=' * 40}\nHard-rule flags: {flags}  →  "
+    print(f"\n{'=' * 40}\n{'(paper mode) ' if paper else ''}Hard-rule flags: {flags}  →  "
           f"{'CLEAN' if flags == 0 else 'NOT PASSED — fix each before delivering'}")
     sys.exit(1 if flags else 0)
 

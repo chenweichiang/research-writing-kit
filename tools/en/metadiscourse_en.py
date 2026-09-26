@@ -21,10 +21,21 @@ actual sentences before trusting any single number.
 
 Baseline: reuses `ai_style_diag.py`'s `--corpus` (<corpus>/<venue>/*.txt, ≥30 needed,
 same own-draft/template exclusion rules). Cached at
-`~/.cache/metadiscourse_en_kit_baseline.json`, keyed by the corpus file list.
+`~/.cache/metadiscourse_en_kit_baseline.json`, keyed by the corpus file list; values are
+stored per paper so `--groups` can pick a subset without recomputing.
+
+Reading by direction: a deviation can go either way, and the fixes are opposite. A marker
+above the baseline p90 is reduced, one below p10 is restored toward the field's usual
+amount, and one inside the band is left alone. Point the baseline at the target venue
+with `--groups` (venue folder names): the same draft can sit below p10 against a mixed
+corpus and well inside the band against its own field. Stance markers (hedges, boosters,
+attitude) carry claim strength, so the author decides those; guiding markers
+(transitions, code glosses) are what a native-polish pass may add or trim
+(`tools/register/register_profile.py` applies that policy).
 
 Usage:
     python3 metadiscourse_en.py <draft> --corpus ~/my-corpus [--matches]
+    python3 metadiscourse_en.py <draft> --corpus ~/my-corpus --groups <venue>[,<venue>] [--json]
     python3 metadiscourse_en.py <draft> --corpus ~/my-corpus --rebuild
 """
 import argparse
@@ -80,34 +91,77 @@ def count(text):
     return n, out
 
 
+class BaselineError(Exception):
+    """The corpus cannot give a baseline (missing, or fewer than 30 usable papers)."""
+
+
+def _venue_texts(corpus_dir: pathlib.Path, venues=None):
+    """[("venue/file", raw)] so every paper keeps its venue for --groups."""
+    names = venues or sorted(d.name for d in corpus_dir.iterdir() if d.is_dir())
+    out = []
+    for v in names:
+        kept, _ = A.load_corpus(corpus_dir, [v])
+        out += [(f"{v}/{n}", raw) for n, raw in kept]
+    return out
+
+
 def baseline(corpus_dir: pathlib.Path, venues=None, rebuild=False):
-    kept, _ = A.load_corpus(corpus_dir, venues)
+    """{_key, docs: [{name: "venue/file", v: {marker: per 1000 words}}]}."""
+    kept = _venue_texts(corpus_dir, venues)
     if len(kept) < 30:
-        sys.exit(f"Baseline only {len(kept)} papers — need ≥30 for percentiles.")
-    key = hashlib.md5("\n".join(sorted(n for n, _ in kept)).encode()).hexdigest()
+        raise BaselineError(f"Baseline only {len(kept)} papers, need ≥30 for percentiles.")
+    key = hashlib.md5(("\n".join(sorted(n for n, _ in kept))
+                       + json.dumps(list(MARKERS.values()))).encode()).hexdigest()
     if not rebuild and CACHE.exists():
         try:
             c = json.loads(CACHE.read_text())
-            if c.get("_key") == key:
+            if c.get("_key") == key and "docs" in c:
                 return c
         except Exception:
             pass
-    dist = {k[1]: [] for k in MARKERS}
-    used = 0
-    for _, raw in kept:
-        body = A.clean(raw)
-        n, c = count(body)
+    docs = []
+    for name, raw in kept:
+        n, c = count(A.clean(raw))
         if n < 800:
             continue
-        used += 1
-        for k, v in c.items():
-            dist[k].append(round(v / n * 1000, 3))
-    if used < 30:
-        sys.exit(f"Only {used} baseline papers had ≥800 words after cleaning — need ≥30.")
-    out = {"_key": key, "_n": used, "dist": {k: sorted(v) for k, v in dist.items()}}
+        docs.append({"name": name, "v": {k: round(v / n * 1000, 3) for k, v in c.items()}})
+    if len(docs) < 30:
+        raise BaselineError(f"Only {len(docs)} baseline papers had ≥800 words after cleaning, need ≥30.")
+    out = {"_key": key, "docs": docs}
     CACHE.parent.mkdir(parents=True, exist_ok=True)
     CACHE.write_text(json.dumps(out))
     return out
+
+
+def quantile(vals, q):
+    """Nearest-rank quantile (vals already sorted)."""
+    return vals[min(len(vals) - 1, max(0, round(q * (len(vals) - 1))))]
+
+
+def profile(text, corpus_dir: pathlib.Path, groups=None, venues=None, min_docs=30):
+    """{n_words, n_docs, groups, feats: {marker: {cat, count, value, p10, p50, p90, pct, status}}}.
+    `text` should already be A.clean()ed. A `groups` subset with fewer than min_docs papers
+    falls back to the whole baseline, and `groups` says so. None when the draft is under 800 words."""
+    b = baseline(corpus_dir, venues)
+    n, c = count(text)
+    if n < 800:
+        return None
+    docs, used = b["docs"], "all"
+    if groups:
+        sub = [d for d in docs if d["name"].split("/")[0] in groups]
+        if len(sub) >= min_docs:
+            docs, used = sub, ",".join(groups)
+        else:
+            used = f"all ({','.join(groups)} has only {len(sub)} papers, fewer than {min_docs})"
+    feats = {}
+    for (cat, name) in MARKERS:
+        vals = sorted(d["v"][name] for d in docs)
+        v = c[name] / n * 1000
+        p10, p50, p90 = quantile(vals, .1), quantile(vals, .5), quantile(vals, .9)
+        feats[name] = dict(cat=cat, count=c[name], value=round(v, 3), p10=p10, p50=p50, p90=p90,
+                           pct=round(pct(vals, v), 1),
+                           status="high" if v > p90 else ("low" if v < p10 else "ok"))
+    return dict(n_words=n, n_docs=len(docs), groups=used, feats=feats)
 
 
 def pct(vals, x):
@@ -121,43 +175,52 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("target")
     ap.add_argument("--corpus", required=True,
-                    help="baseline corpus dir — same layout as ai_style_diag.py's --corpus")
+                    help="baseline corpus dir, same layout as ai_style_diag.py's --corpus")
     ap.add_argument("--venues", default="",
-                    help="comma-separated venue subdirs to use (default: all)")
+                    help="comma-separated venue subdirs to load at all (default: all); the "
+                         "baseline is built from these only and needs ≥30 papers")
+    ap.add_argument("--groups", default="",
+                    help="comma-separated venue subdirs to compare against; the baseline stays "
+                         "the whole corpus and falls back to it when the subset has <30 papers")
     ap.add_argument("--matches", action="store_true",
                     help="list the first 8 actual matches (with context) per marker")
+    ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--rebuild", action="store_true")
     args = ap.parse_args()
     corpus_dir = pathlib.Path(args.corpus).expanduser()
     if not corpus_dir.is_dir():
         sys.exit(f"Corpus dir not found: {corpus_dir}")
     venues = [v.strip() for v in args.venues.split(",") if v.strip()] or None
-    b = baseline(corpus_dir, venues, args.rebuild)
+    groups = [g.strip() for g in args.groups.split(",") if g.strip()] or None
     p = pathlib.Path(args.target).expanduser()
     if not p.exists():
         sys.exit(f"Not found: {p}")
-    text = A.clean(A.extract_text(p))
-    n, c = count(text)
-    if n < 800:
-        sys.exit("Draft under 800 words — statistics unstable.")
-    print(f"Draft {n} words | baseline {b['_n']} field papers | per 1000 words | "
-          "this is a descriptive comparison, not a detector")
-    print(f"{'cat':<11}{'marker':<26}{'count':>5}{'draft':>8}{'baseline med':>13}{'pctile':>7}")
+    try:
+        if args.rebuild:
+            baseline(corpus_dir, venues, True)
+        text = A.clean(A.extract_text(p))
+        prof = profile(text, corpus_dir, groups, venues)
+    except BaselineError as e:
+        sys.exit(str(e))
+    if prof is None:
+        sys.exit("Draft under 800 words, statistics unstable.")
+    if args.json:
+        print(json.dumps(prof, ensure_ascii=False, indent=1))
+        return
+    print(f"Draft {prof['n_words']} words | baseline {prof['n_docs']} field papers "
+          f"({prof['groups']}) | per 1000 words | this is a descriptive comparison, not a detector")
+    print(f"{'cat':<11}{'marker':<26}{'count':>5}{'draft':>8}{'p10':>7}{'median':>8}{'p90':>7}{'pctile':>8}")
     cat_prev = None
-    for (cat, name), _ in MARKERS.items():
-        v = c[name] / n * 1000
-        vals = b["dist"][name]
-        pc = pct(vals, v)
+    for name, f in prof["feats"].items():
         flag = ""
-        if c[name] >= 3 or name in WATCH_LOW:
-            if name in WATCH_HIGH and pc > 90:
-                flag = " << high (LLM-typical direction)"
-            elif name in WATCH_LOW and pc < 5:   # ~16% of human papers have zero directives;
-                flag = " << low (LLM-typical direction)"    # 0 landing at the 8th pctile isn't itself worth flagging
-            elif pc > 97 or pc < 3:
-                flag = " · outlier"
-        print(f"{cat if cat != cat_prev else '':<11}{name:<26}{c[name]:>5}{v:>8.2f}"
-              f"{vals[len(vals)//2]:>13.2f}{pc:>6.0f}%{flag}")
+        if f["count"] >= 3 or name in WATCH_LOW:
+            if f["status"] == "high":
+                flag = " \u25b2 high" + (" (LLM-typical direction)" if name in WATCH_HIGH else "")
+            elif f["status"] == "low":
+                flag = " \u25bc low" + (" (LLM-typical direction)" if name in WATCH_LOW else "")
+        cat = f["cat"]
+        print(f"{cat if cat != cat_prev else '':<11}{name:<26}{f['count']:>5}{f['value']:>8.2f}"
+              f"{f['p10']:>7.2f}{f['p50']:>8.2f}{f['p90']:>7.2f}{f['pct']:>7.0f}%{flag}")
         cat_prev = cat
     if args.matches:
         for (cat, name), rx in MARKERS.items():
@@ -167,16 +230,17 @@ def main():
                 print(f"\n[{name}]")
                 for m in ms:
                     print("   …" + re.sub(r"\s+", " ", text[max(0, m.start() - 50):m.end() + 50]) + "…")
-    print("\nReading: the research above reports LLM writing running high on stance "
-          "markers (especially explicit ones — boosters, attitude markers) and low on "
-          "reader engagement. When hedges and transitions are noticeably below the "
-          "baseline, claims tend to read more categorically than the evidence "
-          "supports, and the logic between sentences is left for the reader to "
-          "reconstruct. On an outlier, read the sentences with --matches before "
-          "editing; fix by letting claims track the evidence and addressing the "
-          "reader directly where it's natural, not by mechanically inserting or "
-          "deleting markers. Self-mention runs low in an anonymized submission — "
-          "that's expected, not a signal.")
+    print("\nReading (by direction): reduce a marker flagged high, restore one flagged low toward "
+          "the field's usual amount, and leave in-band markers alone. The research above reports "
+          "LLM writing running high on explicit stance (boosters, attitude markers) and low on "
+          "reader engagement; another common pattern is too few hedges, code glosses and "
+          "evidentials, which makes claims read more certain than the evidence and leaves the "
+          "reader to supply the links between sentences. Compare against the target venue "
+          "(--groups): against a mixed corpus a draft can look far off on markers that are "
+          "normal for its own field. Stance markers (hedges, boosters, attitude) set claim "
+          "strength, so the author decides them; guiding markers (transitions, code glosses) "
+          "can be adjusted in a polish pass. Read the sentences with --matches before editing. "
+          "Self-mention runs low in an anonymized submission; that is expected, not a signal.")
 
 
 if __name__ == "__main__":
