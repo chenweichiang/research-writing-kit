@@ -2,7 +2,7 @@
 
 [![version](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![updated](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![code MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![docs CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**Version `v1.8.1`** (2026-09-20) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
+**Version `v1.9.0`** (2026-09-26) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
 
 **中文版 → [README.md](README.md)**
 
@@ -13,7 +13,7 @@
 
 **中文摘要：** 這是一套用 AI 協助寫研究論文與計畫提案的方法，會自己安裝、自己客製。在
 Claude Code 裡打開這個資料夾，說「讀 CLAUDE.md，幫我設定」，你的 Claude 會先訪談你，再依
-你的領域、語言與文風生成專屬的寫作 skill。完整中文說明見 [README.md](README.md)；安裝器是
+你的領域、語言與目標期刊生成專屬的寫作 skill。完整中文說明見 [README.md](README.md)；安裝器是
 `CLAUDE.md`，方法本體在 `method/`。
 
 ---
@@ -25,7 +25,7 @@ This is not a template you paste in. It is a **method**, plus a small toolbox th
 - **You own the ideas and the argument. The AI does the legwork**: finds literature, verifies citations, builds the argument skeleton, writes the draft, and checks its own work.
 - **Skeleton before prose**: no squeezing a draft out of a blank page (that squeezing is where "AI flavour" comes from). Build the argument structure first, then write the words to fit it.
 - **Never fabricates a citation**: every reference is really fetched and its direction of support confirmed. If it cannot be found, it is marked "unverified". No pretending.
-- **Sounds like you**: when you write in your native language, the prose is matched to your own voice, not sanded down into generic AI prose.
+- **Papers sound like your field, letters sound like you**: papers, grant proposals and applications are measured against published papers in your field, so each language feature of the draft sits inside the range real papers use. They are neither sanded into generic AI prose nor pushed into one person's idiolect. Your own voice is kept for letters and personal statements.
 - **Honesty built in**: effect sizes with confidence intervals (not just p-values), no handing data to third-party services, a de-AI pass before delivery, a clean second review.
 
 ---
@@ -60,7 +60,7 @@ Code on your computer and moving the folder there** (details in
 ---
 
 ### After setup, your Claude does three things
-1. **Asks you a few questions**: what you write, in which language, where you submit, and whether you have past writing of your own it can learn your voice from.
+1. **Asks you a few questions**: what you write, in which language, where you submit, whether you can collect published papers from your field as a baseline, and whether you have letters or statements of your own it can learn your voice from.
 2. **Generates your own tools**: from your answers, it customizes the skills ("co-author", "pre-submission check", and so on) and installs them into your
    Claude.
 3. **Teaches you the few sentences you will actually use**, and then you can start.
@@ -71,6 +71,7 @@ Open Claude Code in the folder where your paper lives and say what you want in o
 | You say | Claude does | Skill / tool |
 |---------|-------------|--------------|
 | **"Help me write this paper / proposal"** | Co-authoring: find literature, build the argument skeleton, write the draft, self-check | `/co-author` |
+| **"This reads like a translation / not like a paper in my field"** | Native polish: first measures which language features of the draft sit outside the range of same-field papers; the editor subagent returns a change list only, and you decide on each item. Changed numbers, citations or terms are blocked | `/co-author` Phase 5.5 → `tools/register/register_profile.py`, `polish_check.py` |
 | **"Check this before I submit"** | Pre-submission quality and format check (five layers) | `/paper-review` |
 | **"Collect the PDFs of everything I cite"** | Collect and verify the references | `/fetch-refs` |
 | **"Do these citations really support what I wrote?"** | Sentence-by-sentence check against the PDF text for direction of support; authoritative DOI check | `/verify-citations` (plus a `citation-skeptic` second review) |
@@ -116,11 +117,11 @@ Open Claude Code in the folder where your paper lives and say what you want in o
 |------|----------|
 | `CLAUDE.md` | **The installer**: your Claude reads this to interview you and generate your personal setup. |
 | `NOTICE.md` | Sharing terms and third-party data licences. |
-| `method/` | **The method itself**, seven files: `PHILOSOPHY.md` (mindset), `IRON-RULES.md` (the non-negotiables), `WORKFLOW.md` (the full eight-phase pipeline), `ARGUMENTATION.md` (argument moves, used as an internal diagnostic), `RIGOR_PROCESS.md` (a thirteen-stage rigorous process from literature to reporting), `METHOD_DECISION.md` (the method-decision procedure and reporting guidelines), `METHOD_CARDS.md` (38 research-method cards with a decision index and condition-triggered warnings). |
+| `method/` | **The method itself**, seven files: `PHILOSOPHY.md` (mindset), `IRON-RULES.md` (the non-negotiables), `WORKFLOW.md` (the full pipeline, Phase 0 to 8, including 5.5 native polish), `ARGUMENTATION.md` (argument moves, used as an internal diagnostic), `RIGOR_PROCESS.md` (a thirteen-stage rigorous process from literature to reporting), `METHOD_DECISION.md` (the method-decision procedure and reporting guidelines), `METHOD_CARDS.md` (38 research-method cards with a decision index and condition-triggered warnings). |
 | `skills/` | Seven skill templates (table below). |
-| `agents/` | Two subagent templates (table below). |
-| `tools/` | Sixteen local scripts plus helper files and templates (table below); documented in `tools/README.md`. |
-| `templates/` | Four blank files: `VOICE_PROFILE.template.md` (voice profile), `venue-notes.template.md` (venue notes), `skeleton.template.md` (argument skeleton), `voice_rules.template.json` (hard voice rules). |
+| `agents/` | Five subagent templates (table below). |
+| `tools/` | Twenty-eight local scripts plus shared modules, helper files and templates (table below); documented in `tools/README.md`. |
+| `templates/` | Four blank files: `VOICE_PROFILE.template.md` (voice profile, for letters and statements), `venue-notes.template.md` (venue notes), `skeleton.template.md` (argument skeleton), `voice_rules.template.json` (hard voice rules). |
 | `data/academic-vocab/` | Two open academic word lists shipped with the kit (`avl_core_words.tsv`, `acl_collocations.tsv`); the third, `awl_families.tsv`, is generated on your machine by `tools/vocab/fetch_awl.py`. The wording layer of the pre-submission check uses them as anchors, not for automatic replacement. Licences in `NOTICE.md`. |
 | `examples/skeleton.example.md` | A filled-in skeleton so Claude has a concrete reference. |
 | `setup/` | `LITE.md` (zero-install mode), `TOOLS.md` (optional tools and the degradation map), `INTERVIEW.md` (interview wording), `WEB.md` (starting from claude.ai in the browser), `addons/zh-tw/README.md` (Traditional Chinese, Taiwan localization add-on). |
@@ -131,19 +132,22 @@ Once installed, each one triggers either by saying what you want or by typing `/
 
 | skill | What it does | Tools it uses |
 |-------|--------------|---------------|
-| `co-author` | Collaborative writing from scratch (papers and proposals): skeleton → verification → drafting → pre-delivery gates. Also handles rewriting an existing draft, resubmitting elsewhere, and expanding a short paper | The three pre-delivery scans (retraction / uncited claims / regression), `check_submissions.py`, the two subagents |
-| `paper-review` | Five-layer pre-submission check: mechanical → wording → language → logic and reviewer's view → delivery completeness. Checks only; never rewrites the draft | The three Chinese tools, `lt_check.sh`, `ai_style_diag.py`, `figure_a11y.py`, `uncited_claims_scan.py`, `overclaim_lint.py`, (optional) R `statcheck` and `scrutiny` |
+| `co-author` | Collaborative writing from scratch (papers and proposals): skeleton → verification → drafting → pre-delivery gates. Also handles rewriting an existing draft, resubmitting elsewhere, and expanding a short paper | The three pre-delivery scans (retraction / uncited claims / regression), `check_submissions.py`, Phase 5.5 native polish (`register_profile.py`, `polish_check.py`, the two editor subagents), `clean-reviewer` for the clean final review |
+| `paper-review` | Five-layer pre-submission check: mechanical → wording → language → logic and reviewer's view → delivery completeness. Checks only; never rewrites the draft | The three Chinese tools (`voice_lint.py --paper`), `lt_check.sh`, `ai_style_diag.py`, `figure_a11y.py`, `uncited_claims_scan.py`, `overclaim_lint.py`, `clean-reviewer` reviewer simulation (layer 4), (optional) R `statcheck` and `scrutiny` |
 | `fetch-refs` | Collects the PDFs for a bibliography, confirms each file really matches its entry, files them with a manifest. Includes citation snowballing | `snowball.py`, online APIs |
 | `verify-citations` | Sentence-by-sentence check against the PDF: is the citation supported by the source, and in the right direction. Authoritative DOI check. Retraction scan | `retraction_scan.py`, `citation-skeptic` second review, (optional) MinerU |
-| `rebuttal` | Response to reviewers: split the points → decide each → carry out the revisions → response letter → completeness check | `check_response.py` plus three templates, `de-cadencing-scholar`, (optional) `latexdiff` |
+| `rebuttal` | Response to reviewers: split the points → decide each → carry out the revisions → response letter → completeness check | `check_response.py` plus three templates, `clean-reviewer` drafts the verdict table, revised passages go through Phase 5.5 native polish, `de-cadencing-scholar`, (optional) `latexdiff` |
 | `doc-regress` | Turns a caught mistake into a standing check; numbers ledger; dead-rule health check | `regress.py`, `dead_rule_check.py` plus two templates |
 | `build-pdf` | Typesets a PDF in the venue's template; a second-language draft is delivered together with its back-translation; Traditional Chinese uses a Typst recipe | Typst, or Quarto / LaTeX |
 
-### The two subagents
+### The five subagents
 
 | agent | What it does | When it is sent in |
 |-------|--------------|--------------------|
-| `de-cadencing-scholar` | A native-speaker scholar's pass over an English draft: picks out the rhythm marks that make it "obviously AI-polished" and rewrites them (six tics; the sixth is overclaiming) | Before an English draft is delivered; before a response letter is delivered |
+| `clean-reviewer` | Clean-context final review: carries none of the drafting history and reads the manuscript, a reviewer-comment verdict table or a page as a reviewer would, to find its real weaknesses. It needs the strongest model tier at the highest effort; an Agent call can set the model but not the effort, so the effort is pinned in the template's frontmatter | `co-author` Phase 6 final review, `paper-review` layer 4 reviewer simulation, `rebuttal` verdict table |
+| `en-native-editor` | Native-English academic editor: moves features that sit outside the field's register range back into it, and fixes the surface transfer errors common to Chinese-L1 authors (articles, prepositions, collocations, tense). Returns a change list only and never edits the draft | `co-author` Phase 5.5 on English drafts (before de-cadencing) |
+| `zh-tw-native-editor` | Native Taiwan academic-Chinese editor (zh-TW addon): the same register-range yardstick, for translationese, over-split sentences and non-Taiwan usage. Returns a change list only | `co-author` Phase 5.5 on Chinese drafts |
+| `de-cadencing-scholar` | A native-speaker scholar's pass over an English draft: picks out the rhythm marks that make it "obviously AI-polished" and rewrites them (seven tics; the sixth is overclaiming, the seventh stock openings). Re-measures register afterwards so no feature is pushed out of the range | Before an English draft is delivered (after native polish); before a response letter is delivered |
 | `citation-skeptic` | A calibrated second review of any citation flagged as "possibly wrong": assumes the citation is correct, and keeps the charge only if the PDF contradicts it word for word | When `verify-citations` raises a flag |
 
 ### Bundled tools (`tools/`, all of them)
@@ -153,7 +157,8 @@ Once installed, each one triggers either by saying what you want or by typing `/
 | `common/md_prose.py` | Shared module: strips markdown / LaTeX layout syntax (frontmatter, tables, comments, code) and keeps only the prose. All four style tools depend on it. Not run directly | — |
 | `zh-tw/zh_localize.py` | Mainland-vs-Taiwan term check and 台/臺 consistency (the two variant characters for "Tai"); report only, no rewriting | none |
 | `zh-tw/zh_ai_style.py` | Chinese AI syntax fingerprint: dashes, rule-of-three lists, convergence words, sentence-length rhythm, density of the 「並非…而是」(not-X-but-Y) frame, and a list of sentences over 120 characters; can be compared against your own hand-written corpus | none |
-| `zh-tw/voice_lint.py` | Your own hard voice rules (reads `voice_rules.json`); a gate before delivery, and it does not pass until clean. Also flags sentence-form headings and stock closers, and lists AI stock-phrase candidates for you to judge | none |
+| `zh-tw/voice_lint.py` | Your own hard voice rules (reads `voice_rules.json`); a gate before delivery, and it does not pass until clean. Also flags sentence-form headings and stock closers, and lists AI stock-phrase candidates for you to judge. For papers, proposals and applications add `--paper`, which switches to the template's paper rules (for example, the semicolons journals use are not blocked) | none |
+| `zh-tw/zh_register.py` | Chinese register profile: 52 features (self-reference, translationese, linking words, metadiscourse, stance, punctuation, sentence length) against a corpus of same-field journal papers you assemble, with p10 / median / p90 for each. **A scale, not a detector** | your own corpus (30+ papers) |
 | `zh-tw/zh_gloss_scan.py` | Parenthetical-gloss inventory: every aside of 12+ characters that is not a citation or cross-reference, so you can decide which become defining sentences, which stay, which go | none |
 | `zh-tw/zh_tw_terms.py` | Loader and matcher for the Taiwan-Mandarin term table, used by `zh_localize.py`; not run directly | — |
 | `en/lt_check.sh` | English grammar plus US/UK spelling consistency (offline LanguageTool); if n-gram data is present, confused-word detection is added automatically | `brew install languagetool pandoc` |
@@ -162,8 +167,10 @@ Once installed, each one triggers either by saying what you want or by typing `/
 | `en/en_slop_terms.tsv` | The English LLM convergence-word list `ai_style_diag.py` reads (162 terms from slop-forensics, minus words HCI papers use anyway); not run directly | — |
 | `refs/pdf_fetch.py` | Fetches reference PDFs in three layers: open-access resolvers (adds Europe PMC / CORE / OpenAIRE) → `curl_cffi` TLS impersonation → a real Chrome on a persistent profile, which is what actually clears Cloudflare publishers (ACM / Wiley / SAGE / AIP / Elsevier). Misses are classified `PAYWALL` / `CAPTCHA` / `NO-LINK`. Entries without a DOI are read from the arXiv `eprint`, then resolved by exact title match on arXiv / OpenAlex; only books go back to you | `pip install curl_cffi patchright` (without them: stdlib + OA sources) |
 | `en/bundle_diag.py` | Lexical-bundle overuse diagnostic (English and Traditional Chinese): LLM prose leans on the same fixed collocations, so this measures their density and lists the hits | none |
-| `en/metadiscourse_en.py` | English metadiscourse measurement (Hyland's framework): density per category, hedges, boosters, attitude markers and the rest. **A scale, not a detector**: it shows where your distribution sits, it does not decide who wrote something | none |
-| `en/biber_diag.py` | English syntactic-feature comparison (Biber tagger) against your field's corpus, to see which features you lean on; **runs in a separate, optional environment** that nothing else in the kit needs | `pip install pybiber spacy` plus a language model (give it its own virtualenv) |
+| `en/metadiscourse_en.py` | English metadiscourse measurement (Hyland's framework): density per category, hedges, boosters, attitude markers and the rest, with p10 / median / p90 and a high/low direction; `--groups` compares against one venue, `--json` for scripts. **A scale, not a detector**: it shows where your distribution sits, it does not decide who wrote something | none |
+| `en/biber_diag.py` | English syntactic-feature comparison (Biber tagger) against your field's corpus, to see which features you lean on and in which direction; `--groups` compares against one venue, `--json` for scripts; **runs in a separate, optional environment** that nothing else in the kit needs | `pip install pybiber spacy polars` plus a language model (give it its own virtualenv and record its interpreter as `BIBER_PYTHON`) |
+| `register/register_profile.py` | The native-polish deviation list (Chinese and English): which features sit outside the p10–p90 band of same-field papers, which way to move them, and bounds per line range so an editor does not overshoot to the other end | your own corpus; the English syntax layer also needs the `biber_diag.py` environment (or run `--no-biber`) |
+| `register/polish_check.py` | Checks an editor's change list before it touches the draft: numbers, citations, quotations and locked terms unchanged, growth within the word budget, no new forbidden forms, no register feature moving the wrong way; writes back with `--apply` only when everything passes. The change list is read as data, never executed | none |
 | `figures/figure_a11y.py` | Figure colour accessibility: three colour-blindness simulations plus grayscale contrast; writes the simulated images for visual inspection | `pip install numpy pillow` (PDF figures also need `pymupdf`) |
 | `refs/snowball.py` | Citation snowballing: who cited this, what it cites, related work; aggregates and ranks across several seeds | none (needs internet) |
 | `refs/retraction_scan.py` | Retraction scan: a `.bib` or a DOI list checked against Crossref update relations and OpenAlex `is_retracted`, two sources; entries without a DOI are listed separately and not counted as scanned | none (needs internet) |
@@ -192,10 +199,11 @@ The installer (`CLAUDE.md`) asks whether you want this "for this paper only, or 
 | Item | Where | Notes |
 |------|-------|-------|
 | Seven skills | `~/.claude/skills/<name>/SKILL.md` (global) or `.claude/skills/` in your paper folder (single project) | **Rewritten from your answers**, not copied as-is; your field, language, venues, and mode are filled in |
-| Two subagents | `~/.claude/agents/` or the project's `.claude/agents/` | Installed only if you write English or verify citations |
-| A new section in your `CLAUDE.md` | `~/.claude/CLAUDE.md` or the project's `CLAUDE.md` | Records your field, language, venues, mode (lite / full), where the voice profile lives, and **the path to the kit (`KIT PATH`)**. This is the only place on the machine that records it; if you move the kit, you change one line |
+| Five subagents | `~/.claude/agents/` or the project's `.claude/agents/` | `clean-reviewer` for everyone; `citation-skeptic` if you verify citations; `en-native-editor` and `de-cadencing-scholar` if you write English; `zh-tw-native-editor` with the zh-TW addon. The installer adds the strongest model you have to each frontmatter |
+| A new section in your `CLAUDE.md` | `~/.claude/CLAUDE.md` or the project's `CLAUDE.md` | Records your field, language, venues, mode (lite / full), the register corpus path and its journal folders, where the voice profile lives, and **the path to the kit (`KIT PATH`)**. This is the only place on the machine that records it; if you move the kit, you change one line |
 | `voice-samples/` | Your project or home folder | **Holds only writing you wrote yourself** (created only if you provided past writing); the style tools' `--authored` flag points here, never at a folder that mixes in AI drafts |
-| `VOICE_PROFILE.md`, `voice_rules.json` | Same place | The voice description and hard rules extracted from your past writing; `voice_lint.py` reads the latter |
+| Register corpus folder (`<corpus>/<journal>/*.txt`) | Where you choose | **Only other people's published papers** (full mode only), as plain text, one folder per journal; `register_profile.py` uses it as the yardstick |
+| `VOICE_PROFILE.md`, `voice_rules.json` | Same place | The voice description and hard rules extracted from your letters and statements, used for letters, cover letters and statements; `voice_lint.py` reads the latter (add `--paper` for papers) |
 
 Optional tools you have not installed are written into the generated skills as "use only if installed". They are never assumed to exist.
 
@@ -275,14 +283,14 @@ The original author's toolchain has a few more pieces, but they are **not shippe
 - **present-video** (the presentation-video pipeline: TTS with a cloned voice, Whisper transcription checks, local image generation): outside the scope of papers and proposals, and every stage needs a self-hosted model.
 - **paper-healthcheck**: checks whether the author's **own local toolchain** is broken or has upstream updates. It does not check a manuscript, and it knows nothing about what your toolchain looks like.
 - **contradiction_scan / backfill_from_lit** ("does anyone in my library contradict me" / "fill missing PDFs from the local library first"): need a full-text index of a local reference library and a local LLM for polarity judgments; `setup/TOOLS.md` gives the direction, not an implementation.
-- **The delegation table** (which tier of subagent each step goes to): it is tied to the author's subscription and to this month's model names, and stops being true on a different plan or a later generation. **The criteria do ship** (which steps are mechanical and can be downgraded, which are judgment work for your strongest model, stated in each skill and in both subagent templates); the model names do not, because only you know which tiers you have.
+- **The delegation table** (which tier of subagent each step goes to): it is tied to the author's subscription and to this month's model names, and stops being true on a different plan or a later generation. **The criteria do ship** (which steps are mechanical and can be downgraded, which are judgment work for your strongest model, stated in each skill and in the subagent templates); the model names do not, because only you know which tiers you have.
 - **zh_term_check** (checks every translated term in a draft against the NAER terminology database, 樂詞網): needs the 樂詞網 database, which you would have to download and build yourself (bring your own). For a single term, just ask your Claude to look it up online.
 
 ---
 
 ## For advanced users
 Every skill is a plain-Markdown `SKILL.md`, which Claude Code recognises automatically. To mount
-one as a global skill by hand, copy or symlink `skills/<name>/` into `~/.claude/skills/`. The two
+one as a global skill by hand, copy or symlink `skills/<name>/` into `~/.claude/skills/`. The five
 subagent templates in `agents/` work the same way: mount them in `~/.claude/agents/` (or the
 project's `.claude/agents/`). Even so, let the install flow in `CLAUDE.md` customize them for you
 rather than copying the originals as-is.
@@ -296,6 +304,14 @@ uncited claims, regression) need no model; just run the scripts.
 
 ## Version history
 
+- **v1.9.0** (2026-09-26): **Papers follow the field's register; only letters follow your voice. New native-polish and clean-final-review steps.**
+  Iron Rule 5 changed. It used to say "match the author's own voice when writing in their native language". It now separates two kinds of reader. The readers of papers, grant proposals and applications are reviewers in the field, so those documents should read like the field's papers: the yardstick is a corpus of same-field published papers, and each language feature (self-reference, sentence length and how clauses join, linking words, translationese, metadiscourse, punctuation; for English also articles, nominalization and other grammatical features) should sit inside the p10–p90 band of those papers. The target is the band, not the median. The voice learned from your own writing is kept for letters, cover letters and personal statements, where the reader expects you. The reasoning comes from register-alignment research: ChatGPT-generated academic text has generally lower standard deviations than human text (Demir & Egbert 2026), and blanket "purification" rules (turn every nominalization into a verb, split every long sentence, ban the semicolon) push a draft toward that narrow profile. Those rules are right only for features the draft has too much of.
+  The installer now asks for two things: whether you can collect published papers from your field (full mode: 30 or more, ideally published before 2023; 30 from one journal to compare against that journal alone), and, optionally, letters or statements you wrote yourself, used only for letters. Lite mode needs no corpus: name the target journal's author guidelines and 2–3 sample papers, and Claude compares by reading and says that it is a reading, not a measurement.
+  `co-author` gains Phase 5.5, native polish. `tools/register/register_profile.py` measures the deviation list; `en-native-editor` or `zh-tw-native-editor` (zh-TW addon) work through it range by range and return change lists only, never editing the draft; `tools/register/polish_check.py` blocks changed numbers, citations, quotations and locked terms, growth past the word budget and features moving the wrong way before anything is written back; the main session decides on every item. English drafts then go through `de-cadencing-scholar`, followed by one more register measurement, because de-cadencing can push linking words back out of the band. Other new or extended tools: `tools/zh-tw/zh_register.py` (52 Chinese features), `--groups`, `--json` and direction reading in `metadiscourse_en.py` and `biber_diag.py`, and `voice_lint.py --paper`. No corpus ships; the installer records its path in your CLAUDE.md.
+  New `agents/clean-reviewer.md`. The final review, reviewer simulation and the reviewer-comment verdict table are judgment work that needs the strongest model at the highest effort. An Agent call can set the model but not the effort, so this is a named subagent whose frontmatter pins the effort. The subagent templates go from two to five; the installer fills in the model from what you have.
+  Literature tools: the four tools that call OpenAlex take an optional free API key (`OPENALEX_API_KEY`; $0.10/day of usage without it, $1/day with it), sent only as a header and only to `api.openalex.org`. `verify-citations` gains two criteria. Citations with a locator or prefix (`[@a, 170]`, `[see @b; @c, chap. 13]`) are reduced to the key after `@`, and a run is reconciled so that the number of works checked equals the number of distinct keys in the draft (one of the author's real drafts lost 15 of 47 cited works this way while the report looked clean). For Crossref, only a 404 means "not found"; a timeout, SSL error, 429 or 5xx that still fails after retries is reported as "query failed, not checked".
+  `doc-regress`: `dead_rule_check.py` now decides by which line a rule left through, because a rule that returned at its guard on an empty setting could still pass the executed-line threshold. `regress.py` no longer requires a four-digit year in citation keys (keys like `@opencv` used to be permanent orphans) and skips Quarto `@fig-` / `@tbl-` cross-references; the corrected-claims check is case-insensitive; R-STALE now tells "not configured", "file missing" and "no rows" apart. `lt_check.sh` uses `mktemp -d`: it used to leave an empty temp file behind on every run and did not run on Linux.
+  Maintenance: new `tools/dev/release_check.py` runs the five pre-delivery checks (frontmatter parses, method-decision template output unchanged, no em dash in added lines, no mainland terms, no personal data) as one program, with smoke tests for `tools/` and a GitHub Actions CI. `tools/dev/` is for maintainers and is not counted among the user-facing tools.
 - **v1.8.1** (2026-09-20): **The citation second review is judgment work, and the kit now says so consistently.**
   The kit carried two contradictory instructions about which tier of model runs the second review. The README called it judgment work for your strongest model, while `skills/verify-citations` and `agents/citation-skeptic` called it a read-and-quote job a cheaper model handles. Both were written on 2026-08-25, so they were never consistent, and the one that gets installed into `~/.claude/agents/` was the wrong one. Measured on the author's own citation set, the strongest tier was right 0.95 of the time against 0.75 for the mid tier on the same items. The second review is the last gate in the whole check, so running it on a weaker model drops that gate by twenty points. Both places now call it judgment work, and separate the mechanical half (per-source readers returning quotes) from the half that decides.
   The same pass completed the tools table in the README: it is headed "all of them" while listing 17 of 26, since the eight tools ported in v1.7.0 (three English diagnostics, three method gates, the literature map, the submissions re-audit) and the term-table module were never added. A table claiming completeness while missing a third of its rows misleads more than no table. The `dead_rule_check.py` row also still described the old execution-rate-only version and now lists all three checks. "Deliberately not shipped" now states the line as well: the delegation table does not ship (it is tied to the author's subscription and model names), the criteria do.

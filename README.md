@@ -2,7 +2,7 @@
 
 [![版本](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![最近更新](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![程式 MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![文件 CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**版本 `v1.8.1`**（2026-09-20）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
+**版本 `v1.9.0`**（2026-09-26）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
 **English → [README.en.md](README.en.md)**
 
@@ -13,7 +13,7 @@
 **English tl;dr:** A method for AI-assisted academic writing that installs and
 customizes itself. Open this folder in Claude Code and say *"Read CLAUDE.md and set
 me up."* Your Claude interviews you, then generates writing skills tailored to your
-field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the method).
+field, language, and target journals. See `CLAUDE.md` (the installer) and `method/` (the method).
 
 ---
 
@@ -24,7 +24,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 - **你擁有想法與論證，AI 負責跑腿**：找文獻、查證引用、架論證骨架、寫成稿、還自己檢查。
 - **先架骨架再寫字**：不從空白頁硬擠出稿（那種硬擠就是「AI 味」的來源），先把論證結構立好，再照著它寫成文字。
 - **絕不編造引用**：每一條文獻都真的抓下來、確認方向對。查不到就標「未驗證」，不假裝。
-- **像你的聲音**：用你的母語寫時，對齊你自己的文風，不磨成通用 AI 腔。
+- **論文像你的領域，信件像你**：論文、計畫書、申請書拿同領域已發表論文當準繩，稿子的每項語言特徵要落在真人論文的常見區間內，不磨成通用 AI 腔，也不套個人口吻；你自己的文風只用在信件與自述。
 - **誠實內建**：效果量＋信賴區間（不只 p 值）、資料不交給第三方服務、交稿前去 AI 味、乾淨二審。
 
 ---
@@ -56,7 +56,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 ---
 
 ### 設定好之後，你的 Claude 會做這三件事
-1. **問你幾個問題**：你寫什麼、用什麼語言、想投哪、有沒有自己的舊稿可以讓它學你的文風。
+1. **問你幾個問題**：你寫什麼、用什麼語言、想投哪、能不能收一批同領域已發表的論文當對照基準，以及有沒有自己寫的信件或自述可以讓它學你的文風。
 2. **幫你生出專屬工具**：照你的答案，把「協作寫作」「投稿前檢查」等 skill 客製好、裝進你的
    Claude。
 3. **教你實際會用到的幾句話**，然後你就可以開始了。
@@ -67,6 +67,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | 你打這句 | Claude 幫你做 | 對應的 skill／工具 |
 |----------|---------------|-------------------|
 | **「幫我寫這篇論文／提案」** | 協作寫作：找文獻、架論證骨架、寫成稿、自己檢查 | `/co-author` |
+| **「這段讀起來像翻譯／不像這個領域的論文」** | 母語潤稿：先量出稿子哪些語言特徵偏離同領域論文的常見區間，潤稿子代理只交改動清單，由你逐條裁定；數字、引用、術語動了就擋 | `/co-author` Phase 5.5 → `tools/register/register_profile.py`、`polish_check.py` |
 | **「幫我檢查這篇再投」** | 投稿前的品質與格式檢查（五層） | `/paper-review` |
 | **「幫我把這些引用的 PDF 收齊」** | 收集並查證參考文獻 | `/fetch-refs` |
 | **「這些引用真的撐得住我寫的話嗎？」** | 逐句對照 PDF 原文判定引用方向、DOI 權威查驗 | `/verify-citations`（＋`citation-skeptic` 二審） |
@@ -112,11 +113,11 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 |------|------|
 | `CLAUDE.md` | **安裝器**：你的 Claude 讀這個來訪談你、生成你的專屬設定。 |
 | `NOTICE.md` | 分享條件與第三方資料授權。 |
-| `method/` | **方法本體**七份：`PHILOSOPHY.md`（心法）、`IRON-RULES.md`（鐵則）、`WORKFLOW.md`（八個 Phase 的完整流程）、`ARGUMENTATION.md`（論證工法，內部診斷用）、`RIGOR_PROCESS.md`（從文獻到報告的十三階段嚴謹流程）、`METHOD_DECISION.md`（研究方法決策程序與報告準則）、`METHOD_CARDS.md`（38 張研究方法分析卡，含決策索引與條件警訊）。以上三份新文件目前是英文。 |
+| `method/` | **方法本體**七份：`PHILOSOPHY.md`（心法）、`IRON-RULES.md`（鐵則）、`WORKFLOW.md`（Phase 0 到 8 的完整流程，含 5.5 母語潤稿）、`ARGUMENTATION.md`（論證工法，內部診斷用）、`RIGOR_PROCESS.md`（從文獻到報告的十三階段嚴謹流程）、`METHOD_DECISION.md`（研究方法決策程序與報告準則）、`METHOD_CARDS.md`（38 張研究方法分析卡，含決策索引與條件警訊）。以上三份新文件目前是英文。 |
 | `skills/` | 七個 skill 範本（見下表）。 |
-| `agents/` | 兩個 subagent 範本（見下表）。 |
-| `tools/` | 十六支本機腳本＋輔助檔＋模板（見下表），說明在 `tools/README.md`。 |
-| `templates/` | 四份空白檔：`VOICE_PROFILE.template.md`（文風檔）、`venue-notes.template.md`（投稿場域筆記）、`skeleton.template.md`（論證骨架）、`voice_rules.template.json`（聲音硬規則）。 |
+| `agents/` | 五個 subagent 範本（見下表）。 |
+| `tools/` | 二十八支本機腳本＋共用模組＋輔助檔＋模板（見下表），說明在 `tools/README.md`。 |
+| `templates/` | 四份空白檔：`VOICE_PROFILE.template.md`（文風檔，信件與自述用）、`venue-notes.template.md`（投稿場域筆記）、`skeleton.template.md`（論證骨架）、`voice_rules.template.json`（聲音硬規則）。 |
 | `data/academic-vocab/` | 開放學術詞表：隨包兩份（`avl_core_words.tsv`、`acl_collocations.tsv`），第三份 `awl_families.tsv` 由 `tools/vocab/fetch_awl.py` 在你電腦上產生（授權不允許隨包）。投稿前檢查的用字層拿來當錨點，不是自動替換；授權見 `NOTICE.md`。 |
 | `examples/skeleton.example.md` | 一份填好的骨架範例，讓 Claude 有具體參照。 |
 | `setup/` | `LITE.md`（零安裝模式）、`TOOLS.md`（選配工具與降級對照）、`INTERVIEW.md`（面談問法）、`WEB.md`（從 claude.ai 網頁版上手）、`addons/zh-tw/README.md`（繁中在地化包）。 |
@@ -127,19 +128,22 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 
 | skill | 做什麼 | 會用到的工具 |
 |-------|--------|--------------|
-| `co-author` | 從無到有的協作寫作（論文與提案）：骨架→查證→寫稿→交付前關卡；也走既有稿改寫、轉投、擴寫 | 交付前掃描三支（撤稿／無引用宣稱／回歸）、`check_submissions.py`、兩個 subagent |
-| `paper-review` | 投稿前五層檢查：機械層→用字→語言→邏輯與審稿視角→交付完整性；只檢查不改稿 | 中文三支、`lt_check.sh`、`ai_style_diag.py`、`figure_a11y.py`、`uncited_claims_scan.py`、`overclaim_lint.py`、（選配）R `statcheck`＋`scrutiny` |
+| `co-author` | 從無到有的協作寫作（論文與提案）：骨架→查證→寫稿→交付前關卡；也走既有稿改寫、轉投、擴寫 | 交付前掃描三支（撤稿／無引用宣稱／回歸）、`check_submissions.py`、Phase 5.5 母語潤稿（`register_profile.py`、`polish_check.py`、兩個潤稿 subagent）、`clean-reviewer` 乾淨終審 |
+| `paper-review` | 投稿前五層檢查：機械層→用字→語言→邏輯與審稿視角→交付完整性；只檢查不改稿 | 中文三支（`voice_lint.py --paper`）、`lt_check.sh`、`ai_style_diag.py`、`figure_a11y.py`、`uncited_claims_scan.py`、`overclaim_lint.py`、`clean-reviewer` 審稿模擬（第 4 層）、（選配）R `statcheck`＋`scrutiny` |
 | `fetch-refs` | 把書目的 PDF 收齊、逐篇確認內容真的相符、歸檔＋清單；含引用滾雪球 | `pdf_fetch.py`（分層取檔＋失敗分類）、`snowball.py`、線上 API |
 | `verify-citations` | 逐句對照 PDF 判定引用是否被原文支撐、方向對不對；DOI 權威查驗；撤稿掃描 | `retraction_scan.py`、`citation-skeptic` 二審、（選配）MinerU |
-| `rebuttal` | 審稿回應：拆點→裁定→落實修訂→回應信→完整性驗證 | `check_response.py`＋三份模板、`de-cadencing-scholar`、（選配）`latexdiff` |
+| `rebuttal` | 審稿回應：拆點→裁定→落實修訂→回應信→完整性驗證 | `check_response.py`＋三份模板、`clean-reviewer` 起草裁定表、修訂段落走 Phase 5.5 母語潤稿、`de-cadencing-scholar`、（選配）`latexdiff` |
 | `doc-regress` | 抓到一次錯就寫成常駐檢查；數字帳本；死規則健檢 | `regress.py`、`dead_rule_check.py`＋兩份模板 |
 | `build-pdf` | 依場域模板排版成 PDF；第二語言稿連同回譯稿成對交付；繁中用 Typst 配方 | Typst 或 Quarto／LaTeX |
 
-### 兩個 subagent
+### 五個 subagent
 
 | agent | 做什麼 | 何時派 |
 |-------|--------|--------|
-| `de-cadencing-scholar` | 母語學者視角挑掉英文稿「一看就是 AI 潤過」的節奏痕跡並改寫（六類 tic，第六類＝過度宣稱） | 英文稿交付前；審稿回應信交付前 |
+| `clean-reviewer` | 乾淨脈絡的終審：不帶寫稿史，用審稿人的眼睛找稿件、審稿意見裁定表或網頁的真弱點。要用最強的一級模型與最高的推理強度；Agent 呼叫只能指定模型、不能指定推理強度，所以釘在範本的 frontmatter 裡 | `co-author` Phase 6 終審、`paper-review` 第 4 層審稿模擬、`rebuttal` 裁定表 |
+| `en-native-editor` | 英文母語學術編輯：照同領域論文的語域區間，把區間外的特徵往內移，另修華語作者常見的冠詞、介系詞、搭配與時態；只交改動清單，不直接改稿 | `co-author` Phase 5.5 英文稿（在 de-cadencing 之前） |
+| `zh-tw-native-editor` | 台灣學術中文母語編輯（繁中在地化包）：同樣以語域區間為準，處理翻譯腔、過度切短的句子、非台灣慣用詞；只交改動清單 | `co-author` Phase 5.5 中文稿 |
+| `de-cadencing-scholar` | 母語學者視角挑掉英文稿「一看就是 AI 潤過」的節奏痕跡並改寫（七類 tic，第六類＝過度宣稱、第七類＝開場套語）；改完重量語域，避免把特徵推出區間 | 英文稿交付前（母語潤稿之後）；審稿回應信交付前 |
 | `citation-skeptic` | 對被標記「引用可能有問題」的判定做校準二審：預設引用正確，只有 PDF 逐字直接矛盾才維持指控 | `verify-citations` 有 flag 時 |
 
 ### 隨包工具（`tools/`，全部）
@@ -149,7 +153,8 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | `common/md_prose.py` | 共用模組：把 markdown／LaTeX 版面語法（frontmatter、表格、註解、code）剝掉只留散文，四支文風工具都靠它；不直接執行 | — |
 | `zh-tw/zh_localize.py` | 陸用語→台灣用語、台／臺一致性（只報不改） | 不用 |
 | `zh-tw/zh_ai_style.py` | 中文 AI 句法指紋：破折號、三連並列、趨同詞、句長節奏、「並非…而是」密度、120 字以上長句清單；可對照你自己的親筆語料 | 不用 |
-| `zh-tw/voice_lint.py` | 你自己的聲音硬規則（吃 `voice_rules.json`），交稿前守門，不乾淨不放行；另掃句型標題、八股套語，並列出 AI 套話候選供人判 | 不用 |
+| `zh-tw/voice_lint.py` | 你自己的聲音硬規則（吃 `voice_rules.json`），交稿前守門，不乾淨不放行；另掃句型標題、八股套語，並列出 AI 套話候選供人判。論文、計畫書、申請書加 `--paper`，改套範本裡的論文規則（例如不擋期刊常用的分號） | 不用 |
+| `zh-tw/zh_register.py` | 中文語域剖面：52 項特徵（自稱、翻譯腔、連接詞、後設論述、立場、標點、句長），對照你自己收的同領域期刊論文語料，給每項的 p10／中位數／p90；**這是量表不是偵測器** | 自備語料（30 篇以上） |
 | `zh-tw/zh_gloss_scan.py` | 括號夾註盤點：列出 12 字以上、非引用非指路的夾註，供你決定改定義句、保留或刪 | 不用 |
 | `zh-tw/zh_tw_terms.py` | 台灣慣用語詞表的讀取與比對模組，`zh_localize.py` 靠它；不直接執行 | — |
 | `en/lt_check.sh` | 英文文法＋美英拼字一致性（離線 LanguageTool）；有 n-gram 資料會自動加掛易混詞偵測 | `brew install languagetool pandoc` |
@@ -157,8 +162,10 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | `en/ai_style_diag.py` | 英文 AI 指紋：對照你領域已發表論文語料的百分位；含 LLM 趨同詞密度並印出命中的詞；自動排除自家草稿與模板檔以免污染基線 | 自備語料；讀 PDF 需 `pdftotext`（`brew install poppler`） |
 | `en/en_slop_terms.tsv` | `ai_style_diag.py` 用的英文 LLM 趨同詞表（162 條，取自 slop-forensics 再篩掉 HCI 論文本來就常用的詞）；不直接執行 | — |
 | `en/bundle_diag.py` | 詞束過度使用診斷（英文與繁中皆可）：LLM 寫作會反覆用同一批固定搭配，這支量它的密度並列出命中 | 不用 |
-| `en/metadiscourse_en.py` | 英文後設論述量測（Hyland 框架）：避險、強調、態度標記等各類的密度。**這是量表不是偵測器**，用來看自己的分布落在哪，不用來判定誰寫的 | 不用 |
-| `en/biber_diag.py` | 英文句法特徵比較（Biber tagger），對照你領域的語料看自己偏在哪；**跑在獨立的選配環境**，套件其餘部分都不需要它 | `pip install pybiber spacy` 加語言模型（建議另開虛擬環境） |
+| `en/metadiscourse_en.py` | 英文後設論述量測（Hyland 框架）：避險、強調、態度標記等各類的密度，附 p10／中位數／p90 與偏高偏低的方向；`--groups` 只比單一期刊、`--json` 給程式讀。**這是量表不是偵測器**，用來看自己的分布落在哪，不用來判定誰寫的 | 不用 |
+| `en/biber_diag.py` | 英文句法特徵比較（Biber tagger），對照你領域的語料看自己偏在哪、往哪個方向偏；`--groups` 只比單一期刊、`--json` 給程式讀；**跑在獨立的選配環境**，套件其餘部分都不需要它 | `pip install pybiber spacy polars` 加語言模型（建議另開虛擬環境，路徑記成 `BIBER_PYTHON`） |
+| `register/register_profile.py` | 母語潤稿的偏離清單（中英文）：哪些特徵落在同領域論文 p10–p90 區間外、該往哪個方向移，並依行號範圍給上下限，免得潤過頭跑到另一端 | 自備語料；英文句法層另需 `biber_diag.py` 的環境（沒有就 `--no-biber`） |
+| `register/polish_check.py` | 潤稿改動清單套進稿子之前的檢查：數字、引用、引文與鎖定術語不得變動，字數增幅不超過預算，不得新增禁用寫法，語域特徵不得往錯的方向移；全部通過才用 `--apply` 寫回。改動清單只當資料讀，不執行 | 不用 |
 | `figures/figure_a11y.py` | 圖表色覺可及性：三種色盲模擬＋灰階對比，寫出模擬圖供目檢 | `pip install numpy pillow`（PDF 另需 `pymupdf`） |
 | `refs/pdf_fetch.py` | 取檔分三層：OA 源（增補 Europe PMC／CORE／OpenAIRE）→ curl_cffi TLS 偽裝 → 真實 Chrome 持久 profile。**最後一層才是 Cloudflare 出版社（ACM／Wiley／SAGE／AIP／Elsevier）能到手的原因**，只做 TLS 偽裝不夠。拿不到的一律分類成 `PAYWALL`／`CAPTCHA`／`NO-LINK`；沒有 DOI 的條目讀 arXiv `eprint`，再不行以標題在 arXiv／OpenAlex 精確比對，只有專書才交回人工 | `pip install curl_cffi patchright`（沒裝則退回 stdlib＋OA 源） |
 | `refs/snowball.py` | 引用滾雪球：誰引用了這篇／這篇引了誰／相近研究，多種子聚合排序 | 不用（需網路） |
@@ -188,10 +195,11 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | 東西 | 放哪 | 說明 |
 |------|------|------|
 | 七個 skill | `~/.claude/skills/<名稱>/SKILL.md`（全域）或你論文資料夾的 `.claude/skills/`（單一專案） | **照你的答案改寫過**，不是原檔複製；領域、語言、場域、模式都填進去了 |
-| 兩個 subagent | `~/.claude/agents/` 或專案 `.claude/agents/` | 寫英文或要查引用的人才裝 |
-| 你的 `CLAUDE.md` 多一段 | `~/.claude/CLAUDE.md` 或專案 `CLAUDE.md` | 記你的領域、語言、場域、模式（lite／full）、文風檔位置，以及 **kit 的路徑（`KIT PATH`）**，全機只記這一處，搬 kit 只改這一行 |
+| 五個 subagent | `~/.claude/agents/` 或專案 `.claude/agents/` | `clean-reviewer` 人人都裝；`citation-skeptic` 給要查引用的人；`en-native-editor`、`de-cadencing-scholar` 給寫英文的人；`zh-tw-native-editor` 隨繁中在地化包。安裝時會在 frontmatter 補上你手上最強的模型 |
+| 你的 `CLAUDE.md` 多一段 | `~/.claude/CLAUDE.md` 或專案 `CLAUDE.md` | 記你的領域、語言、場域、模式（lite／full）、語域語料的位置與期刊資料夾名、文風檔位置，以及 **kit 的路徑（`KIT PATH`）**，全機只記這一處，搬 kit 只改這一行 |
 | `voice-samples/` | 你的專案或家目錄 | **只放你親筆寫的文章**（給了舊稿才有）；文風工具的 `--authored` 指這裡，絕不指向混有 AI 稿的資料夾 |
-| `VOICE_PROFILE.md`、`voice_rules.json` | 同上 | 從你的舊稿抽出的文風描述與硬規則；`voice_lint.py` 吃後者 |
+| 語域語料資料夾（`<語料>/<期刊>/*.txt`） | 你指定的位置 | **只放別人已發表的論文**（完整模式才有），轉成純文字、一個期刊一個資料夾；`register_profile.py` 拿它當準繩 |
+| `VOICE_PROFILE.md`、`voice_rules.json` | 同上 | 從你的信件與自述抽出的文風描述與硬規則，用在信件、投稿信與自述；`voice_lint.py` 吃後者（論文加 `--paper`） |
 
 沒安裝的選配工具，生成的 skill 會寫成「若已安裝才用」，不會假裝它存在。
 
@@ -273,14 +281,14 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 - **present-video**（發表影片一條龍：TTS 克隆本人聲音／Whisper 聽寫驗證／本機生圖）：超出論文與提案的範圍，且每一段都要自架模型。
 - **paper-healthcheck**：檢查的是作者**本機工具鏈本身**有沒有斷、有沒有新版，不是檢查稿件；你的工具鏈長什麼樣它不知道。
 - **contradiction_scan／backfill_from_lit**（庫裡有沒有人反駁我／缺的 PDF 先從本機補）：需要本機文獻全文索引與本機 LLM 做極性判斷；`setup/TOOLS.md` 只給方向，不給實作。
-- **派工分工表**（哪一步派哪個型號的子代理）：那綁作者的訂閱方案與當下的型號版本，換一家或換一代就不成立。**判準有出貨**（哪一步是機械可降級、哪一步是判斷要用最強的，寫在各 skill 與兩個 subagent 範本裡），型號沒有，因為你手上有哪幾級模型只有你知道。
+- **派工分工表**（哪一步派哪個型號的子代理）：那綁作者的訂閱方案與當下的型號版本，換一家或換一代就不成立。**判準有出貨**（哪一步是機械可降級、哪一步是判斷要用最強的，寫在各 skill 與 subagent 範本裡），型號沒有，因為你手上有哪幾級模型只有你知道。
 - **zh_term_check**（整篇術語譯名對照樂詞網）：需要樂詞網資料庫，得自己下載建庫（bring your own）；單詞查詢請你的 Claude 上網查即可。
 
 ---
 
 ## 給進階使用者
 所有 skill 都是純 Markdown 的 `SKILL.md`，Claude Code 會自動辨識。想手動掛成全域 skill，
-把 `skills/<name>/` 複製或 symlink 到 `~/.claude/skills/` 即可；`agents/` 的兩個 subagent
+把 `skills/<name>/` 複製或 symlink 到 `~/.claude/skills/` 即可；`agents/` 的五個 subagent
 範本同理，掛到 `~/.claude/agents/`（或專案的 `.claude/agents/`）。但還是建議讓 `CLAUDE.md`
 的安裝流程幫你客製，不要照抄原版。
 
@@ -291,6 +299,14 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 
 ## 版本紀錄
 
+- **v1.9.0**（2026-09-26）：**論文照場域的語域寫，信件才照你的聲音；新增母語潤稿與乾淨終審兩個環節。**
+  鐵則 5 改了。原本是「用你的母語寫時對齊你自己的文風」，現在分成兩種讀者：論文、計畫書、申請書的讀者是同領域的審稿人，稿子要讀起來像這個領域的論文，所以拿同領域已發表論文當準繩，每項語言特徵（自稱、句長與子句接法、連接詞、翻譯腔、後設論述、標點，英文另有冠詞、名詞化等句法特徵）要落在真人論文的 p10–p90 區間內；目標是區間，不是中位數。從你舊稿學來的文風只用在信件、投稿信、自述這些讀者期待「你本人」的文件。依據是語域對齊的研究：ChatGPT 產出的學術文字各項特徵的標準差普遍小於真人（Demir & Egbert 2026），一律「把名詞化改成動詞、長句全切短、禁用分號」的淨化規則，會把稿子推向那個窄分布，只有對稿子「偏多」的特徵才對。
+  安裝器因此改問兩件事：能不能收一批同領域已發表的論文（完整模式 30 篇以上，最好是 2023 年以前；單一期刊有 30 篇才單獨比那一本），以及有沒有自己寫的信件或自述（選填，只給信件用）。lite 模式不必收語料，指定目標期刊的投稿須知與兩三篇範例論文，由 Claude 閱讀比對，並註明那是閱讀判斷不是量測。
+  `co-author` 新增 Phase 5.5 母語潤稿：`tools/register/register_profile.py` 量出偏離清單，派 `en-native-editor` 或 `zh-tw-native-editor`（繁中在地化包）逐段處理，兩者只交改動清單、不直接改稿；`tools/register/polish_check.py` 在改動寫回前擋下數字、引用、引文、鎖定術語的變動，以及字數超出預算與往錯的方向移的特徵；主對話逐條裁定後才寫回。英文稿之後再走 `de-cadencing-scholar`，改完重量一次語域，因為去節奏可能把連接詞推出區間。新工具另有 `tools/zh-tw/zh_register.py`（中文 52 項特徵），`metadiscourse_en.py` 與 `biber_diag.py` 加上 `--groups`、`--json` 與方向判讀，`voice_lint.py` 加 `--paper`。語料不隨包，路徑由安裝器記在你的 CLAUDE.md。
+  新增 `agents/clean-reviewer.md`：終審、審稿模擬、審稿意見裁定表這類判斷工作要最強的一級模型加最高的推理強度，而 Agent 呼叫只能指定模型、不能指定推理強度，所以做成具名 subagent，把推理強度釘在範本的 frontmatter 裡。subagent 範本由兩個變成五個，模型一律由安裝器照你手上有的補上。
+  文獻工具：四支會打 OpenAlex 的工具可選帶免費 API key（`OPENALEX_API_KEY`，沒設每天 $0.10 額度、設了 $1），key 只放標頭、只送 `api.openalex.org`。`verify-citations` 補兩條判準：帶頁碼或前綴的引用（`[@a, 170]`、`[see @b; @c, chap. 13]`）只取 @ 後的鍵，跑完要對帳「查過的文獻數＝稿中不重複的鍵數」（作者的一篇實稿就這樣漏了 47 篇裡的 15 篇，報告照樣乾淨）；Crossref 只有 404 算查無，逾時、SSL、429、5xx 重試後仍失敗要報「查詢失敗、未查」。
+  `doc-regress`：`dead_rule_check.py` 改以「從哪一行離開」判定死規則，設定為空、一開頭就 return 的規則原本可能因為執行行數超過門檻而被判通過；`regress.py` 的引用鍵不再要求四位數年份（`@opencv` 這類鍵原本永遠算孤兒），並排除 Quarto 的 `@fig-`／`@tbl-` 交互參照；已更正說法的比對不分大小寫；R-STALE 分清帳本「沒設定」「檔案不見」「沒有資料列」三種狀態。`lt_check.sh` 的暫存檔改用 `mktemp -d`，原本每跑一次留下一個空檔，在 Linux 上也跑不起來。
+  維護面：新增 `tools/dev/release_check.py`，把交付前的五項檢查（frontmatter 解析、方法決策範本輸出不變、新增行無破折號、無陸用語、無個資）做成一支程式，並補上 `tools/` 的冒煙測試與 GitHub Actions CI；`tools/dev/` 是維護者自用，不算在給使用者的工具支數裡。
 - **v1.8.1**（2026-09-20）：**引用二審改判為判斷工作，並補上兩處偵測與警告。**
   套件對「引用二審該用哪一級模型」原本有兩種相反說法：README 說二審是判斷工作、要用最強的模型，`skills/verify-citations` 與 `agents/citation-skeptic` 卻說二審是讀引、用便宜快的就夠。兩種說法都寫於 2026-08-25，從一開始就沒有一致過，而會被直接裝進 `~/.claude/agents/` 的是後者。作者自己的引用集上實測，同一批題目最強的一級判斷正確率 0.95、中間一級 0.75；二審是整條查核的最後一道關，交給弱模型等於把最後一關的正確率降掉兩成。兩處都改成判斷工作要用最強的模型，並把機械的那一半（逐篇讀 PDF 回引句）與要下判斷的那一半分開寫。
   同一批把 README 的工具表補齊：那張表的標題寫「全部」，實際只列了 26 支裡的 17 支，v1.7.0 移進來的八支（英文三支診斷、方法三支閘門、文獻地圖、投稿重量）與台灣用語詞表模組從來沒被列上去，標題寫「全部」卻少三分之一比沒列更誤導。`dead_rule_check.py` 的描述也還停在只驗執行率的舊版，補成三項。另在〈刻意不收的環節〉寫明：派工分工表不出貨（綁作者的訂閱與型號版本），判準有出貨（哪一步機械可降級、哪一步要判斷）。
