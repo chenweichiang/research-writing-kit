@@ -719,9 +719,16 @@ class BrowserSession:
 #   OpenAIRE   — EU aggregator, keyless
 # CORE needs a free key: https://core.ac.uk/services/api → set CORE_API_KEY
 
+def oa_headers(url):
+    """Optional OpenAlex key: set OPENALEX_API_KEY to use your free account's daily budget
+    ($1/day; $0.10/day without a key). Sent as a header, never in the URL, and only to api.openalex.org."""
+    k = os.environ.get("OPENALEX_API_KEY", "").strip()
+    return {"Authorization": "Bearer " + k} if k and urllib.parse.urlsplit(url).netloc == "api.openalex.org" else {}
+
+
 def _jget(url, timeout=20, headers=None):
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": UA, **(headers or {})})
+        req = urllib.request.Request(url, headers={"User-Agent": UA, **oa_headers(url), **(headers or {})})
         return json.load(urllib.request.urlopen(req, timeout=timeout))
     except Exception:
         return {}

@@ -258,7 +258,7 @@ field, language, and voice. See `CLAUDE.md` (the installer) and `method/` (the m
 | 服務 | 哪裡用到 | 送出什麼 |
 |------|----------|----------|
 | **Crossref** | `retraction_scan.py`（撤稿更新關係）、`verify-citations` DOI／書目查驗 | 只送 DOI |
-| **OpenAlex** | `retraction_scan.py`（`is_retracted`）、`snowball.py`、無 DOI 條目的標題補查 | DOI 或標題 |
+| **OpenAlex** | `retraction_scan.py`（`is_retracted`）、`snowball.py`、`lit_map.py`、無 DOI 條目的標題補查（可選免費金鑰 `OPENALEX_API_KEY`：沒設每天 $0.10 額度、設了 $1，標題搜尋一次 $0.001、DOI 單筆免費） | DOI 或標題 |
 | **Semantic Scholar** | `snowball.py` 後備線、引用補查 | DOI 或標題 |
 | **Europe PMC／CORE／OpenAIRE** | `pdf_fetch.py` 的 OA 源（CORE 需免費金鑰 `CORE_API_KEY`，沒設就跳過） | DOI |
 | **出版社網站** | `pdf_fetch.py` 的瀏覽器層，用**你自己的**存取權在真實瀏覽器 session 取檔 | 就是你手動開網頁會送的東西 |

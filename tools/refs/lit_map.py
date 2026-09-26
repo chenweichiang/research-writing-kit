@@ -49,10 +49,17 @@ OA = "https://api.openalex.org"
 SELECT = "id,doi,title,publication_year,cited_by_count,referenced_works,primary_location"
 
 
+def oa_headers(url):
+    """Optional OpenAlex key: set OPENALEX_API_KEY to use your free account's daily budget
+    ($1/day; $0.10/day without a key). Sent as a header, never in the URL, and only to api.openalex.org."""
+    k = os.environ.get("OPENALEX_API_KEY", "").strip()
+    return {"Authorization": "Bearer " + k} if k and urllib.parse.urlsplit(url).netloc == "api.openalex.org" else {}
+
+
 def get(url, email, retries=2):
     sep = "&" if "?" in url else "?"
     full = f"{url}{sep}mailto={urllib.parse.quote(email)}"
-    req = urllib.request.Request(full, headers={"User-Agent": f"lit_map.py (mailto:{email})"})
+    req = urllib.request.Request(full, headers={"User-Agent": f"lit_map.py (mailto:{email})", **oa_headers(full)})
     for i in range(retries + 1):
         try:
             with urllib.request.urlopen(req, timeout=40) as r:

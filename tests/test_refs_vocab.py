@@ -241,3 +241,18 @@ def test_fetch_awl_network_failure(monkeypatch):
 
     monkeypatch.setattr(fa, "fetch", down)
     assert _main(monkeypatch, fa, "--source", "html", "--sleep", "0") == 2
+
+
+# ---------------------------------------------------------------- OpenAlex key
+@pytest.mark.parametrize("rel", ["refs/lit_map.py", "refs/snowball.py",
+                                 "refs/retraction_scan.py", "refs/pdf_fetch.py"])
+def test_openalex_key_goes_only_to_openalex_as_header(monkeypatch, rel):
+    tool = load_tool(rel)
+    monkeypatch.delenv("OPENALEX_API_KEY", raising=False)
+    assert tool.oa_headers("https://api.openalex.org/works?search=x") == {}
+    monkeypatch.setenv("OPENALEX_API_KEY", " k123 ")
+    assert tool.oa_headers("https://api.openalex.org/works/doi:10.1/x") == {"Authorization": "Bearer k123"}
+    # other hosts, and look-alike hosts, never receive the key
+    assert tool.oa_headers("https://api.crossref.org/works/10.1/x") == {}
+    assert tool.oa_headers("https://api.openalex.org.evil.example/works") == {}
+    assert tool.oa_headers("https://api.semanticscholar.org/graph/v1/paper/x?openalex=1") == {}

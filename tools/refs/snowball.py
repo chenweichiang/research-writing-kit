@@ -7,7 +7,8 @@ cite). This script answers "who cites X" (forward — for related work and for
 similar to X" (related). With multiple seeds it aggregates: the more seeds a
 paper hits (`seed_hits`), the more likely it's something you should have read.
 
-Zero-install: Python 3 standard library only. Free APIs, no keys, no signup.
+Zero-install: Python 3 standard library only. Free APIs, no signup; an optional free
+OpenAlex key (OPENALEX_API_KEY) raises the daily budget from $0.10 to $1.
 
 Usage:
   snowball.py --doi 10.1145/1240624.1240704 --direction forward --limit 100
@@ -21,10 +22,17 @@ Gotchas: OpenAlex 429 = daily quota wall (resets midnight UTC). forward falls
     back to Semantic Scholar automatically (fewer fields; seed_hits still works);
     backward/related need OpenAlex itself — on 429 report "quota", never "no results".
 """
-import argparse, csv, json, re, sys, time, urllib.error, urllib.parse, urllib.request
+import argparse, csv, json, os, re, sys, time, urllib.error, urllib.parse, urllib.request
 
 OA = "https://api.openalex.org"
 S2 = "https://api.semanticscholar.org/graph/v1"
+
+
+def oa_headers(url):
+    """Optional OpenAlex key: set OPENALEX_API_KEY to use your free account's daily budget
+    ($1/day; $0.10/day without a key). Sent as a header, never in the URL, and only to api.openalex.org."""
+    k = os.environ.get("OPENALEX_API_KEY", "").strip()
+    return {"Authorization": "Bearer " + k} if k and urllib.parse.urlsplit(url).netloc == "api.openalex.org" else {}
 
 
 def http_json(url, email):
@@ -32,7 +40,7 @@ def http_json(url, email):
         sep = "&" if "?" in url else "?"
         url = f"{url}{sep}mailto={urllib.parse.quote(email)}"
     ua = f"snowball.py (mailto:{email})" if email else "snowball.py (research-writing-kit)"
-    req = urllib.request.Request(url, headers={"User-Agent": ua})
+    req = urllib.request.Request(url, headers={"User-Agent": ua, **oa_headers(url)})
     with urllib.request.urlopen(req, timeout=30) as r:
         return json.loads(r.read())
 

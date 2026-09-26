@@ -35,6 +35,7 @@ Exit codes: 0 = every DOI entry scanned, none retracted
 """
 import argparse
 import json
+import os
 import re
 import sys
 import time
@@ -97,8 +98,15 @@ def parse_doi_list(path):
 
 
 # ── network ───────────────────────────────────────────────────────────────────
+def oa_headers(url):
+    """Optional OpenAlex key: set OPENALEX_API_KEY to use your free account's daily budget
+    ($1/day; $0.10/day without a key). Sent as a header, never in the URL, and only to api.openalex.org."""
+    k = os.environ.get("OPENALEX_API_KEY", "").strip()
+    return {"Authorization": "Bearer " + k} if k and urllib.parse.urlsplit(url).netloc == "api.openalex.org" else {}
+
+
 def get_json(url, ua, timeout=25):
-    req = urllib.request.Request(url, headers={"User-Agent": ua, "Accept": "application/json"})
+    req = urllib.request.Request(url, headers={"User-Agent": ua, "Accept": "application/json", **oa_headers(url)})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return json.load(r)
 

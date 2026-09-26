@@ -262,7 +262,7 @@ These are **your** files (in your paper folder, not in this repo). Keep them und
 | Service | Used where | What is sent |
 |---------|------------|--------------|
 | **Crossref** | `retraction_scan.py` (retraction update relations), `verify-citations` DOI and bibliographic checks | DOI only |
-| **OpenAlex** | `retraction_scan.py` (`is_retracted`), `snowball.py`, title lookup for entries without a DOI | DOI or title |
+| **OpenAlex** | `retraction_scan.py` (`is_retracted`), `snowball.py`, `lit_map.py`, title lookup for entries without a DOI (optional free key `OPENALEX_API_KEY`: $0.10/day of usage without it, $1/day with it; a title search costs $0.001, a single DOI lookup is free) | DOI or title |
 | **Semantic Scholar** | `snowball.py` fallback, citation lookups | DOI or title |
 | **Unpaywall**, **arXiv** | `fetch-refs` fetching open-access PDFs | DOI |
 
