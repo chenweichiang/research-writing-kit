@@ -2,7 +2,7 @@
 
 [![version](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![updated](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![code MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![docs CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**Version `v1.9.0`** (2026-09-26) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
+**Version `v1.9.1`** (2026-09-26) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
 
 **中文版 → [README.md](README.md)**
 
@@ -304,6 +304,7 @@ uncited claims, regression) need no model; just run the scripts.
 
 ## Version history
 
+- **v1.9.1** (2026-09-26): `tools/refs/lit_map.py` now blanks out the characters OpenAlex search reads as syntax before sending a topic query. A comma turns the whole request into HTTP 400 (even encoded as `%2C`), `?` and `*` are wildcards and also get a 400 on this field, and `!` and `|` raise no error but are read as NOT and OR, so the query silently means something else. A topic such as "speculative design, fiction" used to return nothing. A matching test is added.
 - **v1.9.0** (2026-09-26): **Papers follow the field's register; only letters follow your voice. New native-polish and clean-final-review steps.**
   Iron Rule 5 changed. It used to say "match the author's own voice when writing in their native language". It now separates two kinds of reader. The readers of papers, grant proposals and applications are reviewers in the field, so those documents should read like the field's papers: the yardstick is a corpus of same-field published papers, and each language feature (self-reference, sentence length and how clauses join, linking words, translationese, metadiscourse, punctuation; for English also articles, nominalization and other grammatical features) should sit inside the p10–p90 band of those papers. The target is the band, not the median. The voice learned from your own writing is kept for letters, cover letters and personal statements, where the reader expects you. The reasoning comes from register-alignment research: ChatGPT-generated academic text has generally lower standard deviations than human text (Demir & Egbert 2026), and blanket "purification" rules (turn every nominalization into a verb, split every long sentence, ban the semicolon) push a draft toward that narrow profile. Those rules are right only for features the draft has too much of.
   The installer now asks for two things: whether you can collect published papers from your field (full mode: 30 or more, ideally published before 2023; 30 from one journal to compare against that journal alone), and, optionally, letters or statements you wrote yourself, used only for letters. Lite mode needs no corpus: name the target journal's author guidelines and 2–3 sample papers, and Claude compares by reading and says that it is a reading, not a measurement.

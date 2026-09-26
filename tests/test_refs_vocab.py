@@ -48,6 +48,23 @@ def test_lit_map_query(monkeypatch, tmp_path):
     assert any("title_and_abstract.search:design" in c for c in calls)
 
 
+def test_lit_map_query_syntax_characters(monkeypatch, tmp_path):
+    # a comma splits OpenAlex filters (400), `?` is a wildcard (400), `!`/`|` become NOT/OR
+    lm = load_tool("refs/lit_map.py")
+    calls = []
+
+    def fake_get(url, email, retries=2):
+        calls.append(url)
+        return {"results": [], "meta": {"next_cursor": None}}
+
+    monkeypatch.setattr(lm, "get", fake_get)
+    with pytest.raises(SystemExit):   # no results -> "this batch of literature is empty"
+        _main(monkeypatch, lm, "--query", "speculative design, fiction?! a|b", "--limit", "10",
+              "--email", "t@example.org", "--out", tmp_path / "map.md")
+    value = calls[0].split("title_and_abstract.search:", 1)[1].split(",", 1)[0].split("&", 1)[0]
+    assert value == "speculative%20design%20fiction%20a%20b"
+
+
 def test_lit_map_requires_email(monkeypatch):
     lm = load_tool("refs/lit_map.py")
     monkeypatch.delenv("OPENALEX_MAILTO", raising=False)

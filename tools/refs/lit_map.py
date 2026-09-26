@@ -39,6 +39,7 @@ import collections
 import csv
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -54,6 +55,13 @@ def oa_headers(url):
     ($1/day; $0.10/day without a key). Sent as a header, never in the URL, and only to api.openalex.org."""
     k = os.environ.get("OPENALEX_API_KEY", "").strip()
     return {"Authorization": "Bearer " + k} if k and urllib.parse.urlsplit(url).netloc == "api.openalex.org" else {}
+
+
+def oa_search_text(s):
+    """Blank out the characters OpenAlex search reads as syntax (checked 2026-09): `,` separates
+    filters (HTTP 400, even sent as %2C), `?` and `*` are wildcards (400 on a stemmed field),
+    `!` is NOT and `|` is OR (no error, but the query silently means something else)."""
+    return " ".join(re.sub(r"[,?*!|]", " ", s or "").split())
 
 
 def get(url, email, retries=2):
@@ -83,7 +91,7 @@ def venue(w):
 
 
 def fetch_query(query, from_year, to_year, limit, email):
-    flt = [f"title_and_abstract.search:{query}"]
+    flt = [f"title_and_abstract.search:{oa_search_text(query)}"]
     if from_year:
         flt.append(f"from_publication_date:{from_year}-01-01")
     if to_year:

@@ -2,7 +2,7 @@
 
 [![版本](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![最近更新](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![程式 MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![文件 CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**版本 `v1.9.0`**（2026-09-26）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
+**版本 `v1.9.1`**（2026-09-26）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
 **English → [README.en.md](README.en.md)**
 
@@ -299,6 +299,7 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 
 ## 版本紀錄
 
+- **v1.9.1**（2026-09-26）：`tools/refs/lit_map.py` 的主題查詢先把 OpenAlex 會當成語法的字元換成空白：逗號會把整個請求變成 HTTP 400（編成 `%2C` 也一樣），問號與星號是萬用字元、在這個欄位同樣回 400，驚嘆號與直線不報錯、卻被當成 NOT 與 OR，查詢悄悄變成另一個意思。原本輸入「speculative design, fiction」這類帶逗號的主題就查不到東西。補上對應測試。
 - **v1.9.0**（2026-09-26）：**論文照場域的語域寫，信件才照你的聲音；新增母語潤稿與乾淨終審兩個環節。**
   鐵則 5 改了。原本是「用你的母語寫時對齊你自己的文風」，現在分成兩種讀者：論文、計畫書、申請書的讀者是同領域的審稿人，稿子要讀起來像這個領域的論文，所以拿同領域已發表論文當準繩，每項語言特徵（自稱、句長與子句接法、連接詞、翻譯腔、後設論述、標點，英文另有冠詞、名詞化等句法特徵）要落在真人論文的 p10–p90 區間內；目標是區間，不是中位數。從你舊稿學來的文風只用在信件、投稿信、自述這些讀者期待「你本人」的文件。依據是語域對齊的研究：ChatGPT 產出的學術文字各項特徵的標準差普遍小於真人（Demir & Egbert 2026），一律「把名詞化改成動詞、長句全切短、禁用分號」的淨化規則，會把稿子推向那個窄分布，只有對稿子「偏多」的特徵才對。
   安裝器因此改問兩件事：能不能收一批同領域已發表的論文（完整模式 30 篇以上，最好是 2023 年以前；單一期刊有 30 篇才單獨比那一本），以及有沒有自己寫的信件或自述（選填，只給信件用）。lite 模式不必收語料，指定目標期刊的投稿須知與兩三篇範例論文，由 Claude 閱讀比對，並註明那是閱讀判斷不是量測。
