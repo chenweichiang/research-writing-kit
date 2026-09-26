@@ -100,6 +100,26 @@ def test_regress_catches_internal_word_and_banned_claim(tmp_path):
     assert "R-CORR" in rules and any(x.startswith("R6") for x in rules), rules
 
 
+def test_regress_banned_claim_is_case_insensitive(tmp_path):
+    cfg = _project(tmp_path, "# Intro\n\nFounded in 1987, the studio grew.\n")
+    r = run_tool("regress/regress.py", "--config", cfg, "--json")
+    assert "R-CORR" in {d["rule"] for d in json.loads(r.stdout)["fail"]}, r.stdout
+
+
+def test_regress_bib_keys_without_year_and_quarto_crossrefs(tmp_path):
+    cfg = _project(tmp_path, "# Intro\n\nWe used OpenCV [@opencv] and a tool [@lee2020, 12]. "
+                             "See @fig-setup and @tbl-results. Mail me at me@example.org.\n")
+    (tmp_path / "refs.bib").write_text("@software{opencv,\n  title = {OpenCV}\n}\n"
+                                       "@article{lee2020,\n  title = {T}\n}\n", encoding="utf-8")
+    d = json.loads(cfg.read_text(encoding="utf-8"))
+    d["bib_files"] = ["refs.bib"]
+    cfg.write_text(json.dumps(d), encoding="utf-8")
+    out = json.loads(run_tool("regress/regress.py", "--config", cfg, "--json").stdout)
+    bib = [x["msg"] for lvl in ("fail", "info") for x in out[lvl] if x["rule"] == "R1-BIB"]
+    # a key without a year is cited, not an orphan; @fig-/@tbl- and emails are not citations
+    assert bib == [], bib
+
+
 def test_regress_clean_project(tmp_path):
     cfg = _project(tmp_path, "# Intro\n\nThe studio was founded in 1988.\n")
     r = run_tool("regress/regress.py", "--config", cfg)

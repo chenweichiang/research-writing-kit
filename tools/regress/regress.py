@@ -170,8 +170,14 @@ def r1_citations_bibtex(ctx):
         entries |= set(re.findall(r"@\w+\s*\{\s*([^,\s]+)", fp.read_text(encoding="utf-8")))
     cited = set()
     for f in ctx.deliver_files():
-        # comments already masked; @key allows : . - _ (legal pandoc citeproc chars)
-        cited |= set(re.findall(r"@([A-Za-z][A-Za-z0-9_:.-]*\d{4}[a-z]*)", ctx.clean_text(f)))
+        # comments already masked; @key allows : . - _ (legal pandoc citeproc chars).
+        # Any pandoc key counts, not only keys with a four-digit year: a year-only pattern
+        # made keys like @opencv permanent false orphans and never caught them dangling.
+        # Not preceded by a word char, "." or "@" (skips emails). Quarto cross-references
+        # (@fig-x, @tbl-x, @sec-x ...) are not citations; widening the pattern without this
+        # exclusion produced 6 false dangling citations on a real draft.
+        cited |= set(re.findall(r"(?<![\w.@])@(?!(?:fig|tbl|sec|eq|lst|thm|lem|cor|prp|cnj|def|exm|exr|sol|rem)-)"
+                                r"([A-Za-z][\w:.-]*\w)", ctx.clean_text(f)))
     for k in sorted(cited - entries):
         ctx.rec("FAIL", "R1-BIB", f"dangling citation: body cites @{k}, bib has no such entry")
     orph = sorted(entries - cited)
@@ -367,9 +373,10 @@ def r_corrected_claims(ctx):
         return ctx.unconfigured("R-CORR", "banned_claims", "register a corrected phrase after each catch")
     for f in ctx.deliver_files():
         t = ctx.clean_text(f)
+        tl = t.lower()   # case-insensitive: an old claim at the start of a sentence is capitalized
         for bad, why in banned:
-            if bad in t:
-                i = t.index(bad)
+            if bad.lower() in tl:
+                i = tl.index(bad.lower())
                 ctx.rec("FAIL", "R-CORR", f"corrected statement '{bad}' is back — {why}",
                         f"{ctx.rel(f)}: ...{' '.join(t[max(0, i - 20):i + 24].split())}...")
 

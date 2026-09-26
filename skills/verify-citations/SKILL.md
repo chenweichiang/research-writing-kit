@@ -17,6 +17,16 @@ it ran. If you see "0 citations" on a draft that visibly has author-year referen
 that is the cause. (The same conversion also expands tables and duplicates numbers,
 which inflates the uncited-claim scan.)
 
+🔴 **Citations with a locator or prefix.** `[@feng2020, 170]`, `[@a, sec. 2.2.1]` and
+`[see @b; @c, chap. 13]` are single citations of `feng2020`, `a`, `b` and `c`. Take only
+the key after `@` and keep the locator ("170", "sec. 2.2.1") beside it: it tells you which
+page to read. An extractor that treats "feng2020, 170" as the key finds no such entry and
+skips it silently; one that splits sentences on every ". " cuts the bracket at "sec." and
+loses the marker. A real draft lost 15 of 47 cited works this way while the run still
+printed a clean count. **Reconcile before you trust the run:** the number of works you
+checked must equal the number of distinct `@key`s in the draft, and every key the draft
+cites but the `.bib` lacks is listed, never skipped.
+
 ## Iron rules
 1. **Per-clause attribution.** One sentence often carries several citations, each
    supporting a different clause ("advocates X [@a], and frames Y [@b]"). Never hand a
@@ -61,6 +71,12 @@ For each "claim + citation" pair in the draft:
 3. **Authoritative ID check:** DOI via Crossref, ISBN via OpenLibrary, to confirm the
    reference resolves to a real, correctly-described work. Entries with neither →
    OpenAlex title search, Semantic Scholar as fallback (preprints, forthcoming).
+   🔴 **Crossref: only a 404 means "DOI not found".** A timeout, an SSL error, a 429 or a
+   5xx says nothing about the DOI. Retry those (three tries with a short wait), and if
+   they still fail, report the entry as "Crossref query failed, not checked" instead of
+   as a bibliography problem. A checker that treated every exception as "not found"
+   reported 2, then 5, then 1 missing DOIs on three runs of the same `.bib`, while every
+   one of them resolved when queried directly.
    🔴 **OpenLibrary endpoints (checked 2026-09-19).** `…/api/books?bibkeys=ISBN:…`
    now returns 404 for everything while the site itself is up, so code written
    against it reports "not in OpenLibrary" for every book — a verification that
