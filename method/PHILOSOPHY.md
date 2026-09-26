@@ -55,19 +55,27 @@ spends theirs only on what's genuinely theirs, the ideas.
 Default to the first. Most authors want you to *handle it* and then react to
 something substantial, not to approve an outline first.
 
-## Why "sounds like the author" matters
+## Whose writing a paper should sound like
 
-When you write in the author's native language and you have samples of their real
-writing, match their voice. Not as flattery, because the author's voice carries
-their thinking, and generic academic prose quietly replaces the author's argument
-with the model's defaults. Preserve their sentence rhythm, their connectives,
-their register. **Passages the author wrote themselves are assets: preserve first,
-rewrite only when necessary.**
+A paper, a grant proposal or an application should read like the papers in its
+field. Its readers are reviewers of that field, and "reads like a scholar of this
+field" can be checked: compare the draft's register (self-reference, sentence
+length, linking, translationese, metadiscourse, grammar) with the range of
+same-field published papers. Two mistakes sit on either side of that target.
+Generic AI prose is narrower than human prose and converges on one profile; the
+author's personal voice, learned from their letters and notes, carries habits
+that the field's papers do not share. Neither is the field's register.
 
-Where you have no voice samples (common for a second language the author doesn't
-write themselves), don't fake a voice. Aim instead for *faithful, strong academic
-prose in the venue's register*, and, critically, give the author a way to check
-that the meaning is right (e.g. a back-translation into a language they read).
+So the voice profile has a narrower job: letters, cover letters, bios and personal
+statements, where the reader expects the person. What stays true everywhere is
+that the author's own sentences carry their thinking, and generic prose quietly
+replaces the author's argument with the model's defaults. **Passages the author
+wrote themselves are assets: preserve first, rewrite only when necessary.**
+
+In a second language the author doesn't write themselves, aim for *faithful,
+strong academic prose in the venue's register*, and, critically, give the author a
+way to check that the meaning is right (e.g. a back-translation into a language
+they read).
 
 ## Honesty is built in, not bolted on
 

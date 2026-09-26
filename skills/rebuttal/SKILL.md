@@ -44,6 +44,14 @@ Record in `rebuttal/points.tsv` (template in `tools/rebuttal/`).
 
 Deciding while you edit means drifting into accepting everything.
 
+**Who drafts the verdict table:** the named agent `clean-reviewer` (template
+`agents/clean-reviewer.md`). Adjudication is judgment work and needs the strongest model at
+the highest effort, which only an agent definition's frontmatter can pin. Give it only the
+full reviews, the manuscript, `ADJUDICATED.md` and the venue rules as file paths, and ask for
+a verdict, basis and exact location for every point. The main session then checks each
+verdict's basis and that no point is missing before Phase 3. Without subagents, draft the
+table in a separate pass that reads only those files.
+
 🔴 **The right fix for a `misread` is not to comply. It is to rewrite so it cannot be
 misread again.** If a reviewer read it wrong, the passage was probably unclear. Explain
 the intent in the letter *and* fix the passage; that persuades more than defending it.
@@ -56,6 +64,12 @@ Record every change in `rebuttal/revisions.tsv`: `point_id | location | before |
 - `DECLINE` rows use `-` for location but **must** fill `evidence`
 - If the manuscript is in git: one commit per point, message starting with the point id.
   The table can then be generated from the log.
+- **Native-polish the revised passages before writing the letter**: run `co-author`
+  Phase 5.5 on the passages this round changed (Chinese `zh-tw-native-editor`, English
+  `en-native-editor`; both return change lists only, and the main session adjudicates each
+  item). The order matters: the letter pastes the revised text, so polishing after the
+  letter leaves the letter quoting text that no longer matches the manuscript. The `after`
+  column of `revisions.tsv` holds the polished version.
 
 ## Phase 4: Write the letter
 
@@ -66,8 +80,9 @@ enough); hold your ground without fighting ("we understand this concern, but…"
 than "the reviewer has misunderstood"); never promise future work to dodge something
 you should handle now.
 
-Think in the author's language, write in the venue's. **An English letter goes through
-`paper-review` Layer 3 and a de-cadencing pass** (`agents/de-cadencing-scholar.md`,
+Think in the author's language, write in the venue's. **An English letter first goes to
+`en-native-editor`** (a letter may grow, so its self-check runs with `--allow-grow`), **then
+through `paper-review` Layer 3 and a de-cadencing pass** (`agents/de-cadencing-scholar.md`,
 file path only) before it ships. Editors read many letters and an LLM-polished
 cadence is as visible there as in the paper.
 

@@ -1,9 +1,12 @@
 # Voice Profile: <AUTHOR NAME>
 
 > Filled in by Claude from 2–4 samples of the author's *own* writing (prose they
-> actually wrote, not AI-written). Used only when writing in the author's native
-> language. Describe **observable** habits; quote real phrases as anchors. If a
-> trait can't be observed from the samples, leave it out. Don't invent a persona.
+> actually wrote, not AI-written). Used only for text where readers expect to hear the
+> author as a person: letters, cover letters, personal statements, bios. Papers, grant
+> proposals and applications follow the register of published papers in the same field
+> instead (`method/WORKFLOW.md` Phase 5 and 5.5). Describe **observable** habits; quote
+> real phrases as anchors. If a trait can't be observed from the samples, leave it out.
+> Don't invent a persona.
 
 ## Language & register
 - Primary writing language:

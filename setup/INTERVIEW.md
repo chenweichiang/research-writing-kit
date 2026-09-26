@@ -13,10 +13,26 @@
 3. **"Do you already know where you want to submit?"**
    (a journal, a conference, a funder, or "not sure yet," which is fine.)
 
-4. **"Do you have a few pieces of writing you did yourself that I could learn your
-   voice from?"** (2–4 is ideal; must be *your own* prose, not AI-written.
-   Optional. If not, I'll aim for clear, strong academic writing instead of
-   trying to sound like you.)
+4. **"Could you collect some published papers from the journals you write for?"**
+   Papers and proposals should read like the papers in your field, so I compare your
+   drafts with real published ones. (Say it plainly: these are *other people's*
+   published papers, not your own drafts.)
+   - *Full mode:* about **30 or more** papers from your field, ideally published before
+     2023 (before AI writing tools became common, so the baseline isn't already
+     drifting). **30 from one journal** lets me compare against that journal alone;
+     fewer than 30 per journal still works against the whole collection. Each paper
+     needs to be long enough to measure (roughly 1000+ Chinese characters or 800+
+     English words of body text, which any full paper is). PDFs are fine: I will turn
+     them into plain text and put them in one folder per journal. Scanned Chinese PDFs
+     need text recognition first.
+   - *Lite mode, or if that is too much today:* just name **2–3 papers** from the
+     journal you are aiming at (or send the PDFs), plus its author guidelines. I will
+     compare your drafts with them by reading.
+
+   **4b. "Do you have 2–4 pieces of your own writing, such as letters, statements or
+   bios?"** (Optional, and only for letters, cover letters, bios and personal
+   statements, where the reader expects *you*. It must be your own prose, not
+   AI-written. Papers follow the field's register instead.)
 
 5. **"How much do you want to set up today?"**
    - *"Simple, just you and me and the web, nothing to install"* (recommended to start).

@@ -1,6 +1,6 @@
 ---
 name: co-author
-description: Collaborative long-form academic writing (papers AND grant/funding proposals). Use when the author says "help me write this paper", "turn these sources into a paper", "develop this", "build the skeleton", "co-author", or wants to write a grant/funding/fellowship proposal, or needs the submission declarations (AI-use disclosure / ethics / data availability / author contributions / competing interests / pre-registration) or asks "what am I missing that should be there", or wants to **decide on a research method** ("should this be quantitative or qualitative", "how do people in my field usually design a study like this", "help me pick a method", which routes to Phase 3.0, where at least 8 comparable studies' methods are compared before deciding and a `method-decision.md` is produced), or has an existing draft to rewrite/upgrade/resubmit ("rewrite this", "it got rejected, submit elsewhere", "turn this talk/old proposal into a journal paper" → Phase 0.5). Division of labor = the author decides what to say and gives final sign-off; Claude verifies literature, researches the venue's current format and review norms, designs method / runs analysis when needed, writes the draft, and self-checks every step. Default = "write it all the way to a verified complete draft"; only build-skeleton-first when the author explicitly asks. For check-only (don't rewrite) → paper-review; for slides → a deck skill.
+description: Collaborative long-form academic writing (papers AND grant/funding proposals). Use when the author says "help me write this paper", "turn these sources into a paper", "develop this", "build the skeleton", "co-author", or wants to write a grant/funding/fellowship proposal, or needs the submission declarations (AI-use disclosure / ethics / data availability / author contributions / competing interests / pre-registration) or asks "what am I missing that should be there", or wants to **decide on a research method** ("should this be quantitative or qualitative", "how do people in my field usually design a study like this", "help me pick a method", which routes to Phase 3.0, where at least 8 comparable studies' methods are compared before deciding and a `method-decision.md` is produced), or has an existing draft to rewrite/upgrade/resubmit ("rewrite this", "it got rejected, submit elsewhere", "turn this talk/old proposal into a journal paper" → Phase 0.5), or wants a **native polish** ("this reads like a translation", "polish it like a native academic writer", "native English polish" → Phase 5.5, where editor subagents return change lists only and the main session adjudicates each item). Division of labor = the author decides what to say and gives final sign-off; Claude verifies literature, researches the venue's current format and review norms, designs method / runs analysis when needed, writes the draft, and self-checks every step. Default = "write it all the way to a verified complete draft"; only build-skeleton-first when the author explicitly asks. For check-only (don't rewrite) → paper-review; for slides → a deck skill.
 ---
 
 # co-author: collaborative paper / proposal writing
@@ -11,9 +11,12 @@ description: Collaborative long-form academic writing (papers AND grant/funding 
 
 > Author profile (filled at setup):
 > - Field: `<FIELD>`
-> - Writing language(s): `<LANGUAGE>` (native, voice-matched) / `<SECOND_LANG>` (if any, back-translated)
+> - Writing language(s): `<LANGUAGE>` (native) / `<SECOND_LANG>` (if any, back-translated)
 > - Usual venues: `<VENUES>`
-> - Voice profile: `<VOICE_PROFILE_PATH or "none, aim for venue register">`
+> - Register corpus (same-field published papers, the yardstick for papers, proposals and
+>   applications): `<ZH_CORPUS_DIR and/or CORPUS_DIR, plus the venue folder per target venue,
+>   or "none: lite comparison against 2-3 sample papers">`
+> - Voice profile (letters and personal statements only): `<VOICE_PROFILE_PATH or "none">`
 > - Mode: `<lite | full>` (which tools exist, see the project CLAUDE.md)
 
 ## Two modes (decide at intake)
@@ -33,8 +36,12 @@ description: Collaborative long-form academic writing (papers AND grant/funding 
    language; second-language output ships with an **independent back-translation**.
 4. **No third-party uploads; effect sizes + CIs.** Follow venue method rules; profile data
    first; Likert as ordinal; seeds fixed; nothing unpublished goes to third-party cloud services.
-5. **"Sounds like the author" only where sure.** Match voice in their own language
-   with real samples; otherwise aim for faithful strong academic prose.
+5. **Papers sound like the field; letters sound like the author.** Papers, grant
+   proposals and applications follow the register of same-field published papers, in
+   either language (measured with `tools/register/register_profile.py`, or compared by
+   reading sample papers in lite mode). The voice profile is only for letters, cover
+   letters, bios and personal statements, or when the author explicitly asks for their
+   own voice. Author-written passages are preserved either way.
 6. **Delivery comes with a verification report.** Citations + format + toolchain +
    `❓unverified` list. Don't hand over anything you haven't cleaned yourself.
 7. **Deliver in the venue's format from version one.** Not raw markdown.
@@ -174,8 +181,15 @@ description: Collaborative long-form academic writing (papers AND grant/funding 
   with flags; core causal nodes get load-bearing-assumptions. Save `skeleton.md` in the
   project folder. (Optional Phase 4.5 formal check for a single core causal claim.)
 - **Phase 5 (Write the full first draft):** bound to the skeleton, into the format.
-  Own language → voice-match + language toolchain. Second language → strong prose,
-  de-AI, independent back-translation for sign-off.
+  Papers, proposals and applications aim at the target field's register in either
+  language (Iron rule 5): before drafting, read a few same-venue paragraphs
+  (`tools/register/register_profile.py <draft> --lang zh|en --corpus <corpus> --venue
+  <folder> --exemplars 4`, or 2-3 sample papers in lite mode) for sentence length, how
+  clauses join and how often the field uses its usual self-reference; never copy from
+  them. The voice profile applies only to letters and personal statements. Own language →
+  language toolchain (Chinese voice_lint with `--paper` for papers, proposals and
+  applications). Second language → strong prose, de-AI, independent back-translation for
+  sign-off. Both then go through Phase 5.5.
   **The de-AI pass has two halves, and the second is the one people skip:** the style
   tools remove convergence words and cadence; `python3 tools/claims/overclaim_lint.py
   <draft>` removes *saying more than the data supports*. Run it in both language
@@ -216,13 +230,15 @@ description: Collaborative long-form academic writing (papers AND grant/funding 
   writing, which reads as more certain than the evidence supports; ③ don't
   let stock connectives ("it is worth noting that…", "furthermore…") carry
   the paragraph's framing, state the framing plainly, in your own words,
-  instead; ④ where the fingerprint tool flags heavy nominalization or a
-  sentence-final gerund clause, convert the nominalization back to a verb and
-  split the trailing "-ing" clause into its own sentence; ⑤ for Chinese
+  instead; ④ only when `biber_diag.py` reports nominalizations or sentence-final
+  gerund clauses **above** the baseline's p90, convert the nominalization back to a
+  verb and split the trailing "-ing" clause into its own sentence; inside the band,
+  leave them, and below p10 the fix runs the other way (applying the rule to a draft
+  that is already low pushes it further out of the field); ⑤ for Chinese
   drafts, check sentence length **at both ends**: a mechanical revision pass
-  over-shortens into choppy fragments about as often as it runs long, so a
-  percentile near the bottom of the distribution deserves a look too, not
-  just the top. A method with no controlled comparison yet (e.g., matching
+  over-shortens into choppy fragments about as often as it runs long, and Taiwan
+  journal papers write long sentences as a matter of course, so a percentile near the
+  bottom of the distribution deserves a look too, not just the top. A method with no controlled comparison yet (e.g., matching
   register to an exemplar paragraph from the baseline) stays a trial: measure
   before/after with the tools above, and drop it if the numbers don't
   improve.
@@ -242,6 +258,87 @@ description: Collaborative long-form academic writing (papers AND grant/funding 
   folds into the figure; before splitting or dropping a figure or table, list the
   regression rules pinned to it and decide each string's destination (load-bearing
   sentences move into the prose when a figure goes).
+- **Phase 5.5 (Native polish, both languages; after the toolchain passes, before
+  Phase 6).** After many rounds of local patching, translationese and unidiomatic
+  phrasing accumulate, and the style tools cannot see it: they measure AI fingerprints,
+  not whether the text reads like the field. "Reads like a native scholar of this field"
+  is defined as **register features inside the p10-p90 band of same-field published
+  papers** (register alignment), not a rulebook. So: measure the deviations first, fix
+  only what sits outside the band, leave in-band features alone, and send stance to the
+  author. Why this definition, and what it replaced: `method/WORKFLOW.md` Phase 5.5.
+  - **Measure:** `python3 tools/register/register_profile.py <draft> --lang zh|en
+    --corpus <corpus> --venue <folder> --lines <range> --out <tmp>/dev_<range>.md
+    [--exemplars 4 --exemplar-out <tmp>/ex.md]` (English adds `--biber-python
+    <BIBER_PYTHON>` if the Biber environment is installed). The list has four sections:
+    to fix / locked / for the author / inside the band. Each item gives the whole-draft
+    count, the amount that brings it back into the band, bounds for the editor's own
+    range, and instances. The per-feature policies (band / cap / locked / report) are at
+    the top of the script; override them with `--policy-file`.
+  - **Dispatch:** Chinese → `zh-tw-native-editor` (zh-TW addon), English →
+    `en-native-editor`. English runs **en-native-editor → de-cadencing-scholar**: fix
+    the language first, then the rhythm; the other order lets the polish undo the
+    de-cadencing. If you edit an agent definition, dispatch it from a new session (a
+    running session may keep the version it loaded at start).
+  - **Split and run in parallel:** 3-4 ranges by section, one editor each, each with
+    its own deviation list (`--lines`). **Editors return change lists only**
+    (`edits_<range>.py`, one category and reason per item) and never edit the draft;
+    parallel editors would overwrite each other.
+  - **The dispatch prompt gives** (clean context, no drafting history): the draft path,
+    the line range, the deviation list and feel-reference paths, where to write the
+    change list, the venue folder, the locked terms, the `ADJUDICATED.md` path, the
+    **word budget** `--grow-budget` (merging sentences usually saves characters;
+    restoring 進行/透過 or to-infinitives adds some, to be offset elsewhere), and who
+    the author is (someone else's draft: only the clearest deviations). Papers never
+    get the voice profile (Iron rule 5).
+  - **Feel-reference paragraphs** are optional. In the method author's small trial
+    they did not help consistently. The same trial showed the two failure modes to
+    watch during adjudication: overshooting (every 本文 in a section switched to
+    本研究, which pushes 本研究 over its own band) and joining two sentences with
+    different subjects by a comma.
+  - **Self-check gate:** `tools/register/polish_check.py --corpus <corpus> --venue
+    <folder> --grow-budget <N>`. Each editor runs it until it passes; the main session
+    then merges every list and runs it once more (`--edits` takes a comma-separated
+    list). It blocks: changed numbers, citations, comments, quoted text, math, LaTeX
+    commands, Latin words (Chinese) or locked terms; growth over budget; more contrast
+    frames, stock metadiscourse, dashes, sentence-initial 然而 or mainland terms; more
+    over-long sentences; and **register direction** (the whole draft measured before
+    and after: a high feature may not rise, a low one may not fall, an in-band one may
+    not be pushed out). Stance counts that change are reported, not blocked. The
+    prose semicolon is not blocked. `--selftest` proves it still blocks.
+  - 🔴 **The main session adjudicates every item; never accept a batch wholesale.**
+    Read each proposal in context: accept / accept rewritten / reject. Editor errors
+    seen in practice: deleting a 一項 that states a real count, reordering so that 其中
+    loses its referent, turning someone else's position into the paper's conclusion,
+    removing 被 so the subject becomes unclear, merging two different claims into one
+    sentence. **Look twice at edits that add words** (a restored 進行 or 透過, a
+    connective added while merging): does the sentence really read better, or is it
+    chasing a number? Keep only the accepted items and write them back with
+    `polish_check.py ... --apply` (it writes only if everything passes).
+  - **After write-back:** rerun `register_profile.py` (how far the deviations
+    converged), the project's regression rules (`doc-regress`), Chinese `voice_lint
+    --paper` + `zh_ai_style.py` / English `ai_style_diag.py --gate`, and rebuild the PDF
+    to check the page count. English then goes to de-cadencing and back-translation
+    (from the polished English). **After de-cadencing, run `register_profile.py`
+    again** and compare it with the post-5.5 list: splitting "both A and B", cutting
+    triads and deleting "however"-type links can push phrasal coordination or
+    transitions back out of the band; revert those edits.
+  - **Record** one entry in `ADJUDICATED.md` (baseline, out-of-band items before and
+    after, proposed and accepted counts, reasons for rewrites and rejections, the
+    "needs the author" list), so the next round knows where the draft stands.
+  - **When to rerun:** after a Phase 7 rewrite (a section or more rewritten, or many
+    review rounds), on the changed passages only; in `rebuttal`, on the revised
+    passages before the response letter is written. A few changed words do not need it.
+  - **Lite (no corpus, or no Python):** read the target journal's author guidelines
+    plus 2-3 papers from that journal that the author provides or names, and compare the
+    draft with them by reading: self-reference (本研究/本文, *we*/*this study*), sentence
+    length and how clauses join, linking words, translationese, punctuation, and for
+    English articles, transitions, nominalizations and to-infinitives. Write the
+    deviation list by hand and label it a reading, not a measurement; the editor still
+    returns a change list and the main session still adjudicates. Claim no percentiles.
+  - **Human editors still have a place:** language professionals mostly revise at
+    sentence level, while claims and argument are shaped by disciplinary peers (Lillis
+    & Curry 2006). A professional editor for an English submission, or a same-field
+    colleague reading a Chinese draft for its argument, is still worth it.
 - **Phase 6 (Whole-draft verification) (you do all of it, before the author sees it):**
   - **6-1 Citations:** re-verify every in-text citation against the PDF (`verify-citations`;
     prose drifts past what the source says). Mismatch → fix now or downgrade to `❓`.
@@ -310,21 +407,28 @@ description: Collaborative long-form academic writing (papers AND grant/funding 
        or say nothing, never imply one that doesn't exist.
     > Rule: **"the venue didn't ask" ≠ "don't write it."** AI disclosure and ethics go in
     > even when the call is silent; the rest follow `venue-notes.md`.
-  - **6-3 Language toolchain green** (per language branch; own-language drafts also pass
-    the voice gate) **and the overclaim pass adjudicated**: every
+  - **6-3 Language toolchain green** (per language branch; Chinese drafts also pass
+    voice_lint, with `--paper` for papers, proposals and applications) **and the
+    overclaim pass adjudicated**: every
     `overclaim_lint.py` candidate either kept with the evidence that carries it, or
     converged. Iterating grows overclaims back: each new paragraph brings new absolutes,
     so this reruns on every delivery, not once. English (or other second-language)
     delivery: statistical style tools staying green is necessary but not sufficient.
-    Run a **de-cadencing pass with clean context** (subagent template:
-    `agents/de-cadencing-scholar.md`; give it the file path only) to catch the rhythm
-    tics a human eye reads as "AI-polished" (its tic #6 is this same overclaim list).
-  - **6-4 Clean final review:** hand the draft to a fresh reviewer context (a subagent
-    without the drafting history, or a separate pass) **together with the project's
-    `ADJUDICATED.md`**: the list of "looks wrong, was checked, is right" decisions.
-    Clean context is the point of this review and also its cost: without the list it
-    re-raises settled questions and the author gets asked the same thing twice.
-    Instruct it: re-opening an adjudicated item requires stating new evidence.
+    After the Phase 5.5 native polish, run a **de-cadencing pass with clean context**
+    (subagent template: `agents/de-cadencing-scholar.md`; give it the file path only) to
+    catch the rhythm tics a human eye reads as "AI-polished" (its tic #6 is this same
+    overclaim list), then re-measure register as Phase 5.5 describes.
+  - **6-4 Clean final review:** dispatch the named agent `clean-reviewer` (template:
+    `agents/clean-reviewer.md`) with the draft **and the project's `ADJUDICATED.md`**:
+    the list of "looks wrong, was checked, is right" decisions. Clean context is the
+    point of this review and also its cost: without the list it re-raises settled
+    questions and the author gets asked the same thing twice. Its definition already
+    carries the common discipline (quote and locate every criticism, reopen an
+    adjudicated item only with new evidence), so the prompt gives the file paths and
+    what to focus on this round. It is a named agent because the review needs the
+    strongest model at the highest effort, and effort can only be pinned in an agent
+    definition's frontmatter, never in the Agent call. Without subagents, do a separate
+    pass that reads only the files.
   - **6-5 Verification report** (citations · format tick-list · toolchain results ·
     declarations table · `❓unverified` list) and **6-6 delivery as the formatted PDF**
     (own-language and back-translation as a pair for second-language papers).
@@ -335,8 +439,9 @@ description: Collaborative long-form academic writing (papers AND grant/funding 
   sees the old value). **A new paragraph → rerun `uncited_claims_scan.py`**: new prose
   almost always carries new uncited claims, and waivers only cover old sentences. Each
   round ends with a `## Progress` write-back (Iron rule 8: Phase 7 has the most rounds
-  and the most session breaks, so this is where drift accumulates). Finish with
-  `paper-review`.
+  and the most session breaks, so this is where drift accumulates). **After a large
+  rewrite, rerun Phase 5.5 on the changed passages**: text patched into an old draft is
+  where translationese grows back. Finish with `paper-review`.
 - **Phase 8 (After acceptance) (submission is not the end):** reviews arriving → the
   `rebuttal` skill. **Proofs** usually allow 48–72 hours and are for *errors only*.
   Substantive changes there get refused or trigger re-review; check author names and
@@ -358,8 +463,16 @@ description: Collaborative long-form academic writing (papers AND grant/funding 
   `tools/method/analysis_plan_check.py`); full rigor checklist in
   `method/RIGOR_PROCESS.md`.
 - Method/analysis: describe honestly (lite) / R · Python · Jupyter (full).
-- Language: voice profile + careful AI-tic pass (lite) / local linters + corpora (full,
-  see `setup/TOOLS.md`; Traditional-Chinese-Taiwan authors: `setup/addons/zh-tw/`).
+- Language: careful AI-tic pass, register compared against sample papers (lite) / local
+  linters + corpora (full, see `setup/TOOLS.md`; Traditional-Chinese-Taiwan authors:
+  `setup/addons/zh-tw/`). The voice profile serves letters and personal statements.
+- Native polish (Phase 5.5): agents `zh-tw-native-editor` (zh-TW addon) and
+  `en-native-editor` (change lists only) + `tools/register/register_profile.py`
+  (deviation list and feel reference; it reads `tools/zh-tw/zh_register.py`,
+  `tools/en/metadiscourse_en.py` and, if installed, `tools/en/biber_diag.py`) +
+  `tools/register/polish_check.py` (change-list self-check, register direction,
+  `--apply`).
+- Clean final review: agent `clean-reviewer`.
 - Reviews came back: `rebuttal` (point-by-point + revision table + completeness check).
 - Submission status: `tools/submissions/check_submissions.py` + one central ledger.
 - Pre-delivery scans (bundled, zero-install): `tools/refs/retraction_scan.py`,

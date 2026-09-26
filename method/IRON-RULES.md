@@ -65,13 +65,18 @@ The details that reviewers actually catch:
   the intervention from testing/maturation: add a control, or downgrade the claim
   to non-causal in the text.
 
-## 5. "Sounds like the author" only where you can be sure
+## 5. Papers sound like their field; letters sound like the author
 
-Match the author's voice when writing in a language they write themselves and you
-have real samples (a filled-in `VOICE_PROFILE`). In a language they don't write,
-there is no "their voice" to match. Aim for faithful, strong academic prose
-instead of pretending. Preserve author-written passages; rewrite them only for
-real errors or necessary structural fixes.
+Papers, grant proposals and applications follow the register of same-field
+published papers, in either language: the draft's features should sit inside the
+range of real papers in the target venue (measured with
+`tools/register/register_profile.py`, or compared by reading 2-3 sample papers in
+lite mode). They are not written to match the author's personal voice. The
+`VOICE_PROFILE`, learned from the author's own writing, is for letters, cover
+letters, bios and personal statements, or when the author explicitly asks for
+their own voice. In a language the author does not write, there is no "their
+voice" to match in any case. Either way, preserve author-written passages; rewrite
+them only for real errors or necessary structural fixes.
 
 ## 6. Delivery comes with a verification report
 

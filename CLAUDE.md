@@ -25,7 +25,8 @@
 2. The human owns the ideas and the argument; Claude finds and verifies sources,
    helps structure the argument, writes the prose, and checks its own work.
 3. Right now Claude will ask a few questions and then set up tools that fit
-   *this person's* field, language, and writing voice.
+   *this person's* field, language and target journals: papers are checked against
+   published papers in their field, and letters against their own voice.
 
 ---
 
@@ -40,8 +41,11 @@ The whole thing rests on five ideas. Read `method/PHILOSOPHY.md` and
   Claude does the finding, verifying, structuring, drafting, and self-checking.
 - **No fabricated citations, ever.** Every reference must be really fetched and
   its support direction verified. Unverifiable → mark `❓unverified`, never fake it.
-- **The author's voice is an asset.** Match the human's own writing voice when
-  writing in their native language; never sand it into generic "AI prose."
+- **Papers sound like their field; letters sound like the author.** A paper, grant
+  proposal or application is measured against the register of published papers in the
+  same field (the p10-p90 band, not the median), never sanded into generic "AI prose"
+  and never pushed into one person's idiolect. The author's own voice is kept for
+  letters, cover letters and personal statements.
 - **Honesty tooling.** Effect sizes + CIs (not just p-values), no third-party uploads,
   de-AI the prose before delivery, and a clean second pass reviews the work.
 
@@ -75,10 +79,14 @@ is in `setup/INTERVIEW.md`. Adapt it, don't read it robotically.
    differ from the language you're talking to me in right now.)
 3. **Where do you submit?** Any target venues/journals/funders you know of, or
    "not sure yet." (This drives the venue-format research later.)
-4. **Do you have 2–4 pieces of your own past writing** I could learn your voice
-   from? (Any prose *you actually wrote yourself*, not AI-written. Optional but
-   makes "sounds like you" possible. If none, we skip voice-matching and just
-   aim for clear, strong academic prose.)
+4. **Can you collect published papers from your field or target journals?** These
+   are *other people's* papers, the register baseline for papers and proposals. Full
+   mode: 30 or more (ideally published before 2023), 30 from one journal to compare
+   against that journal alone. Lite mode: name 2–3 papers from the target journal plus
+   its author guidelines. (Minimums and wording in `setup/INTERVIEW.md`.)
+   **4b. Do you have 2–4 pieces of your own writing** (letters, statements, bios) I
+   could learn your voice from? Optional, and used only for letters and personal
+   statements. It must be prose *you actually wrote yourself*, not AI-written.
 5. **How much setup do you want today?**
    - **Simple / web-only** (recommended to start): works with just Claude + the
      web, zero installs. → you'll configure the *lite* path (`setup/LITE.md`).
@@ -91,9 +99,11 @@ is in `setup/INTERVIEW.md`. Adapt it, don't read it robotically.
 If the human answers vaguely, pick sensible defaults and say what you chose.
 Do not block on perfect answers.
 
-### Phase B: Build a voice profile (only if they gave you samples)
+### Phase B: Build a voice profile (only if they gave you samples in 4b)
 
-If they provided their own writing:
+The voice profile is used for letters, cover letters, bios and personal statements.
+Papers, proposals and applications follow the field's register (Phase B2), not the
+voice profile. If they provided their own writing:
 - 🔴 **Put the samples in a dedicated `voice-samples/` folder** (in their project or
   home), holding **only their own writing**, never AI/co-authored drafts. The
   style tools' `--authored` flag points *here*, not at the project folder (a project
@@ -109,8 +119,29 @@ If they provided their own writing:
   profile is thin and will sharpen as they add writing.
 - Save it where their Claude will find it (see Phase C for location).
 
-If they gave no samples: skip. The generated skills will target "clear, strong
-academic prose in <their venue's> register" instead of "sounds like them."
+If they gave no samples: skip. Letters then aim for plain, direct prose.
+
+### Phase B2: Set up the register baseline (from their answer to Q4)
+
+- **Full mode, papers supplied:** convert each paper to plain text (`pdftotext` for
+  text PDFs; scanned Chinese PDFs need OCR such as MinerU) and keep only the body. Put
+  them in one folder per journal: `<corpus>/<journal>/*.txt`. Minimums the tools
+  enforce: 30 papers for a baseline, and 30 in a journal's folder to compare against
+  that journal alone (fewer falls back to the whole corpus, with a note); a draft
+  needs 1000+ Han characters (Chinese) or 800+ words (English) to be profiled.
+- **Corpus hygiene:** only other people's published papers, never the author's drafts
+  or AI-assisted text. Prefer papers published before 2023. Record the corpus path in
+  their CLAUDE.md (`ZH_CORPUS_DIR` for Chinese, `CORPUS_DIR` for English) and list the
+  journal folder names, so the skills and agents can pass `--venue`.
+- **English Biber features** need the optional `pybiber` setup (`setup/TOOLS.md`). If
+  it lives in its own Python environment, record that interpreter as `BIBER_PYTHON`.
+  Without it, `tools/register/register_profile.py --no-biber` still gives the
+  metadiscourse half.
+- Run `tools/register/register_profile.py --selftest` once, then one real profile on
+  an existing draft, and show the author the deviation list so they see what it does.
+- **Lite mode, or no corpus yet:** record the target journal's author-guidelines link
+  and the 2–3 sample papers they named. The skills then compare by reading
+  (`setup/LITE.md`) and must say so.
 
 ### Phase C: Generate their personalized setup
 
@@ -131,16 +162,30 @@ you write?"). Then, generate (**do not copy verbatim**) from the templates in
 
 - their **field** and **target venue(s)** (into each skill's venue/format step),
 - their **writing language** and the matching language toolchain (lite or full),
-- their **voice profile** path (or "no voice profile, aim for venue register"),
+- their **register corpus** path and journal folders (or, in lite mode, the sample
+  papers and guidelines to read), and their **voice profile** path for letters (or
+  "no voice profile"),
 - the **degraded vs full** tool references per `setup/TOOLS.md` (never reference a
   tool they haven't installed as if it exists, so gate it behind "if installed"),
-- for authors who write English or will verify citations: also adapt and install
-  the two **subagent templates** from `agents/` (into `~/.claude/agents/` or the
-  project's `.claude/agents/`, matching the skills' scope).
+- the **subagent templates** from `agents/` (into `~/.claude/agents/` or the
+  project's `.claude/agents/`, matching the skills' scope):
+  - `clean-reviewer` for everyone (the clean final review and reviewer simulation);
+  - `citation-skeptic` for anyone who verifies citations;
+  - `en-native-editor` and `de-cadencing-scholar` for authors who write English;
+  - `zh-tw-native-editor` only with the zh-TW addon.
+
+  Fill in the placeholders (`<KIT>`, `<CORPUS_DIR>`, `<ZH_CORPUS_DIR>`,
+  `<BIBER_PYTHON>`) from their setup, or point them at the author's CLAUDE.md. Each
+  template's model note asks for a capability tier; add a `model:` line to the
+  frontmatter naming the strongest model available to them, so the agent does not
+  inherit a cheaper session model. `clean-reviewer` also pins `effort:` in its
+  frontmatter because an Agent call cannot set effort; keep that line.
 
 Also write them a short **their-own CLAUDE.md** (or a section in it) that records:
-their field, language, venues, where the voice profile lives, which mode (lite/full)
-is active, **and the path where this kit is cloned** (the `KIT PATH`).
+their field, language, venues, the register corpus path (`ZH_CORPUS_DIR` /
+`CORPUS_DIR`) and its journal folder names, `BIBER_PYTHON` if set, where the voice
+profile lives, which mode (lite/full) is active, **and the path where this kit is
+cloned** (the `KIT PATH`).
 
 🔴 **Record the kit path in exactly one place (their CLAUDE.md) and nowhere else.**
 Their CLAUDE.md is auto-loaded, so their Claude always knows it. In the generated
@@ -151,7 +196,8 @@ resolve the path from CLAUDE.md at call time.
 
 Every generated skill MUST preserve the five iron ideas above. You may simplify
 wording for a non-technical author, but you may not drop: no-fabricated-citations,
-skeleton-first, effect-size+CI, data-stays-local, voice-preservation, de-AI pass
+skeleton-first, effect-size+CI, data-stays-local, field register for papers and the
+author's voice for letters, de-AI pass
 (**both halves**, convergence words *and* overclaims: an unsupported absolute is a
 substantive fault, not a stylistic one).
 
@@ -178,8 +224,8 @@ Then stop and let them try one. Offer the full-power add-ons only if they ask.
 | `method/WORKFLOW.md` | The full 8-phase pipeline, generalized, with lite/full notes. |
 | `method/ARGUMENTATION.md` | Argument *moves* as an internal diagnostic (not a menu to sprinkle). |
 | `skills/*/SKILL.md` | De-personalized skill templates to adapt per author: `co-author`, `paper-review`, `fetch-refs`, `verify-citations`, `rebuttal`, `doc-regress` (turn a caught error into a standing check that scans the whole document and blocks recurrence; rules live in the author's project), `build-pdf`. |
-| `agents/*.md` | Subagent templates: `de-cadencing-scholar` (pre-delivery English rhythm pass) and `citation-skeptic` (calibrated second review of flagged citations). Install alongside the skills for authors who write English or verify citations. Adapt, as with skills. |
-| `tools/` | Working local checkers, ready from day one. Chinese ones, `tools/refs/snowball.py`, `tools/refs/retraction_scan.py` (retraction scan, Crossref + OpenAlex), `tools/claims/uncited_claims_scan.py` (uncited quantitative/causal/superlative claims), `tools/claims/overclaim_lint.py` (bilingual overclaim scan, the second half of the de-AI pass), and `tools/regress/` (`regress.py` document-regression runner, `dead_rule_check.py` rule-set health, `rules.template.json`, `numbers-ledger.template.md`) are zero-install (stdlib); English ones need one/two free offline programs. `tools/refs/pdf_fetch.py` (layered reference-PDF retrieval; the browser layer is what clears Cloudflare publishers) is the one exception that needs installs (`pip install curl_cffi patchright`) and degrades to stdlib + open-access sources without them. See `tools/README.md`. |
+| `agents/*.md` | Subagent templates: `clean-reviewer` (clean-context final review, reviewer simulation, rebuttal verdict table), `en-native-editor` (native-English polish against the field's register, change list only), `zh-tw-native-editor` (zh-TW addon: Taiwan academic Chinese polish, change list only), `de-cadencing-scholar` (pre-delivery English rhythm pass) and `citation-skeptic` (calibrated second review of flagged citations). Adapt, as with skills. |
+| `tools/` | Working local checkers, ready from day one. Chinese ones, `tools/refs/snowball.py`, `tools/refs/retraction_scan.py` (retraction scan, Crossref + OpenAlex), `tools/claims/uncited_claims_scan.py` (uncited quantitative/causal/superlative claims), `tools/claims/overclaim_lint.py` (bilingual overclaim scan, the second half of the de-AI pass), and `tools/regress/` (`regress.py` document-regression runner, `dead_rule_check.py` rule-set health, `rules.template.json`, `numbers-ledger.template.md`), and `tools/register/` (`register_profile.py` deviation list against the field's register band, `polish_check.py` self-check for an editor's change list; the English Biber half is optional) are zero-install (stdlib); English ones need one/two free offline programs. `tools/refs/pdf_fetch.py` (layered reference-PDF retrieval; the browser layer is what clears Cloudflare publishers) is the one exception that needs installs (`pip install curl_cffi patchright`) and degrades to stdlib + open-access sources without them. See `tools/README.md`. |
 | `templates/*` | Scaffolds the author fills in (voice profile, venue notes, skeleton, voice rules). |
 | `setup/INTERVIEW.md` | Suggested interview wording. |
 | `setup/WEB.md` | On-ramp for authors who start on claude.ai: how to move them onto Claude Code. |

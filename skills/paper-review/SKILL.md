@@ -1,6 +1,6 @@
 ---
 name: paper-review
-description: Five-layer quality check for an academic draft (any language). Use when the author says "check this paper", "proofread", "catch typos", "look at this as a reviewer", "paper review", "check before I submit", asks whether the reported statistics are self-consistent / the numbers look suspicious, wants the draft checked against a reporting guideline (COREQ / SRQR / TREND / CONSORT / STROBE / PRISMA), or asks "which declarations am I missing before submitting". Reads the project's `ADJUDICATED.md` before reviewing (settled items are not re-raised). Mechanical layers run local tools when available (statistics = statcheck + scrutiny recomputation, not hand-rolled, when R is installed); semantic and logic layers are done by Claude under an anti-bias rubric. Unpublished drafts never go to third-party services.
+description: Five-layer quality check for an academic draft (any language). Use when the author says "check this paper", "proofread", "catch typos", "look at this as a reviewer", "paper review", "check before I submit", asks whether the reported statistics are self-consistent / the numbers look suspicious, wants the draft checked against a reporting guideline (COREQ / SRQR / TREND / CONSORT / STROBE / PRISMA), or asks "which declarations am I missing before submitting". Reads the project's `ADJUDICATED.md` before reviewing (settled items are not re-raised). Mechanical layers run local tools when available (statistics = statcheck + scrutiny recomputation, not hand-rolled, when R is installed); semantic and logic layers are done by Claude under an anti-bias rubric. Unpublished drafts never go to third-party services. This skill makes minimal edits only; for a rewrite-style native polish (translationese, English that does not read natural) → co-author Phase 5.5.
 ---
 
 # Paper Review: five-layer quality check
@@ -33,8 +33,10 @@ Confirm (or infer): file path; language (own / second / mixed); target venue
 - **Bundled, zero-install (Chinese drafts):** run `tools/zh-tw/zh_localize.py` (Taiwan
   terms + 台/臺) and `tools/zh-tw/zh_ai_style.py` (Chinese AI fingerprint; also reports
   the 「並非…而是」 frame density and lists sentences over 120 characters) directly.
-  They need nothing installed. For the author's voice gate, `tools/zh-tw/voice_lint.py`
-  (also flags sentence-form headings and stock closers). `tools/zh-tw/zh_gloss_scan.py`
+  They need nothing installed. For the voice gate, `tools/zh-tw/voice_lint.py`
+  (also flags sentence-form headings and stock closers; add `--paper` for papers,
+  proposals and applications, which follow the field's register rather than the
+  author's personal habits). `tools/zh-tw/zh_gloss_scan.py`
   inventories parenthetical asides of 12+ characters for the term-first-mention check
   in Layer 3.
 - **Bundled (English drafts):** `tools/en/lt_check.sh` (grammar + US/UK spelling) if
@@ -81,6 +83,10 @@ Constraints (counter LLM over-correction): **minimal edit**: change only what's
 wrong, don't rewrite or alter the author's register; output `before → after` per
 line; **never add or delete words you didn't flag**; mark uncertain ones `[?]` for the
 author; put the total edit count at the top.
+- This layer fixes errors only. Whole passages that read like a translation, sentences
+  chopped too short, or English that does not read natural need a **rewrite**: list them
+  in the report and recommend co-author Phase 5.5 native polish (`zh-tw-native-editor` /
+  `en-native-editor`), rather than rewriting here.
 
 ## Layer 3: Wording (de-AI + corpus anchoring)
 1. Flag **LLM convergence words** (empirically AI-tells): e.g. *delve, intricate,
@@ -120,9 +126,12 @@ author; put the total edit count at the top.
    **same-genre, pre-2022** published papers by other people (never the author's own
    drafts) and prints the words that carry it. **Also run the grammar layer**
    `tools/en/biber_diag.py` (dozens of Biber-style register features against the
-   baseline: flags e.g. heavy nominalization or sentence-final gerund clauses, which a
-   convergence-word scan alone misses; fix by converting the nominalization back to a
-   verb or splitting the trailing "-ing" clause into its own sentence), **the bundle
+   baseline, read by direction; `--groups <venue>` compares against the target venue.
+   It flags e.g. heavy nominalization or sentence-final gerund clauses, which a
+   convergence-word scan alone misses. Only when a feature sits **above** the baseline
+   p90, fix by converting the nominalization back to a verb or splitting the trailing
+   "-ing" clause into its own sentence; inside the band leave it alone, and below p10
+   the fix runs the other way), **the bundle
    layer** `tools/en/bundle_diag.py` (lexical bundles the draft repeats far more than
    the baseline does), and **the metadiscourse layer** `tools/en/metadiscourse_en.py`
    (Hyland stance / engagement / boosting-hedging markers against the baseline. A
@@ -145,6 +154,13 @@ author; put the total edit count at the top.
    in this layer.
 
 ## Layer 4: Logic / argument / RQ (reviewer simulation, anti-bias rubric)
+**Dispatch:** the named agent `clean-reviewer` (template `agents/clean-reviewer.md`). This
+layer is judgment work and needs the strongest model at the highest effort; effort can only
+be pinned in an agent definition's frontmatter, not in the Agent call, which is why it is a
+named agent. Give it the draft and `ADJUDICATED.md` paths plus the anti-bias instructions and
+rubric below (its definition holds only the common discipline). Without subagents, run this
+layer as a separate pass that reads only the files.
+
 **Anti-bias instructions (mandatory: LLM reviewers empirically inflate scores):**
 task = **find weaknesses**, no praise; assume you must write the reject and see if the
 author can rebut; ignore length, author/institution prestige, confident tone; **every

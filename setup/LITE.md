@@ -36,6 +36,17 @@
   round over round, not just whether any single occurrence looks fine in isolation.
   The same rule applies without the tool: fixing an overage by rewriting one shape
   into another doesn't move the total, so don't count it as progress.
+- **Register / native polish** (`method/WORKFLOW.md` Phase 5.5): without a corpus or
+  Python, the yardstick is still the field, not a rulebook. Read the target journal's
+  author guidelines and 2–3 of its papers that the author provides or names, then
+  compare the draft with them by reading: self-reference (本研究/本文; *we* / *this
+  study*), sentence length and how clauses join, linking words, translationese,
+  punctuation, and for English also articles, transitions, nominalizations and
+  to-infinitives. Write the deviations down as a short list labelled "a reading, not a
+  measurement", fix only what clearly departs from the sample papers, leave stance and
+  claim strength to the author, and adjudicate every edit as the full path does. The
+  editor agents (`agents/en-native-editor.md`, `agents/zh-tw-native-editor.md`) work
+  from that hand-written list when no measured one exists.
 - **Formatting:** Claude produces the cleanest export it can and, if there's no
   typesetting toolchain, is explicit that a final layout pass is still needed. For a
   proper PDF, a minimal Typst/Quarto install is the first upgrade worth making.
@@ -46,8 +57,9 @@
   retraction scan, the network. No install. Lite mode is not an excuse to skip them.
 
 ## The one honesty caveat in lite mode
-Lite mode can't run local statistical tests or a corpus-anchored style baseline. That's
-fine for most writing, but if the paper's contribution *is* a quantitative result, tell
+Lite mode can't run local statistical tests or a corpus-anchored style baseline, and a
+register comparison against 2–3 sample papers is a reading, not a percentile. Say which
+one the author got. That's fine for most writing, but if the paper's contribution *is* a quantitative result, tell
 the author plainly that the stats deserve the full-mode tools (or a statistician), and
 don't overstate what a by-hand check proves.
 

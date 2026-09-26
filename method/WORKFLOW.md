@@ -241,9 +241,18 @@ anti-homogenization point). Follow `venue-notes.md` for structure and format.
   substantial to react to). **Skeleton mode:** deliver section by section.
 - 🔴 **Into the format from version one; the output is a formatted document**, not
   raw markdown (Iron Rule 7).
-- **In the author's own language:** match the `VOICE_PROFILE`, then run the
-  language toolchain (lite: careful self-review against the voice profile + an
-  AI-tic pass; full: the local linters/corpora in `setup/TOOLS.md`).
+- **Register, not voice, for papers, grant proposals and applications** (Iron Rule 5):
+  aim at the register of same-field published papers in either language. Before
+  drafting, read a few paragraphs from papers in the target venue (full:
+  `tools/register/register_profile.py --exemplars` picks paragraphs near the venue
+  median; lite: 2-3 papers the author names) for sentence length, how clauses join
+  and the field's usual self-reference; never copy from them. The `VOICE_PROFILE`
+  is for letters, cover letters, bios and personal statements, or when the author
+  asks for their own voice.
+- **In the author's own language:** run the language toolchain (lite: careful
+  self-review against the sample papers + an AI-tic pass; full: the local
+  linters/corpora in `setup/TOOLS.md`, with the Chinese voice gate in `--paper`
+  mode for papers, proposals and applications).
 - **In a second language the author doesn't write:** write strong academic prose,
   de-AI it, and produce an **independent back-translation** for the author to
   sign off on.
@@ -253,6 +262,73 @@ anti-homogenization point). Follow `venue-notes.md` for structure and format.
   written, and an unsupported absolute is a substantive fault, not a stylistic one.
   Report-only: keep what the evidence carries (real 0/72 or 100% results are data),
   converge the rest.
+
+## Phase 5.5: Native polish (both languages; after the toolchain passes, before Phase 6)
+
+After many rounds of local patching, translationese and unidiomatic phrasing build
+up, and the style tools cannot see it: they measure AI fingerprints, not whether the
+text reads like the field. This phase closes that gap.
+
+**Why the yardstick is a distribution, not a rulebook.**
+- *Define "native" as "inside the field's range".* Register alignment (Demir &
+  Egbert 2026, *Applied Corpus Linguistics*) asks whether a text's linguistic
+  features occur at the rates usual for its register. Here that becomes: each
+  feature of the draft should fall inside the p10-p90 band of same-field published
+  papers. The target is the band, not the median.
+- *LLM text is narrower than human text.* Demir & Egbert report that the standard
+  deviations for the ChatGPT corpus are generally lower than for the human corpus.
+  Prescriptive "purification" rules push every sentence the same way (turn every
+  nominalization or 進行 + verb into a bare verb, split every long sentence, ban the
+  semicolon) and so move a draft toward that narrow profile, even where the field's
+  papers write otherwise. Those rules are right only for features the draft has
+  **too much** of.
+- *A polish pass that does not know where the draft deviates fixes the surface only.*
+  It corrects articles, prepositions and collocations and leaves every register
+  deviation where it was. So the editor gets a measured deviation list, and a
+  mechanical check verifies that no edit moved a feature the wrong way.
+- *"Sound more like a native speaker" is mostly a change of vocabulary.* The rewrite
+  prompted that way diversified the essays' word choice and raised their perplexity
+  (Liang et al. 2023, *Patterns*), and LLM-processed abstracts carry a surplus of style
+  words (Kobak et al. 2025, *Science Advances*). Register is not vocabulary, so lexical
+  elevation (swapping plain words for fancier ones) is banned.
+- *Language editing is sentence-level work.* Language professionals mostly revise at
+  sentence level, while claims and argument are shaped by disciplinary peers (Lillis
+  & Curry 2006, *Written Communication*). The editor subagent does the first kind of
+  work; anything touching claim strength or argument goes to the author.
+- *Eyes alone are not a reliable judge.* Reviewers in applied linguistics could not
+  reliably tell AI-written from human-written abstracts (Casal & Kessler 2023,
+  *Research Methods in Applied Linguistics*). Acceptance rests on measurement against
+  the corpus first, reading second.
+
+**Full mode** (a corpus of same-field published papers; see `setup/TOOLS.md`):
+1. Measure: `tools/register/register_profile.py` gives the deviation list per line
+   range (to fix / locked / for the author / inside the band), with bounds for each
+   range so an editor does not overshoot into the other end of the band.
+2. Dispatch one editor per range, in parallel: `agents/zh-tw-native-editor.md`
+   (zh-TW addon) or `agents/en-native-editor.md`. Editors return change lists and
+   never edit the draft. Stance and claim strength are listed for the author.
+3. Self-check: `tools/register/polish_check.py` blocks changed numbers, citations,
+   quotations and locked terms, growth past the word budget, new forbidden forms,
+   and any feature that moves away from the band (a high feature rising, a low one
+   falling, an in-band one pushed out).
+4. The main session adjudicates every item (accept / accept rewritten / reject);
+   accepted items are written back with `polish_check.py --apply`.
+5. Re-measure. For English, `de-cadencing-scholar` runs after the native editor,
+   then register is measured once more, because de-cadencing can push phrasal
+   coordination or transitions back out of the band.
+Feel-reference paragraphs from the corpus are optional: in the method author's small
+trial they did not help consistently.
+
+**Lite mode** (no corpus or no Python): read the target journal's author
+guidelines and 2-3 of its papers that the author provides or names. Compare the draft
+with them by reading, on the same dimensions the tools measure (self-reference,
+sentence length and how clauses join, linking words, translationese, punctuation;
+for English also articles, transitions, nominalizations and to-infinitives). Write
+the deviation list by hand, labelled as a reading, not a measurement. The editor
+still returns a change list, and the main session still adjudicates every item.
+
+A professional language editor for an English submission, or a same-field colleague
+reading a draft for its argument, still has a place after this phase.
 
 ## Phase 6: Whole-draft verification (before handing back, you do all of it)
 
@@ -301,12 +377,14 @@ anti-homogenization point). Follow `venue-notes.md` for structure and format.
 3. Language toolchain clean (per language) **and every overclaim candidate
    adjudicated**: kept with its evidence, or converged; this reruns every delivery,
    because each round of new prose brings new absolutes. For English, the de-cadencing
-   pass (`agents/de-cadencing-scholar.md`) after the fingerprint tools are green.
+   pass (`agents/de-cadencing-scholar.md`) after the fingerprint tools are green and
+   after the Phase 5.5 native polish, followed by a register re-measure.
 4. **A clean second-pass review** with no drafting context, reviewer's eyes, and
    hand it the project's `ADJUDICATED.md` (decisions already made, with reasons), or
    it will re-raise settled questions as discoveries. Re-opening an adjudicated item
-   requires new evidence. This is a judgement task: use the main model, don't
-   downgrade.
+   requires new evidence. This is a judgement task that needs the strongest model at
+   the highest effort. An Agent call can set the model but not the effort, so the
+   review runs as a named agent whose definition pins both (`agents/clean-reviewer.md`).
 5. Produce the **verification report** (citations / retraction & uncited scans /
    ledger reconciliation / format tick-sheet incl. declarations / toolchain /
    `❓unverified` list).
@@ -330,7 +408,9 @@ The author reads the complete draft and says what to change.
   what changed, why, what's left. Phase 7 has the most rounds and the most session
   boundaries; this is where drift accumulates (Iron Rule 8).
 - After big changes, re-run the affected checks (citations / format / and if the
-  core claim's structure changed, Phase 4.5). Finish with a full `paper-review`.
+  core claim's structure changed, Phase 4.5), and Phase 5.5 on the rewritten
+  passages: text patched into an old draft is where translationese grows back.
+  Finish with a full `paper-review`.
 
 ## Phase 8: After acceptance (submission is not the end)
 
@@ -341,7 +421,8 @@ signed off, is printed.
 → the `rebuttal` skill: split the reviews into smallest units, decide every verdict
 *before* editing, map each accepted point to a real location in the manuscript, then
 verify completeness mechanically. **Declining is legitimate**; declining without
-evidence is not, and neither is accepting something that makes the paper worse.
+evidence is not, and neither is accepting something that makes the paper worse. The
+revised passages get the Phase 5.5 native polish before the response letter quotes them.
 
 ### 8.2 Proofs
 Typically a 48–72 hour window, and **for errors only**: substantive changes at this
