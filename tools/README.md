@@ -149,7 +149,7 @@ Both have `--selftest`, which builds a synthetic corpus in a temporary folder.
 | Tool | What it does | Run |
 |------|--------------|-----|
 | `regress.py` | A regression suite for a long, repeatedly revised document: every rule is a mistake you actually made once, kept as a permanent check. Generic rules are config-driven (`rules.template.json`): dangling / orphan citations (numeric or BibTeX), personal-data patterns, internal words leaking into the delivered text, entity attribution, corrected claims that must not return, and a **numbers ledger** (R-STALE: a corrected old value comes back → FAIL; R-LEDGER: a current value is missing → WARN). Project rules go in a small Python file passed with `--extra`. | `python3 regress.py --config regress.json [--extra my_rules.py] [--json]` |
-| `dead_rule_check.py` | The false-green-light detector: traces each rule and reports any whose body barely executes (an early return because its setting is empty). "The rule is in the list" is not the same as "the rule ran". | `python3 dead_rule_check.py regress.py --config regress.json` |
+| `dead_rule_check.py` | The false-green-light detector: traces each rule and reports any that leaves through a guard `return` or barely executes its body (an early return because its setting is empty); also `r_*` functions written but never registered in `RULES` (unless listed in `RULES_DEREGISTERED`), and rules that call an undefined name. "The rule is in the list" is not the same as "the rule ran". | `python3 dead_rule_check.py regress.py --config regress.json [--extra my_rules.py]` |
 
 - Start by copying `rules.template.json` → `regress.json` and
   `numbers-ledger.template.md` → `numbers-ledger.md` next to your manuscript.

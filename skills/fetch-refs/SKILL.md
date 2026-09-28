@@ -26,6 +26,20 @@ For each reference:
    quotes it, at 67–83 % word overlap). Tiering: phrase similarity **≥ 0.85 →
    verified**; word overlap high but phrases short → **`LOW-CONFIDENCE`, kept but
    listed visibly for the author**, never silently passed; below that → rejected.
+   **Short titles need two more checks.** Phrase matching has almost no discriminating
+   power on a title of two or three words: *Annotated portfolios* (Gaver & Bowers
+   2012) was matched to a later paper whose title and body use those two words, at
+   phrase similarity 1.00, and the wrong file was filed as verified. So even at
+   ≥ 0.85, downgrade to `LOW-CONFIDENCE` and write down the reason when either fires:
+   (a) the first page prints a DOI and the bib's DOI appears nowhere in the first
+   pages (ignore template placeholders such as `10.1145/nnnnnnn.nnnnnnn`, and a bib
+   that carries an arXiv DOI for what is now a published version); (b) the title has
+   three content words or fewer and the first author's surname does not appear
+   anywhere in the first eight pages (fold diacritics first: PDF text often splits
+   them, as in `Vallg˚arda`). Measured on 504 already-collected PDFs from 15 paper
+   projects, these two downgraded only that one wrong file. A looser third check
+   (author name within the first 250 characters) misfired on 17 book covers and JSTOR
+   cover pages and was dropped.
    Honest limit: papers that cite each other share surnames and vocabulary and no
    content check catches all of them; the aim is to turn silent passes into visible
    doubt, not to claim a clean filter.
@@ -190,5 +204,9 @@ python3 tools/refs/lit_map.py --dois seeds.txt --out map.md      # a hand-picked
 
 ## Output
 A folder of named PDFs + a manifest table (obtained / OA / paywalled-missing),
-ready for `verify-citations`. Snowballing adds a ranked candidate list (or CSV); the
+ready for `verify-citations`. When reporting, give how many were obtained and, of
+those, how many are `LOW-CONFIDENCE` and how many `PREVIEW-ONLY` (list both by name,
+since each needs a human look); count the unobtained separately as `PAYWALL` /
+`CAPTCHA` / `NO-LINK`; and say how many books without a DOI are left for a manual
+ISBN search. Snowballing adds a ranked candidate list (or CSV); the
 literature map adds a co-citation ranking.

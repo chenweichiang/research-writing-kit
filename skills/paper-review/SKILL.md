@@ -25,6 +25,17 @@ most likely to do this, which is exactly why the file exists (see `doc-regress` 
 Confirm (or infer): file path; language (own / second / mixed); target venue
 (affects Layer 4 rubric); which layers to run (default all; "just typos" = layers 1–2).
 
+🔴 **Whose manuscript is it?** When the author is **reviewing someone else's
+submission** (an invitation from a journal or conference, or reviewing on a colleague's
+behalf), most venues' reviewer-confidentiality rules forbid putting the manuscript into
+an AI tool (ACM's policy, see Layer 4 item 7), and the text counts as handed to a cloud
+model the moment it enters this conversation, including sentences quoted back in a
+tool's output. Default: collect the commands for the bundled Layer 1 tools and the
+Layer 5 uncited-claim scan (all run on the author's machine) and give them to the author
+to run in their own terminal. Reading the manuscript yourself, running any tool on it
+for them, Layers 2–4 and Layer 5 item 1 happen only when the author says so for this
+review and has confirmed that the venue allows it.
+
 > Boundary: this skill **checks and does not rewrite**. "Help me look at this" =
 > paper-review; "help me fix / rewrite / resubmit" → `co-author` (Phase 0.5 onboards the
 > existing draft). If the author asks for edits mid-review, hand over rather than drift.

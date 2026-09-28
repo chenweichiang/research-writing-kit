@@ -71,6 +71,18 @@ For each "claim + citation" pair in the draft:
 3. **Authoritative ID check:** DOI via Crossref, ISBN via OpenLibrary, to confirm the
    reference resolves to a real, correctly-described work. Entries with neither →
    OpenAlex title search, Semantic Scholar as fallback (preprints, forthcoming).
+   🔴 **Clean the title before an OpenAlex search.** Five characters are query syntax
+   in `filter=title.search:`, `title_and_abstract.search:` and `search=`: a comma
+   splits the filter and the whole request fails with 400 (URL-encoding it as `%2C`
+   does not help), `?` and `*` are wildcards the field rejects with 400, and `!` and
+   `|` are NOT and OR, so "Yes! A study" silently becomes a different query. Replace
+   `, ? * ! |` with spaces; colons, apostrophes, brackets, hyphens and full-width CJK
+   punctuation are safe as they are. The same holds for this lookup as for Crossref
+   below: a 400, a timeout or a 429 from OpenAlex, or a failed Semantic Scholar call
+   (its keyless pool is often full), is "query failed, not checked", never "not found
+   in OpenAlex/S2". One paper's checker reported the same five entries as missing on
+   every run: each title held a comma or a question mark, OpenAlex answered 400, and
+   the failure was printed as "not found".
    🔴 **Crossref: only a 404 means "DOI not found".** A timeout, an SSL error, a 429 or a
    5xx says nothing about the DOI. Retry those (three tries with a short wait), and if
    they still fail, report the entry as "Crossref query failed, not checked" instead of

@@ -124,11 +124,18 @@ detector checks the project's own rule code:
 python3 tools/regress/dead_rule_check.py my_rules.py
 ```
 
-It instruments each rule and counts the lines actually executed; below ~25 % it names
-the rule as dead (an early return usually means a required setting is empty). Exit
-code 1 = at least one dead rule; suitable for CI. A rule that doesn't apply to this
-project is **removed from `RULES` with a note**, not left in place. A permanently dead
-rule trains everyone to ignore the red.
+(For the kit's own `regress.py`, point it at the script and its config:
+`dead_rule_check.py tools/regress/regress.py --config regress.json --extra my_rules.py`.)
+It traces each rule and names it dead when it leaves through a guard `return` or
+executes fewer than 25 % of its distinct lines (an early return usually means a
+required setting is empty; the line ratio alone misses a short rule whose guard is two
+lines out of eight). It also names functions called like rules (`r_*`) that were
+written but never registered in `RULES`, and rules that call a function that does not
+exist. Exit code
+1 = any of these; suitable for CI. A rule that doesn't apply to this project is
+removed from `RULES` **and recorded in `RULES_DEREGISTERED = {"rule_name": "why"}`**.
+Left in place, it prints the same red forever; removed without the record, it keeps
+being reported as unregistered. Either way everyone learns to ignore the red.
 
 Two more calibrations:
 - **Measure the anchor window; don't guess it.** An anchor 65 characters from its

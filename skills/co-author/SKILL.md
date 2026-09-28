@@ -238,10 +238,13 @@ description: Collaborative long-form academic writing (papers AND grant/funding 
   drafts, check sentence length **at both ends**: a mechanical revision pass
   over-shortens into choppy fragments about as often as it runs long, and Taiwan
   journal papers write long sentences as a matter of course, so a percentile near the
-  bottom of the distribution deserves a look too, not just the top. A method with no controlled comparison yet (e.g., matching
-  register to an exemplar paragraph from the baseline) stays a trial: measure
-  before/after with the tools above, and drop it if the numbers don't
-  improve.
+  bottom of the distribution deserves a look too, not just the top. Same-venue exemplar
+  paragraphs (Phase 5) are a reference, not a quality guarantee: no controlled
+  comparison exists for academic argumentative prose, and a small A/B inside a polishing
+  pass (deviation list alone vs. the list plus four exemplar paragraphs, one run per
+  cell) came out slightly better with exemplars in Chinese and slightly worse in
+  English. Attach them if you like; to judge whether they helped, measure before/after
+  with the tools above.
   **Register, not just tics.** A senior co-author's verdict on a proposal that had
   passed every tool was "wording and syntax not academic enough, too much text and too
   few figures". Four rules came out of it, checked before delivery in any language:

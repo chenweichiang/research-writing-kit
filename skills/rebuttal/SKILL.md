@@ -58,7 +58,9 @@ the intent in the letter *and* fix the passage; that persuades more than defendi
 
 ## Phase 3: Revise, with locations
 
-Record every change in `rebuttal/revisions.tsv`: `point_id | location | before | after`.
+Record every change in `rebuttal/revisions.tsv`: `point_id | location | evidence | before | after`
+(the columns of `tools/rebuttal/revisions.template.tsv`; `check_response.py` reads
+`evidence` for every `DECLINE`).
 
 - `location` must be findable: `S4.2, 2nd paragraph`, not "the Method section"
 - `DECLINE` rows use `-` for location but **must** fill `evidence`
