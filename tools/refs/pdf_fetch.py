@@ -717,6 +717,7 @@ class BrowserSession:
 #                institutional repository has moved or been retired. That is the direct
 #                answer to "the OA flag was true but the link is dead".
 #   OpenAIRE   — EU aggregator, keyless
+#                (Graph API V3 since 2026-09-28; the old Search API was retired 2026-05-31)
 # CORE needs a free key: https://core.ac.uk/services/api → set CORE_API_KEY
 
 def oa_headers(url):
@@ -776,65 +777,93 @@ def core_urls(doi, api_key=None):
     return out
 
 
-_PDFISH = re.compile(r"\.pdf($|[?#])|/pdf/|/epdf/|pdfdirect|/content/pdf/|type=pdf|ft_gateway"
-                     r"|fulltext.*\.pdf", re.I)
-_URL_JUNK = re.compile(r"(namespace\.openaire\.eu|openaire\.eu/schema|dblp\.org"
-                       r"|^https?://doi\.org/)", re.I)
+# A trailing `/pdf` (no extension) is Frontiers' and MDPI's direct-PDF pattern -
+# confirmed 2026-09-28: Frontiers serves `application/pdf` straight off that path.
+_PDFISH = re.compile(r"\.pdf($|[?#])|/pdf/|/pdf($|[?#])|/epdf/|pdfdirect|/content/pdf/"
+                     r"|type=pdf|ft_gateway|fulltext.*\.pdf", re.I)
+# dx.doi.org resolves exactly like doi.org (main() already follows both as a publisher
+# landing page); Graph API V3 returns a lot of urls in the dx.doi.org form (confirmed
+# 2026-09-28). scopus.com is a bibliographic index like dblp, and it sits behind a
+# sign-in wall, so handing it to the browser layer is pure waste.
+_URL_JUNK = re.compile(r"(namespace\.openaire\.eu|openaire\.eu/schema|dblp\.org|scopus\.com"
+                       r"|^https?://(dx\.)?doi\.org/)", re.I)
+OPENAIRE_API = "https://api.openaire.eu/graph/v3/research-products?pid=%s&pageSize=1"
+_OPENAIRE_CACHE = {}                      # doi -> (pdfs, landings); only successful lookups
+                                           # are cached, so a timeout is retried next time
 
 
-def _walk_urls(obj, path=""):
-    """Recurse with the JSON path. OpenAIRE's legacy JSON puts the same field
-    sometimes as an object and sometimes as a list, with the value wrapped in `$`,
-    so a fixed path misses things - but ignoring the path entirely drags in junk:
-      - `rels.rel.websiteurl` = the authors' institution home pages
-      - `instance[N].license` = publisher licence pages
-    Both are pure waste for the browser layer. So: only leaves under an `instance`
-    subtree whose path contains `.url`."""
-    if isinstance(obj, dict):
-        for k, v in obj.items():
-            yield from _walk_urls(v, f"{path}.{k}")
-    elif isinstance(obj, list):
-        for i, v in enumerate(obj):
-            yield from _walk_urls(v, f"{path}[{i}]")
-    elif isinstance(obj, str) and obj.startswith("http"):
-        if "instance" in path and ".url" in path:
-            yield obj
+def _url_names_other_doi(u, tgt):
+    """True if the url embeds a DOI other than the one we're looking for.
+
+    A url that contains the target DOI counts as this paper as long as whatever
+    follows it is not itself an alphanumeric character (i.e. not a longer DOI that
+    happens to share this one as a prefix).
+
+    🔴 Fixed 2026-09-28: the previous version matched the *whole* DOI-shaped substring,
+       including whatever path came after it, and compared that entire string against
+       the target. Frontiers' PDF link is `/articles/<doi>/pdf` - the trailing `/pdf`
+       made the match fail, so it was rejected as "another paper's DOI" and the open-
+       access PDF was silently thrown away."""
+    low = urllib.parse.unquote(u).lower()
+    i = low.find(tgt)
+    if i >= 0 and (i + len(tgt) == len(low) or not low[i + len(tgt)].isalnum()):
+        return False
+    return bool(re.search(r"10\.\d{4,9}/", low))
 
 
 def _openaire_raw(doi):
     r"""Return (direct PDF urls, landing pages), both pinned to the DOI.
 
-    🔴 Fixed 2026-09-19 - this source had been returning nothing, silently.
-       The old code ran `re.findall(r'https?://...\.pdf', raw)` over the whole JSON
-       blob. Measured against five DOIs (Wiley/ACM/SAGE/Elsevier/BJET): **zero hits
-       every time**. OpenAIRE returns instance/webresource *landing pages* (e.g. an
-       institutional repository record), which rarely end in `.pdf`. It returned an
-       empty list without raising, so nothing ever looked wrong.
-    ⇒ Parse the JSON properly, and hand the landing pages to the browser layer -
-       that is the layer that can find a PDF on a rendered page.
-    ⚠️ Pin the DOI. The biggest risk with any loose match is picking up **another
-       paper's** url; drop anything whose url embeds a different DOI."""
+    🔴 Fixed 2026-09-28: switched endpoint. OpenAIRE's old Search API
+       (`api.openaire.eu/search/publications`) was officially retired 2026-05-31
+       (see the Deprecation Notice on graph.openaire.eu/docs/apis/search-api); calling
+       it now just times out. The exception handler below swallowed that into "no
+       results", so every reference silently paid two 20-second timeouts and got
+       nothing back, and it looked like normal transient failure.
+    ⇒ Call Graph API V3 instead (OpenAIRE's own docs mark it current, replacing V1/V2).
+       Anonymous rate limit is in the thousands per hour (see the response's
+       x-ratelimit-limit header) and a call takes roughly a second.
+    ⚠️ V3's JSON is a clean, structured shape - read `results[].instances[].urls`
+       directly rather than recursing over the whole blob. Walking everything would
+       pull in V3's `organizations[].websiteurl` (an author's institution home page)
+       and `instances[].license` (a publisher licence-policy page), exactly the junk
+       an earlier fix already had to filter out of the legacy JSON.
+    ⚠️ DOI pinning happens twice: (1) drop the whole record if its `pids` list does not
+       contain the target DOI - OpenAIRE sometimes merges a book chapter and its
+       journal version into one record; (2) drop any individual url that embeds a
+       *different* DOI. Open-access instances (accessRight=OPEN) are sorted first,
+       since only the first four landing pages are kept and bibliographic-index pages
+       (DBLP, PubMed) would otherwise crowd them out."""
     if not doi:
         return ([], [])
+    tgt = doi.lower().rstrip(".")
+    if tgt in _OPENAIRE_CACHE:
+        return _OPENAIRE_CACHE[tgt]
     try:
-        req = urllib.request.Request(
-            "https://api.openaire.eu/search/publications?doi=%s&format=json&size=1"
-            % urllib.parse.quote(doi), headers={"User-Agent": UA})
+        req = urllib.request.Request(OPENAIRE_API % urllib.parse.quote(doi),
+                                     headers={"User-Agent": UA})
         raw = urllib.request.urlopen(req, timeout=20).read().decode("utf-8", "ignore")
         data = json.loads(raw)
     except Exception:
         return ([], [])
-    tgt = doi.lower().rstrip(".")
+    instances = []
+    for rec in (data.get("results") or []):
+        pids = {str(p.get("value") or "").lower().rstrip(".") for p in (rec.get("pids") or [])}
+        if tgt not in pids:
+            continue                      # the pid filter should only return this paper
+        instances += rec.get("instances") or []
+    instances.sort(key=lambda i: ((i.get("accessRight") or {}).get("label") or "").upper() != "OPEN")
     pdfs, landings = [], []
-    for u in _walk_urls(data):
-        if _URL_JUNK.search(u):
-            continue
-        m = re.search(r"10\.\d{4,9}/[^\s\"'<>]+", u)
-        if m and m.group(0).lower().rstrip(".").rstrip("/") not in tgt:
-            continue                      # url carries a different DOI - not our paper
-        (pdfs if _PDFISH.search(u) else landings).append(u)
+    for inst in instances:
+        for u in (inst.get("urls") or []):
+            if not isinstance(u, str) or not u.startswith("http") or _URL_JUNK.search(u):
+                continue
+            if _url_names_other_doi(u, tgt):
+                continue                  # url carries a different DOI - not our paper
+            (pdfs if _PDFISH.search(u) else landings).append(u)
     ded = lambda xs: list(dict.fromkeys(xs))
-    return (ded(pdfs)[:3], ded(landings)[:4])
+    _OPENAIRE_CACHE[tgt] = (ded(pdfs)[:3], ded(landings)[:4])
+    return _OPENAIRE_CACHE[tgt]
 
 
 def openaire_urls(doi):
