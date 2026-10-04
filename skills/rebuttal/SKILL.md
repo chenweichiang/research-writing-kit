@@ -1,6 +1,6 @@
 ---
 name: rebuttal
-description: Point-by-point response to reviewers, plus the revision table that backs it. Use when the author says "the reviews came back", "write a rebuttal", "respond to the reviewers", "major/minor revision", "point-by-point response", "response to reviewers", "R&R", or "revision table". The core rule is to never change something that was right just to please a reviewer, and never leave a point unanswered.
+description: Point-by-point response to reviewers, plus the revision table that backs it. Use when the author says "the reviews came back", "write a rebuttal", "respond to the reviewers", "major/minor revision", "point-by-point response", "response to reviewers", "R&R", or "revision table". When a reviewer asks how the literature was searched, the answer comes from the co-author `search-log.md`; never rerun a search after the fact and present it as the original strategy. The core rule is to never change something that was right just to please a reviewer, and never leave a point unanswered.
 ---
 
 # rebuttal: response to reviewers & revision table
@@ -55,6 +55,11 @@ table in a separate pass that reads only those files.
 🔴 **The right fix for a `misread` is not to comply. It is to rewrite so it cannot be
 misread again.** If a reviewer read it wrong, the passage was probably unclear. Explain
 the intent in the letter *and* fix the passage; that persuades more than defending it.
+
+**"How did you search the literature?"** Answer from the co-author `search-log.md`
+(databases, query strings, dates run, inclusion criteria, hits per step). If no log was
+kept, report what can be reconstructed and label it as reconstructed. Do not rerun a
+search now and present it as the original strategy.
 
 ## Phase 3: Revise, with locations
 

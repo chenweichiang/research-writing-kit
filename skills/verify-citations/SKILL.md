@@ -1,6 +1,6 @@
 ---
 name: verify-citations
-description: Check whether in-text citations are actually supported by the cited source, and in the right direction, plus authoritative DOI/ISBN checks and a retraction scan. Use when the author says "verify citations", "check the citations are right", "does this match the source", "citation check", "has anything I cite been retracted". Reads the actual source text; flags anything it can't confirm.
+description: Check whether in-text citations are actually supported by the cited source, and in the right direction, plus authoritative DOI/ISBN checks and a retraction scan. Use when the author says "verify citations", "check the citations are right", "does this match the source", "citation check", "has anything I cite been retracted", or "which numbers or claims have no citation at all" (`tools/claims/uncited_claims_scan.py`, which scans the draft only and needs no PDFs). Reads the actual source text; flags anything it can't confirm.
 ---
 
 # verify-citations: check citations against the real source
@@ -89,11 +89,15 @@ For each "claim + citation" pair in the draft:
    as a bibliography problem. A checker that treated every exception as "not found"
    reported 2, then 5, then 1 missing DOIs on three runs of the same `.bib`, while every
    one of them resolved when queried directly.
-   🔴 **OpenLibrary endpoints (checked 2026-09-19).** `…/api/books?bibkeys=ISBN:…`
-   now returns 404 for everything while the site itself is up, so code written
-   against it reports "not in OpenLibrary" for every book — a verification that
-   silently never happens. Use `https://openlibrary.org/isbn/<isbn>.json`: it is
-   exact and 404s only when the book really is absent.
+   🔴 **OpenLibrary endpoints (checked 2026-09-19, rechecked 2026-10-04).** Use
+   `https://openlibrary.org/isbn/<isbn>.json`: it is exact and 404s only when the
+   book really is absent. Do not build on `…/api/books?bibkeys=ISBN:…`. On
+   2026-09-19 it returned 404 for everything while the site itself was up, so code
+   written against it reported "not in OpenLibrary" for every book, a verification
+   that silently never happened. By 2026-10-03 it answered again, but OpenLibrary's
+   own documentation calls it a legacy endpoint that "may be phased out in the
+   future", and for a junk ISBN it returned a different edition than `/isbn/` did.
+   Whether it works today is not the test; what the documentation promises is.
    ⚠️ `search.json?q=isbn:<isbn>` is a **fuzzy** search, not a lookup: a
    nonexistent-but-valid ISBN came back with three hits, the first an unrelated
    book. If you use it to add author/year, keep only a doc whose `isbn` field

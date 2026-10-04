@@ -2,7 +2,7 @@
 
 [![版本](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![最近更新](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![程式 MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![文件 CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**版本 `v1.9.4`**（2026-09-28）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
+**版本 `v1.9.5`**（2026-10-04）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
 **English → [README.en.md](README.en.md)**
 
@@ -299,6 +299,7 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 
 ## 版本紀錄
 
+- **v1.9.5**（2026-10-04）：對齊 10/3 論文線兩項。`skills/verify-citations` 的 OpenLibrary 說明改成照實記錄：舊端點 `/api/books?bibkeys=` 9/19 一律回 404，10/3 又恢復回應，但官方文件標為 Legacy、可能淘汰，而且對髒資料 ISBN 回的版本與 `/isbn/` 不同，所以仍以 `/isbn/<isbn>.json` 為準；v1.8.0 紀錄裡「現已一律回 404」是當時的實測。co-author、paper-review、verify-citations、rebuttal 四個 skill 的 description 補上內文早已支援、卻沒寫進觸發詞的用途：短文擴成全文與會議論文轉期刊（含文字回收盤點）、交代文獻怎麼找的（`search-log.md`）、圖表色盲與黑白可讀性（`figure_a11y.py`）、沒附引用的數字與宣稱（`uncited_claims_scan.py`）、審稿人問檢索方法時以 `search-log.md` 回答而不事後重跑。co-author 的 description 原本約 1,700 字元，超過 Claude Code skill 清單每筆 1,536 字元的上限、尾段會被截掉，這次精簡到上限內；rebuttal 內文補上檢索方法的回答方式。
 - **v1.9.4**（2026-09-28）：`NOTICE.md` 引用範例裡的版本號從 v1.6.0 起就沒再改過，更正為目前版本，並加進維護端的發版對帳，之後會跟著標籤一起檢查。從這一版起，每個版本在 GitHub 也發 Release（附版本紀錄），不再只有標籤。
 - **v1.9.3**（2026-09-28）：對齊 9/26–9/28 論文線的六項方法修正，都在 skill 文件層，程式不變。`fetch-refs` 的檔案比對補上短標題的兩道檢查：片語相似度過了門檻，只要首頁印著別的 DOI，或標題只有三個以內的實詞而第一作者姓氏在前八頁完全沒出現，就降成 `LOW-CONFIDENCE` 並寫出理由（只有兩個詞的〈Annotated portfolios〉曾被標題含這兩個字的別篇接走，片語相似度還是 1.00）；回報時也要分別列出 `LOW-CONFIDENCE`、`PREVIEW-ONLY` 與三類拿不到的數目。`verify-citations` 的 OpenAlex 標題查詢同樣要先去掉逗號、問號、星號、驚嘆號與直線（v1.9.1 只修了 `lit_map.py`），OpenAlex 或 Semantic Scholar 查詢失敗要報「未能查核」，不能報成查無。`paper-review` 新增「稿件是誰的」：替期刊或研討會審別人的稿時，多數場域的審稿保密規定不允許把稿件交給 AI 工具，預設只把本機工具的指令交給使用者自己跑。`rebuttal` 修訂表的欄位說明漏了 `evidence`（範本與 `check_response.py` 都有這一欄，照說明建表的話，每一條 DECLINE 都會被判沒有依據）。`doc-regress` 的死規則說明補上從 guard return 離開、未註冊、呼叫不存在函式三種判定與 `RULES_DEREGISTERED`，與工具本身一致；`co-author` 的語感參照段落依 A/B 結果改寫成可附、非必要。README 工具表 `dead_rule_check.py` 那一列原本寫成抓「錨點文字改掉了」的規則，它實際抓的是設定為空、一進來就 return 的規則，一併更正。
 - **v1.9.2**（2026-09-28）：OpenAIRE 舊 Search API 已於 2026-05-31 官方停用，`tools/refs/pdf_fetch.py` 改走 Graph API V3。順帶修正 Frontiers 這類 `/articles/<DOI>/pdf` 網址被誤判成別篇論文而白白丟棄的問題，並讓同一篇論文只查詢一次 API（原本 PDF 直連與到達頁各打一次，浪費一半請求）。
