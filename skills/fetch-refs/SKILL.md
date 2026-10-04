@@ -1,6 +1,6 @@
 ---
 name: fetch-refs
-description: Collect the PDFs of a paper's references so they can be verified. Use when the author says "get me the reference PDFs", "collect the references", "fetch references", "pull the cited papers". Also does citation snowballing (bundled `tools/refs/snowball.py`, for "who cites this paper", "find follow-up work", "snowball the references", "forward citations") and a literature map (`tools/refs/lit_map.py`, candidate classics by co-citation within a batch of literature, not global citation count; a starting point for judgment, not a verdict, for "what are the classics in this field", "who does everyone in this area cite"). Multi-source, open-access first; verifies each PDF's content actually matches the citation before filing.
+description: Collect the PDFs of a paper's references so they can be verified. Use when the author says "get me the reference PDFs", "collect the references", "fetch references", "pull the cited papers". Also does citation snowballing (bundled `tools/refs/snowball.py`, for "who cites this paper", "find follow-up work", "snowball the references", "forward citations") and a literature map (`tools/refs/lit_map.py`, candidate classics by co-citation within a batch of literature, not global citation count; a starting point for judgment, not a verdict, for "what are the classics in this field", "who does everyone in this area cite"). Also lists what is still missing for the author to download by hand, after subtracting their own PDF library (`tools/refs/missing_refs.py`, for "what's still missing", "give me the DOIs to download"), and files what they downloaded (`tools/refs/inbox_ingest.py`, for "I downloaded them, file them", "clean up my downloads"). Multi-source, open-access first; verifies each PDF's content actually matches the citation before filing.
 ---
 
 # fetch-refs: collect reference PDFs
@@ -154,6 +154,45 @@ the author could act on.
   (700+ publisher translators), and its metadata is excellent, but `attachments` is
   always null in every output format: the server has no attachment-download capability
   at all. It is a metadata service, not a retrieval service.
+
+## The missing list and filing manual downloads (bundled, zero-install)
+
+Whatever the fetcher could not get, the author downloads by hand. The same exchange
+repeats on every project: "what's still missing?", "list the DOIs", "isn't that one
+already in my library?", a pile of publisher-named files in the downloads folder, "file
+them and clean up". Two tools fix the routine.
+
+🔴 **Subtract the author's own library before handing them a missing list.** A
+hand-written list will contain papers they already hold.
+
+```bash
+# 1) what is really missing: entries with no refs-pdf/<citekey>.pdf (or a hand-filed "NN [Author Year] Title.pdf"
+#    matching it), minus the author's library
+python3 tools/refs/missing_refs.py --bib references.bib --pdfdir refs-pdf --library ~/papers
+#    library match = year + first-author surname + title similarity (three gates);
+#    --apply copies unique library matches into refs-pdf/; ambiguous matches are listed for you, not the author
+#    writes refs-pdf/_missing.md (for the author: doi.org links, URLs, ISBNs) and _missing.tsv
+
+# 2) after the author has downloaded them (default: ~/Downloads, last 72 hours; preview first, no --apply)
+python3 tools/refs/inbox_ingest.py --bib references.bib --pdfdir refs-pdf
+#    --apply                      file each match as refs-pdf/<citekey>.pdf, log it in refs-pdf/_inbox_log.tsv
+#    --library DIR --to-library   also copy into the library as "<Surname> <Year> - <Title>.pdf" (skips duplicates by SHA-256)
+#    --clean                      move only the filed sources (and identical copies) to the Trash; needs --apply
+#    --all / --hours N            widen or narrow the download window
+```
+
+Downloads are verified like any fetched PDF (phrase match, identity doubts, preview
+flag): a file is not trusted because the author supplied it. Publisher-style file names
+and the DOI on the first page are both matched. Without `pdftotext` the content check
+is skipped and matches fall back to DOI and file name, marked unverified. Four cases are
+not filed and go back to the author: the DOI matches but the content is another item
+(supplementary file, erratum, wrong download); one file looks like two missing entries;
+a file matches no missing entry (left untouched in the downloads folder); the content
+does not match.
+
+Report: how many were filed (and how many low-confidence or preview-only), which files
+fell into each of the four not-filed cases, how many entries are still missing, how many
+were added to or skipped in the library, and how many downloads were cleaned up.
 
 ## Citation snowballing (bundled, zero-install)
 Collecting reference PDFs is *backward* (what the draft cites). The kit's

@@ -15,7 +15,12 @@
 > `tools/method/analysis_plan_check.py`, `tools/submissions/style_reaudit.py`, and the
 > `tools/regress/` pair (`regress.py`, `dead_rule_check.py`) behind the `doc-regress`
 > skill, and the native-polish pair `tools/register/register_profile.py` +
-> `tools/register/polish_check.py` (zero-install; they need the register corpus below).
+> `tools/register/polish_check.py` (zero-install; they need the register corpus below),
+> and the delivery and collaboration checks `tools/versioning/version_check.py`,
+> `tools/review/review_rounds.py`, `tools/collab/source_trace.py`,
+> `tools/refs/missing_refs.py` + `tools/refs/inbox_ingest.py` (stdlib; `pdftotext`,
+> `pdfinfo` and python-docx only for those formats). `tools/figures/figure_check.py`
+> needs PyMuPDF (`pip install pymupdf`).
 > Those rows below are marked ✅bundled. `tools/en/biber_diag.py` is the one
 > English tool needing a dedicated environment (pybiber + spaCy). See `tools/README.md`.
 
@@ -24,9 +29,12 @@
 | **Find literature** | WebSearch + Semantic Scholar / OpenAlex / Crossref | + a local full-text RAG over PDFs you hold (semantic search "which paper, which page") |
 | **Citation snowballing** (who cites X / what X cites / similar work) | ✅bundled `tools/refs/snowball.py`: Python stdlib only, free keyless APIs, works day one | (already full-strength; `--email` is optional politeness) |
 | **Fetch reference PDFs** | Open-access resolvers (Unpaywall/arXiv/author pages) | ✅bundled `tools/refs/pdf_fetch.py`, layered: OA resolvers (+ Europe PMC / CORE / OpenAIRE, which the usual four miss) → `curl_cffi` (TLS impersonation, fixes edge-403s) → **a real Chrome on a persistent profile** (`pip install curl_cffi patchright`; patchright drives your installed Chrome, no second browser downloaded). Cloudflare-fronted publishers (ACM/Wiley/SAGE/AIP/Elsevier) are reachable this way. A TLS-impersonating client alone is *not* enough. Add your institutional access (library VPN / sign-in in that profile) for subscription full texts. **Misses are classified** `PAYWALL` / `CAPTCHA` / `NO-LINK`, which is the part that actually saves you time |
+| **Missing references the author downloads by hand** | Claude lists DOIs from the `.bib`, after asking what the author already holds | ✅bundled `tools/refs/missing_refs.py` (subtracts the author's PDF library by year + surname + title before listing) + `tools/refs/inbox_ingest.py` (files the downloads as `<citekey>.pdf` after a content check, optional copy into the library, moves only filed sources to the Trash). Stdlib; content checks need `pdftotext` (poppler) |
 | **Verify citations** | Claude reads OA source, checks direction | + a multi-agent adversarial pass over a local PDF library (skeptic template: `agents/citation-skeptic.md`) |
 | **Retraction scan** (has anything I cite been retracted?) | ✅bundled `tools/refs/retraction_scan.py`: whole `.bib` against Crossref update relations + OpenAlex `is_retracted`; stdlib, needs only the network. Re-run before *every* delivery; RETRACTED hits are hand-checked (fuzzy matching misfires) | (already full-strength) |
 | **Uncited-claims scan** (quantitative / causal / superlative sentences with no citation) | ✅bundled `tools/claims/uncited_claims_scan.py`: pure regex, zero LLM, Chinese + English. Each hit: cite it, point to your own data (ledger), or soften the wording; suppress with an inline waiver that carries a reason | (already full-strength) |
+| **Figures in the typeset PDF** (numbering, captions vs references, overflow, shrunk text) | Open the PDF and check each figure by eye | ✅bundled `tools/figures/figure_check.py` (`pip install pymupdf`): numbering gaps, uncaptioned or unreferenced figures and tables, overflow past the column or page, text under 6 pt, over-shrunk rasters; writes crops for a visual pass |
+| **Versioning and co-authored drafts** | Follow `method/VERSIONING.md` and `method/COLLABORATION.md` by hand | ✅bundled `tools/versioning/version_check.py` (VERSION, CHANGELOG, delivery folder, PDF metadata, reused tags) + `tools/collab/source_trace.py` (every rewritten sentence traced back to the co-author's sources) + `tools/review/review_rounds.py` (when to stop reviewing). Stdlib; python-docx / poppler for .docx and .pdf input |
 | **Document regression** (a caught error becomes a standing check) | ✅bundled `tools/regress/regress.py` + `dead_rule_check.py`, driven by a rules file (start from `rules.template.json`) kept *in the author's project*; includes the numbers-ledger checks (stale value recurs → FAIL, current value missing from draft → WARN). Method in `skills/doc-regress` | (already full-strength) |
 | **Scanned / CJK PDF extraction** | Render pages to images and read visually (slow) | **MinerU** (`uv tool install mineru` or `pipx install mineru`): scans, CJK layouts, tables, formulas → clean markdown |
 | **Statistics / analysis** | Honest description + simple summaries | R (mixed models via `lme4`/`afex`, ordinal via `ordinal::clmm`, post-hoc via `emmeans`) / Python / a persistent Jupyter kernel. The computation runs locally. **Bayesian, three roads:** formula-expressible hierarchical regression → `brms`; evidence for the null (BF01) → `BayesFactor`; discrete latent variables, custom distributions or samplers, JAGS ports → `nimble` (Stan cannot sample discrete parameters). All three report priors + convergence |

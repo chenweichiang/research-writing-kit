@@ -2,7 +2,7 @@
 
 [![版本](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![最近更新](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![程式 MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![文件 CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**版本 `v1.9.5`**（2026-10-04）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
+**版本 `v1.10.0`**（2026-10-04）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
 **English → [README.en.md](README.en.md)**
 
@@ -84,6 +84,15 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 | **「稿裡的數字跟分析結果對得上嗎？」** | 數字帳本勾稽：每個數字回溯到產生它的運算；改數字先更帳本再改稿，回歸檢查擋舊值復發 | `/doc-regress` §3.5 |
 | **「把這篇排成投稿 PDF」「中文 PDF」** | 依場域模板排版；第二語言稿連同回譯稿成對交付 | `/build-pdf` |
 | **「投出去之前還缺哪些聲明？」** | 投稿聲明六件套：AI 使用揭露／研究倫理／資料可得性／作者貢獻／利益衝突／預註冊 | `/co-author` Phase 6-2a、`/paper-review` 第 7 項 |
+| **「交出去前全部跑一遍」** | 全套潤修：引用查驗→校對→母語潤稿→去 AI 味→去過度宣稱→在地用語→回歸→出新版號 PDF，依序跑完、最後一次回報 | `/co-author`〈全套潤修〉 |
+| **「這個期刊准不准用 AI 寫？AI 畫的圖能放嗎？」** | 各出版社生成式 AI 規定對照（附查閱日，每案重讀原文）；場域不准 AI 起草時先攤給你選，聲明照實寫 | `method/AI_DISCLOSURE.md`、`/co-author` Phase 1.5 |
+| **「這個題目值得寫成全文嗎？」** | 貢獻閘門：乾淨審稿人以該場域編輯的眼光判斷，五選一：寫全文／縮成短文或海報／換場域／先補資料／不值得寫 | `/co-author` Phase 1.5、`clean-reviewer` |
+| **「這是合作者主筆的稿，改完要對得回原稿」** | 原檔不改、改動寫成潤稿層；新稿逐句比對原稿與對方回覆，指不回來源的方法與數字標紅 | `method/COLLABORATION.md` → `tools/collab/source_trace.py` |
+| **「超頁了／字數超過」** | 先查官方怎麼算、找被釘死的邊界、各節預算、由輕到重下刀並逐刀回報；不縮圖、不拿證據換頁數 | `method/COMPRESSION.md` |
+| **「版號怎麼定？交哪一份？」** | 版號＝送出次數．內容．措辭；`VERSION` 檔是唯一來源，CHANGELOG 先寫再建置，交付資料夾只放一版 | `method/VERSIONING.md` → `tools/versioning/version_check.py` |
+| **「PDF 裡的圖表編號對不對？圖是不是縮太小？」** | 排好的 PDF 圖表機械檢查：跳號重號、正文提到卻沒圖說、超出版心或頁面、圖內字太小 | `/paper-review` 1f → `tools/figures/figure_check.py` |
+| **「還缺哪些文獻要我自己下載？」「我載好了，幫我收」** | 先扣掉你自己文獻庫已有的才列缺件；下載匣裡的 PDF 比對、驗內容、歸檔、清下載匣 | `/fetch-refs` → `tools/refs/missing_refs.py`、`inbox_ingest.py` |
+| **「還要審幾輪？是不是在原地打轉？」** | 審查輪次帳本：每輪致命與重大分新提與重提，連兩輪沒有新的就建議停審 | `/paper-review` → `tools/review/review_rounds.py` |
 
 > 預設走**最簡單的模式**：只要 Claude ＋ 網路，什麼都不用安裝。之後真的需要更強的工具
 > （本機統計、文獻庫、語言檢查）再一次加一個就好。
@@ -113,10 +122,10 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 |------|------|
 | `CLAUDE.md` | **安裝器**：你的 Claude 讀這個來訪談你、生成你的專屬設定。 |
 | `NOTICE.md` | 分享條件與第三方資料授權。 |
-| `method/` | **方法本體**七份：`PHILOSOPHY.md`（心法）、`IRON-RULES.md`（鐵則）、`WORKFLOW.md`（Phase 0 到 8 的完整流程，含 5.5 母語潤稿）、`ARGUMENTATION.md`（論證工法，內部診斷用）、`RIGOR_PROCESS.md`（從文獻到報告的十三階段嚴謹流程）、`METHOD_DECISION.md`（研究方法決策程序與報告準則）、`METHOD_CARDS.md`（38 張研究方法分析卡，含決策索引與條件警訊）。以上三份新文件目前是英文。 |
+| `method/` | **方法本體**十一份（英文）：`PHILOSOPHY.md`（心法）、`IRON-RULES.md`（鐵則）、`WORKFLOW.md`（Phase 0 到 8 的完整流程，含 5.5 母語潤稿）、`ARGUMENTATION.md`（論證工法，內部診斷用）、`RIGOR_PROCESS.md`（從文獻到報告的十三階段嚴謹流程）、`METHOD_DECISION.md`（研究方法決策程序與報告準則）、`METHOD_CARDS.md`（38 張研究方法分析卡，含決策索引與條件警訊）、`VERSIONING.md`（版號、CHANGELOG、交付資料夾）、`COLLABORATION.md`（合作者稿與多人計畫書）、`COMPRESSION.md`（超頁超字的壓縮程序）、`AI_DISCLOSURE.md`（各出版社生成式 AI 規定與聲明寫法）。 |
 | `skills/` | 七個 skill 範本（見下表）。 |
 | `agents/` | 五個 subagent 範本（見下表）。 |
-| `tools/` | 二十八支本機腳本＋共用模組＋輔助檔＋模板（見下表），說明在 `tools/README.md`。 |
+| `tools/` | 三十四支本機腳本＋共用模組＋輔助檔＋模板（見下表），說明在 `tools/README.md`。 |
 | `templates/` | 四份空白檔：`VOICE_PROFILE.template.md`（文風檔，信件與自述用）、`venue-notes.template.md`（投稿場域筆記）、`skeleton.template.md`（論證骨架）、`voice_rules.template.json`（聲音硬規則）。 |
 | `data/academic-vocab/` | 開放學術詞表：隨包兩份（`avl_core_words.tsv`、`acl_collocations.tsv`），第三份 `awl_families.tsv` 由 `tools/vocab/fetch_awl.py` 在你電腦上產生（授權不允許隨包）。投稿前檢查的用字層拿來當錨點，不是自動替換；授權見 `NOTICE.md`。 |
 | `examples/skeleton.example.md` | 一份填好的骨架範例，讓 Claude 有具體參照。 |
@@ -128,9 +137,9 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 
 | skill | 做什麼 | 會用到的工具 |
 |-------|--------|--------------|
-| `co-author` | 從無到有的協作寫作（論文與提案）：骨架→查證→寫稿→交付前關卡；也走既有稿改寫、轉投、擴寫 | 交付前掃描三支（撤稿／無引用宣稱／回歸）、`check_submissions.py`、Phase 5.5 母語潤稿（`register_profile.py`、`polish_check.py`、兩個潤稿 subagent）、`clean-reviewer` 乾淨終審 |
-| `paper-review` | 投稿前五層檢查：機械層→用字→語言→邏輯與審稿視角→交付完整性；只檢查不改稿 | 中文三支（`voice_lint.py --paper`）、`lt_check.sh`、`ai_style_diag.py`、`figure_a11y.py`、`uncited_claims_scan.py`、`overclaim_lint.py`、`clean-reviewer` 審稿模擬（第 4 層）、（選配）R `statcheck`＋`scrutiny` |
-| `fetch-refs` | 把書目的 PDF 收齊、逐篇確認內容真的相符、歸檔＋清單；含引用滾雪球 | `pdf_fetch.py`（分層取檔＋失敗分類）、`snowball.py`、線上 API |
+| `co-author` | 從無到有的協作寫作（論文與提案）：骨架→查證→寫稿→交付前關卡；也走既有稿改寫、轉投、擴寫、合作者主筆的稿；一句話「全套潤修」 | 交付前掃描三支（撤稿／無引用宣稱／回歸）、`check_submissions.py`、Phase 5.5 母語潤稿（`register_profile.py`、`polish_check.py`、兩個潤稿 subagent）、`clean-reviewer` 貢獻閘門與乾淨終審、`source_trace.py`、`figure_check.py`、`version_check.py` |
+| `paper-review` | 投稿前五層檢查：機械層→用字→語言→邏輯與審稿視角→交付完整性；只檢查不改稿；記錄每輪審查、判斷何時停審 | 中文三支（`voice_lint.py --paper`）、`zh_gloss_scan.py --en`、`lt_check.sh`、`ai_style_diag.py`、`figure_a11y.py`、`figure_check.py`、`uncited_claims_scan.py`、`overclaim_lint.py`、`review_rounds.py`、`clean-reviewer` 審稿模擬（第 4 層）、（選配）R `statcheck`＋`scrutiny` |
+| `fetch-refs` | 把書目的 PDF 收齊、逐篇確認內容真的相符、歸檔＋清單；列出要你自己下載的缺件、收下載匣；含引用滾雪球 | `pdf_fetch.py`（分層取檔＋失敗分類）、`missing_refs.py`、`inbox_ingest.py`、`snowball.py`、線上 API |
 | `verify-citations` | 逐句對照 PDF 判定引用是否被原文支撐、方向對不對；DOI 權威查驗；撤稿掃描 | `retraction_scan.py`、`citation-skeptic` 二審、（選配）MinerU |
 | `rebuttal` | 審稿回應：拆點→裁定→落實修訂→回應信→完整性驗證 | `check_response.py`＋三份模板、`clean-reviewer` 起草裁定表、修訂段落走 Phase 5.5 母語潤稿、`de-cadencing-scholar`、（選配）`latexdiff` |
 | `doc-regress` | 抓到一次錯就寫成常駐檢查；數字帳本；死規則健檢 | `regress.py`、`dead_rule_check.py`＋兩份模板 |
@@ -155,7 +164,7 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 | `zh-tw/zh_ai_style.py` | 中文 AI 句法指紋：破折號、三連並列、趨同詞、句長節奏、「並非…而是」密度、120 字以上長句清單；可對照你自己的親筆語料 | 不用 |
 | `zh-tw/voice_lint.py` | 你自己的聲音硬規則（吃 `voice_rules.json`），交稿前守門，不乾淨不放行；另掃句型標題、八股套語，並列出 AI 套話候選供人判。論文、計畫書、申請書加 `--paper`，改套範本裡的論文規則（例如不擋期刊常用的分號） | 不用 |
 | `zh-tw/zh_register.py` | 中文語域剖面：52 項特徵（自稱、翻譯腔、連接詞、後設論述、立場、標點、句長），對照你自己收的同領域期刊論文語料，給每項的 p10／中位數／p90；**這是量表不是偵測器** | 自備語料（30 篇以上） |
-| `zh-tw/zh_gloss_scan.py` | 括號夾註盤點：列出 12 字以上、非引用非指路的夾註，供你決定改定義句、保留或刪 | 不用 |
+| `zh-tw/zh_gloss_scan.py` | 括號夾註盤點：列出 12 字以上、非引用非指路的夾註，供你決定改定義句、保留或刪；`--en` 改列中文詞後的英文夾註（第二次起標「首次已給」）與正文沒括號的英文詞排行 | 不用 |
 | `zh-tw/zh_tw_terms.py` | 台灣慣用語詞表的讀取與比對模組，`zh_localize.py` 靠它；不直接執行 | — |
 | `en/lt_check.sh` | 英文文法＋美英拼字一致性（離線 LanguageTool）；有 n-gram 資料會自動加掛易混詞偵測 | `brew install languagetool pandoc` |
 | `en/lt_strip_noprose.lua` | `lt_check.sh` 用的 pandoc 濾鏡，剝掉非散文再送檢；不直接執行 | （隨 pandoc） |
@@ -167,10 +176,14 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 | `register/register_profile.py` | 母語潤稿的偏離清單（中英文）：哪些特徵落在同領域論文 p10–p90 區間外、該往哪個方向移，並依行號範圍給上下限，免得潤過頭跑到另一端 | 自備語料；英文句法層另需 `biber_diag.py` 的環境（沒有就 `--no-biber`） |
 | `register/polish_check.py` | 潤稿改動清單套進稿子之前的檢查：數字、引用、引文與鎖定術語不得變動，字數增幅不超過預算，不得新增禁用寫法，語域特徵不得往錯的方向移；全部通過才用 `--apply` 寫回。改動清單只當資料讀，不執行 | 不用 |
 | `figures/figure_a11y.py` | 圖表色覺可及性：三種色盲模擬＋灰階對比，寫出模擬圖供目檢 | `pip install numpy pillow`（PDF 另需 `pymupdf`） |
+| `figures/figure_check.py` | 排好的 PDF 圖表機械檢查：圖說編號跳號重號、正文提到的圖表有沒有圖說（跨行與複數引用都認）、圖超出版心（黃）或頁面（紅）、向量圖內字太小、點陣圖縮到字看不清（由等效 dpi 推估字級）；每張圖裁成 PNG 供目檢 | `pip install pymupdf` |
 | `refs/pdf_fetch.py` | 取檔分三層：OA 源（增補 Europe PMC／CORE／OpenAIRE）→ curl_cffi TLS 偽裝 → 真實 Chrome 持久 profile。**最後一層才是 Cloudflare 出版社（ACM／Wiley／SAGE／AIP／Elsevier）能到手的原因**，只做 TLS 偽裝不夠。拿不到的一律分類成 `PAYWALL`／`CAPTCHA`／`NO-LINK`；沒有 DOI 的條目讀 arXiv `eprint`，再不行以標題在 arXiv／OpenAlex 精確比對，只有專書才交回人工 | `pip install curl_cffi patchright`（沒裝則退回 stdlib＋OA 源） |
 | `refs/snowball.py` | 引用滾雪球：誰引用了這篇／這篇引了誰／相近研究，多種子聚合排序 | 不用（需網路） |
 | `refs/retraction_scan.py` | 撤稿掃描：`.bib` 或 DOI 清單對 Crossref 更新關係＋OpenAlex `is_retracted` 雙源查核；無 DOI 條目另列不算已掃 | 不用（需網路） |
 | `refs/lit_map.py` | 文獻地圖：一批同主題文獻**彼此共同引用**誰的排行（不是全球被引數），當「這個領域的經典」候選；結果要人工判定 | 不用（需網路） |
+| `refs/missing_refs.py` | 缺件清單：書目裡還沒有 PDF 的條目，先扣掉你自己文獻庫已有的（年份＋第一作者姓＋標題相似度三道關卡），剩下的才列 DOI／網址／ISBN 給你下載 | 不用 |
+| `refs/inbox_ingest.py` | 下載匣收件：把你手動下載的 PDF 比對缺件、驗內容、改名歸檔，可順手複製進文獻庫；只把歸檔成功的來源檔移到垃圾桶，不刪除 | 驗內容需 `pdftotext`（`brew install poppler`） |
+| `refs/refs_common.py` | 共用模組：BibTeX 解析、三道關卡比對、PDF 內容驗證，上面兩支靠它；不直接執行 | 不用 |
 | `claims/uncited_claims_scan.py` | 沒掛引用的量化／因果／最高級宣稱（`.md`／`.tex`／`.qmd`，中英通吃）；逐筆裁決後可加豁免註記 | 不用 |
 | `claims/overclaim_lint.py` | 過度宣稱候選（絕對化／程度誇大／證據強度／最高級，中英雙語詞表）；**只報不改**，每筆人判「資料撐不撐得起」 | 不用 |
 | `method/method_decision_check.py` | 方法決策備忘錄的**格式**閘門：有沒有真的比對過同類研究、每個宣稱有沒有對應的方法支撐；**不判斷方法選得對不對** | 不用 |
@@ -184,6 +197,9 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 | `submissions/check_submissions.py` | 一稿多投防護＋投稿狀態總覽（同一份稿件不得同時在兩處審查） | 不用 |
 | `submissions/style_reaudit.py` | 文風量測規則改過之後，照投稿台帳把所有進行中與審查中的稿件重量一次，避免舊稿停在舊標準 | 不用 |
 | `submissions/SUBMISSIONS.template.tsv` | 投稿狀態表模板 | — |
+| `review/review_rounds.py`、`review/review-rounds.template.tsv` | 審查輪次收斂帳本：每輪致命與重大分新提與重提，重提已裁定事項卻沒附新證據就擋；連兩輪沒有新的致命或重大就建議停審 | 不用 |
+| `collab/source_trace.py` | 合作者稿逐句溯源：改寫後的每一句能不能指回原稿、對方回覆或計畫書；指不回來源的數字、方法詞、現場事實標紅，新增的文獻主張標橘 | 不用（讀 `.docx` 需 `python-docx`、讀 PDF 需 `pdftotext`） |
+| `versioning/version_check.py` | 交付前查版號：`VERSION`、CHANGELOG 最上面一節、交付資料夾只放一版、PDF metadata 帶版號、送件版正文不印版號、已打 tag 的版號沒被重用 | 不用（查 PDF 需 poppler） |
 | `vocab/fetch_awl.py` | 從 Victoria University of Wellington 官方頁面抓 Coxhead 的 AWL 詞表，轉成 `data/academic-vocab/awl_families.tsv`（AWL 授權不得改作，所以 kit 不隨包、請你自己抓；跑一次即可） | 不用（需網路） |
 
 ---
@@ -215,7 +231,13 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 | `venue-notes.md` | `co-author` | 目標場域當年度的格式、字數、審查慣例、AI 揭露政策、預印本政策 |
 | `search-log.md` | `co-author` | 檢索留痕：用了哪些資料庫、查詢字串、日期、納入排除，審稿人問「為何漏了 X」時要答得出來 |
 | `ADJUDICATED.md` | `co-author`／`paper-review`／`doc-regress` | 已裁定事項：「看起來錯、查過、其實對」的清單，之後的檢查不重問 |
-| 文獻 PDF 資料夾＋清單檔 | `fetch-refs` | 依 `NN [作者 年] 標題.pdf` 命名；清單記找到什麼、沒找到什麼、驗證層級（verified／LOW-CONFIDENCE）、自署著作標記 |
+| 文獻 PDF 資料夾＋清單檔 | `fetch-refs` | 手動歸檔依 `NN [作者 年] 標題.pdf` 命名，`pdf_fetch.py` 與 `inbox_ingest.py` 寫成 `refs-pdf/<citekey>.pdf`；清單記找到什麼、沒找到什麼、驗證層級（verified／LOW-CONFIDENCE）、自署著作標記 |
+| `refs-pdf/_missing.md`、`_missing.tsv`、`_inbox_log.tsv` | `missing_refs.py`、`inbox_ingest.py` | 要你自己下載的缺件清單（已扣掉你的文獻庫）；下載匣收件紀錄 |
+| `VERSION`、`CHANGELOG.md`、`latest/`、`versions/vX.Y.Z/` | `co-author`（`method/VERSIONING.md`） | 版號唯一來源、每版改了什麼與依據、只放當下一版的交付資料夾、每版快照；中文專案可用 `最新交付/`、`版本/` |
+| `docs/received/YYYYMMDD-來源/` | `co-author`（`method/COLLABORATION.md`） | 合作者傳來的原檔，原名封存不改 |
+| `docs/source-trace.md` | `source_trace.py --report` | 合作者稿逐句溯源報告 |
+| `docs/review-rounds.tsv` | `paper-review` | 審查輪次帳本，`review_rounds.py` 讀它判斷是否收斂 |
+| `figures/ai-generation-log.md` | `co-author` | AI 生成圖的引擎、版本、seed、完整提示詞；圖說與聲明照它寫 |
 | `snowball.csv` | `snowball.py` | 滾雪球結果（可自訂檔名） |
 | `regress.json`、`my_rules.py`（選） | `doc-regress` | 回歸規則設定與專案自訂規則；隨稿版控 |
 | 數字帳本（照 `numbers-ledger.template.md`） | `doc-regress`／`co-author` Phase 3 | 稿中每個數字回溯到產生它的運算；重跑分析→先更帳本→再改稿 |
@@ -247,8 +269,10 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 | 程式 | 哪裡用到 | 怎麼裝 |
 |------|----------|--------|
 | **LanguageTool**＋**pandoc** | `lt_check.sh` 英文文法（`paper-review` 第 3 層） | `brew install languagetool pandoc`；n-gram 資料選配，放到 `$LT_NGRAMS` |
-| **poppler**（`pdftotext`） | `ai_style_diag.py` 讀 PDF、`verify-citations` 讀文獻 PDF | `brew install poppler` |
+| **poppler**（`pdftotext`、`pdfinfo`） | `ai_style_diag.py` 讀 PDF、`verify-citations` 讀文獻 PDF、`inbox_ingest.py` 與 `missing_refs.py` 驗內容、`source_trace.py` 讀 PDF、`version_check.py` 查 PDF | `brew install poppler` |
 | **numpy**、**Pillow**（＋**pymupdf**） | `figure_a11y.py` | `pip install numpy pillow`（PDF 圖另加 `pymupdf`） |
+| **pymupdf** | `figure_check.py` 排好的 PDF 圖表檢查 | `pip install pymupdf` |
+| **python-docx** | `source_trace.py` 讀合作者的 Word 檔 | `pip install python-docx` |
 | **MinerU** | 掃描檔／中文 PDF 抽成乾淨文字（`verify-citations`） | `uv tool install mineru` |
 | **R**＋`statcheck`、`scrutiny` | `paper-review` 第 1 層重算 p 值、GRIM 查平均數可能性（沒裝就退回手算） | 裝 R 後 `install.packages(c("statcheck","scrutiny"))` |
 | **R**＋`DeclareDesign` | `co-author` Phase 3.5 設計診斷（看 coverage 不只看 power） | `install.packages("DeclareDesign")` |
@@ -280,7 +304,7 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 
 - **present-video**（發表影片一條龍：TTS 克隆本人聲音／Whisper 聽寫驗證／本機生圖）：超出論文與提案的範圍，且每一段都要自架模型。
 - **paper-healthcheck**：檢查的是作者**本機工具鏈本身**有沒有斷、有沒有新版，不是檢查稿件；你的工具鏈長什麼樣它不知道。
-- **contradiction_scan／backfill_from_lit**（庫裡有沒有人反駁我／缺的 PDF 先從本機補）：需要本機文獻全文索引與本機 LLM 做極性判斷；`setup/TOOLS.md` 只給方向，不給實作。
+- **contradiction_scan**（庫裡有沒有人反駁我）：需要本機文獻全文索引與本機 LLM 做極性判斷；`setup/TOOLS.md` 只給方向，不給實作。「缺的 PDF 先從自己的文獻庫補」這一半自 v1.10.0 起有出貨（`missing_refs.py --library`，以檔名比對，不需要全文索引）。
 - **派工分工表**（哪一步派哪個型號的子代理）：那綁作者的訂閱方案與當下的型號版本，換一家或換一代就不成立。**判準有出貨**（哪一步是機械可降級、哪一步是判斷要用最強的，寫在各 skill 與 subagent 範本裡），型號沒有，因為你手上有哪幾級模型只有你知道。
 - **zh_term_check**（整篇術語譯名對照樂詞網）：需要樂詞網資料庫，得自己下載建庫（bring your own）；單詞查詢請你的 Claude 上網查即可。
 
@@ -299,6 +323,7 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 
 ## 版本紀錄
 
+- **v1.10.0**（2026-10-04）：對齊作者 9 月到 10 月初的論文與計畫書工作，補進十二項流程，並把文章版號規則定下來。方法層新增四份文件：`method/VERSIONING.md` 規定版號（X＝送出次數、Y＝內容、Z＝措辭）、`VERSION` 檔為唯一來源、CHANGELOG 先寫再建置、交付資料夾只放一版、送件版正文不印版號；`method/COLLABORATION.md` 處理合作者主筆的稿與多人計畫書：原檔不改、改動寫成潤稿層、每句要指得回來源、待確認事項有開、追、關、送件四段、維護歸屬表（起因是一次 AI 改寫在合作者的稿裡增添了十來處原稿沒有的內容，其中兩處是沒做過的方法程序）；`method/COMPRESSION.md` 是超頁超字的壓縮程序：先查官方怎麼算、找被釘死的邊界、各節預算、由輕到重下刀並逐刀回報，不縮圖、不拿證據換頁數；`method/AI_DISCLOSURE.md` 整理八家國際出版社 2026-10-04 查閱的生成式 AI 規定（能不能讓 AI 起草、聲明放哪、AI 生成圖的規定），並寫明對流程的影響：場域不准 AI 起草時，Phase 1.5 就攤給作者選；台灣兩個補助來源放在繁中在地化包。`method/RIGOR_PROCESS.md` 階段 11 補上人工判讀看過 AI 預標時要揭露的程序事實。新工具六支：`tools/figures/figure_check.py`（排好的 PDF 圖表編號、引用、超出版心或頁面、圖內字太小；需 PyMuPDF）、`tools/collab/source_trace.py`（合作者稿逐句溯源）、`tools/versioning/version_check.py`（交付前查版號）、`tools/review/review_rounds.py`（審查輪次收斂與停審條件）、`tools/refs/missing_refs.py` 與 `inbox_ingest.py`（先扣掉自己文獻庫的缺件清單、下載匣收件；手動歸檔的 `NN [作者 年] 標題.pdf` 也算已有）；`tools/zh-tw/zh_gloss_scan.py` 加 `--en`（中文稿裡的英文夾註與正文夾英文）；`tools/regress/regress.py` 的 R6 加 `internal_suspect`，「尚未完成」「仍待確認」這類施工進度句報 WARN。skill 層：`co-author` 加一句話觸發的「全套潤修」八關、Phase 1.5 的場域相容性與貢獻閘門（乾淨審稿人五選一：寫全文、縮成短文或海報、換場域、先補資料、不值得寫）、缺件與收件、交付前的版號與圖表檢查；`paper-review` 加輪次收斂與停審、`--en` 夾英文、內部用語掃描、1f 圖表檢查；`fetch-refs` 加缺件清單與下載匣收件；`doc-regress` 的 R6 說明補上 WARN 層。co-author 與 paper-review 的 description 重寫後各為 1,463 與 1,441 字元，在清單上限內。
 - **v1.9.5**（2026-10-04）：對齊 10/3 論文線兩項。`skills/verify-citations` 的 OpenLibrary 說明改成照實記錄：舊端點 `/api/books?bibkeys=` 9/19 一律回 404，10/3 又恢復回應，但官方文件標為 Legacy、可能淘汰，而且對髒資料 ISBN 回的版本與 `/isbn/` 不同，所以仍以 `/isbn/<isbn>.json` 為準；v1.8.0 紀錄裡「現已一律回 404」是當時的實測。co-author、paper-review、verify-citations、rebuttal 四個 skill 的 description 補上內文早已支援、卻沒寫進觸發詞的用途：短文擴成全文與會議論文轉期刊（含文字回收盤點）、交代文獻怎麼找的（`search-log.md`）、圖表色盲與黑白可讀性（`figure_a11y.py`）、沒附引用的數字與宣稱（`uncited_claims_scan.py`）、審稿人問檢索方法時以 `search-log.md` 回答而不事後重跑。co-author 的 description 原本約 1,700 字元，超過 Claude Code skill 清單每筆 1,536 字元的上限、尾段會被截掉，這次精簡到上限內；rebuttal 內文補上檢索方法的回答方式。
 - **v1.9.4**（2026-09-28）：`NOTICE.md` 引用範例裡的版本號從 v1.6.0 起就沒再改過，更正為目前版本，並加進維護端的發版對帳，之後會跟著標籤一起檢查。從這一版起，每個版本在 GitHub 也發 Release（附版本紀錄），不再只有標籤。
 - **v1.9.3**（2026-09-28）：對齊 9/26–9/28 論文線的六項方法修正，都在 skill 文件層，程式不變。`fetch-refs` 的檔案比對補上短標題的兩道檢查：片語相似度過了門檻，只要首頁印著別的 DOI，或標題只有三個以內的實詞而第一作者姓氏在前八頁完全沒出現，就降成 `LOW-CONFIDENCE` 並寫出理由（只有兩個詞的〈Annotated portfolios〉曾被標題含這兩個字的別篇接走，片語相似度還是 1.00）；回報時也要分別列出 `LOW-CONFIDENCE`、`PREVIEW-ONLY` 與三類拿不到的數目。`verify-citations` 的 OpenAlex 標題查詢同樣要先去掉逗號、問號、星號、驚嘆號與直線（v1.9.1 只修了 `lit_map.py`），OpenAlex 或 Semantic Scholar 查詢失敗要報「未能查核」，不能報成查無。`paper-review` 新增「稿件是誰的」：替期刊或研討會審別人的稿時，多數場域的審稿保密規定不允許把稿件交給 AI 工具，預設只把本機工具的指令交給使用者自己跑。`rebuttal` 修訂表的欄位說明漏了 `evidence`（範本與 `check_response.py` 都有這一欄，照說明建表的話，每一條 DECLINE 都會被判沒有依據）。`doc-regress` 的死規則說明補上從 guard return 離開、未註冊、呼叫不存在函式三種判定與 `RULES_DEREGISTERED`，與工具本身一致；`co-author` 的語感參照段落依 A/B 結果改寫成可附、非必要。README 工具表 `dead_rule_check.py` 那一列原本寫成抓「錨點文字改掉了」的規則，它實際抓的是設定為空、一進來就 return 的規則，一併更正。

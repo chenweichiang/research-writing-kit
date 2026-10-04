@@ -15,7 +15,7 @@ out of the box. The English tools need one or two free offline programs.
 | `zh-tw/` | `zh_localize.py` | mainland-vs-Taiwan terms + 台/臺 consistency |
 | `zh-tw/` | `zh_ai_style.py` | Chinese AI syntax fingerprint (+ contrast-sentence total, long-sentence list) |
 | `zh-tw/` | `voice_lint.py` | your own voice rules as a hard gate (+ heading scan, stock closers, AI-phrase candidates) |
-| `zh-tw/` | `zh_gloss_scan.py` | parenthetical asides to turn into definitions, keep, or cut |
+| `zh-tw/` | `zh_gloss_scan.py` | parenthetical asides to turn into definitions, keep, or cut; `--en`: English glosses and bare English words in Chinese prose |
 | `zh-tw/` | `zh_register.py` | Chinese register profile: 52 features (self-reference, translationese, linking, metadiscourse, stance, punctuation, sentence length) vs same-field Taiwan journal papers |
 | `register/` | `register_profile.py` | native-polish deviation list: which features sit outside the field's p10–p90 band, which way to move them, with bounds per line range (zh + en) |
 | `register/` | `polish_check.py` | checks an editor's change list before it touches the draft: invariants, word budget, forbidden forms, register direction; `--apply` writes back only when all pass |
@@ -25,6 +25,8 @@ out of the box. The English tools need one or two free offline programs.
 | `refs/` | `retraction_scan.py` | has anything you cite been retracted (Crossref + OpenAlex) |
 | `refs/` | `pdf_fetch.py` | fetch reference PDFs: OA resolvers → TLS impersonation → real browser (needs `curl_cffi`, `patchright`) |
 | `refs/` | `lit_map.py` | candidate classics by co-citation within a literature batch (not global citation count) |
+| `refs/` | `missing_refs.py` | the reference PDFs still to download by hand (DOI / URL / ISBN links), after subtracting your own PDF library |
+| `refs/` | `inbox_ingest.py` | files the PDFs you downloaded by hand: matches them to missing entries, verifies content, names them `<citekey>.pdf`, tidies the downloads folder |
 | `method/` | `method_decision_check.py` | format gate for `method-decision.md` (English or zh-TW template) |
 | `method/` | `analysis_plan_check.py` | format + timing gate for `analysis-plan.md`; `--phase6` checks deviations were recorded |
 | `method/` | `tea_second_opinion.py` | second opinion on which classic statistical test fits (wraps Tea; optional install) |
@@ -33,7 +35,11 @@ out of the box. The English tools need one or two free offline programs.
 | `rebuttal/` | `check_response.py` | response-to-reviewers completeness |
 | `submissions/` | `check_submissions.py` | duplicate-submission guard |
 | `submissions/` | `style_reaudit.py` | re-run style/de-AI measurement on every drafting/under-review manuscript after a rule change |
+| `review/` | `review_rounds.py` | review-round ledger: new vs repeated fatal/major findings, re-raised adjudicated items without new evidence, when to stop reviewing |
+| `collab/` | `source_trace.py` | does every sentence of a rewritten co-authored draft trace back to the original, the co-author's replies or the proposal |
+| `versioning/` | `version_check.py` | pre-delivery version check: `VERSION`, CHANGELOG, one-version delivery folder, PDF metadata, no version in the submitted text, no reused tag |
 | `figures/` | `figure_a11y.py` | colour-vision accessibility of figures |
+| `figures/` | `figure_check.py` | figures and tables in the typeset PDF: numbering, captions vs in-text references, overflow past the column or page, text shrunk too small (needs PyMuPDF) |
 | `en/` | `lt_check.sh`, `ai_style_diag.py` | English grammar pass; English AI fingerprint vs your field (+ LLM convergence-word density, list in `en_slop_terms.tsv`) |
 | `en/` | `biber_diag.py` | grammatical-register check, Biber-style features vs your field, read by direction; `--groups` for one venue, `--json` (needs pybiber + spaCy, dedicated env) |
 | `en/` | `bundle_diag.py` | lexical bundles the draft over-uses relative to your field corpus |
@@ -47,7 +53,7 @@ out of the box. The English tools need one or two free offline programs.
 | `zh_ai_style.py` | Chinese AI syntax fingerprint: em-dash/semicolon/rule-of-three density, convergence words, sentence burstiness (heuristic); density of the 「並非…而是」 not-X-but-Y frame (≥0.6/k → review each); every sentence over 120 Han characters listed (enumerations exempt). | `python3 zh_ai_style.py draft.md` |
 | `voice_lint.py` | Mechanically enforces YOUR voice rules (config-driven). Exits non-zero until clean. Use as a pre-delivery gate. Four rule kinds: `hard` (counted), `soft` (density), `report` (listed, never counted: default AI stock phrases), `headings` (one regex over Markdown/Typst heading lines; sentence-form or question titles are flagged, rewrite as noun phrases). `--paper` for papers, proposals and applications: drops the rules that are personal habit but common in journal papers (semicolon, 乃/則是/抑或), reports 綜上所述/整體而言 instead of counting them, and keeps the general-quality rules; the rules file's `paper` section controls it. | `python3 voice_lint.py draft.md [--rules voice_rules.json] [--paper]` |
 | `zh_register.py` | Register profile of a Chinese draft against a corpus of same-field published papers you assemble: 52 features, 49 of them rates per 1000 Han characters (本研究/本文, 進行, 透過, 具有, 的/之, linking words, metadiscourse, stance, 「；」「：」, dashes, contrast frames) plus sentence and clause length, each with the corpus p10/median/p90 and the draft's percentile. Quotations in 「」 are not counted. Descriptive only; which way to fix is `tools/register/register_profile.py`'s job. Needs ≥30 papers (`<corpus>/<venue>/*.txt`); a `--venue` with ≥30 papers is used on its own. | `python3 zh_register.py draft.md --corpus <dir> [--venue J] [--json]` |
-| `zh_gloss_scan.py` | Lists every full-width parenthetical of 12+ characters that is not a citation or a cross-reference. Decide each: plain-language note → a defining sentence at first mention, in place; specification list → keep; restatement → cut. Do not collect them into a glossary. Report-only. | `python3 zh_gloss_scan.py draft.md [--min 12]` |
+| `zh_gloss_scan.py` | Lists every full-width parenthetical of 12+ characters that is not a citation or a cross-reference. Decide each: plain-language note → a defining sentence at first mention, in place; specification list → keep; restatement → cut. Do not collect them into a glossary. `--en` lists instead (1) English glosses after Chinese terms, grouped, the first occurrence for a human to judge and every later one flagged as already glossed (those are almost always cut), and (2) bare English words in Chinese prose ranked by frequency, lowercase words first (proper nouns, model and software names may stay; the rest usually becomes Chinese). Code, tables, headings, citations, URLs, front matter and the reference list are skipped. Report-only. | `python3 zh_gloss_scan.py draft.md [--min 12 \| --en]` |
 
 - `zh_ai_style.py` gets sharper if you point `--authored <folder>` at a folder of your
   own `.txt` writing, then words *you* genuinely use aren't flagged as AI tells.
@@ -144,6 +150,32 @@ Both have `--selftest`, which builds a synthetic corpus in a temporary folder.
 - Never change a `manuscript_id` when you retarget to another venue; that id is what
   makes the guard work. Rows marked `unknown` provide **no** protection.
 
+## Review rounds (`tools/review/`): zero installs
+
+| Tool | What it does | Run |
+|------|--------------|-----|
+| `review_rounds.py` | A ledger of every fatal and major finding per review round (`docs/review-rounds.tsv`, one row each; template `review-rounds.template.tsv`). `repeat_of` blank = new, or the id it repeats (an earlier round's id or an `ADJUDICATED.md` `A` number). Prints new vs repeated counts per round; re-raising an adjudicated or `declined` item without new evidence in `note` is an error (exit 1); **two consecutive rounds with no new fatal and no new major = recommend stopping**. `--suggest` lists "new" findings whose summary resembles an earlier one. Dispositions: `fixed` / `declined` / `pending` / `withdrawn` (Chinese aliases accepted). | `python3 review_rounds.py docs/review-rounds.tsv [--adjudicated ADJUDICATED.md] [--suggest] [--json]` |
+
+- A reviewer simulation always finds something. Without the ledger a review has no end,
+  and the author gets asked about the same settled point in new words every round.
+
+## Co-authored manuscripts (`tools/collab/`): zero installs (python-docx / pdftotext for those formats)
+
+| Tool | What it does | Run |
+|------|--------------|-----|
+| `source_trace.py` | Sentence by sentence, can each sentence of a rewritten draft be traced back to the sources (original manuscript, the co-author's replies, the proposal, analysis reports)? Coverage by character bigrams (Chinese) or words (English) against the best-matching source sentence, with a neighbour window for split and merged sentences: traced ≥ 0.70, rewritten 0.40–0.70, untraced < 0.40. 🔴 = untraced and about the study itself (numbers, method words, course / students / site facts), or a number found in no source, or a rewrite carrying in a 12+ character span with a method word or number the source lacks; 🟠 = an untraced literature claim (send it to citation verification); 🟡 = other untraced lines (usually connectives; still check that they add no claim). Reads `.md .txt .typ .tex`, `.docx` (python-docx), `.pdf` (pdftotext). `--gate` exits 1 on any 🔴. | `python3 source_trace.py --orig original.docx replies.md proposal.pdf --draft new.docx [--report out.md] [--gate]` |
+
+- It exists because an AI rewrite of a co-author's paper added a dozen statements the
+  original never made, two of them claims about procedures never carried out. "Traced"
+  measures overlapping wording, not identical meaning: the rewritten and 🟡 lines still
+  need a human eye. Method: `method/COLLABORATION.md`.
+
+## Versioning (`tools/versioning/`): zero installs (pdfinfo / pdftotext for PDF checks)
+
+| Tool | What it does | Run |
+|------|--------------|-----|
+| `version_check.py` | Checks the rules in `method/VERSIONING.md` before a delivery: `VERSION` holds a valid `X.Y.Z` (two-part legacy numbers warn); the topmost CHANGELOG section carries the same number; the delivery folder (`latest/`, or `最新交付/`) holds exactly one version and it is `VERSION`; delivered PDFs carry the number in their metadata; a `--submission` PDF has no version string or review-copy footer in its text; `VERSION` was not already tagged with changes after the tag (a delivered number being reused). Exit 1 on any FAIL. | `python3 version_check.py <project dir> [--latest latest] [--submission submission.pdf ...] [--json]` |
+
 ## Regression suite (`tools/regress/`): zero installs
 
 | Tool | What it does | Run |
@@ -163,11 +195,12 @@ Both have `--selftest`, which builds a synthetic corpus in a temporary folder.
 - After writing a rule, inject the error back once and confirm it rings; then run
   `dead_rule_check.py`. A check that never fires is worse than no check.
 
-## Figures (`tools/figures/`): needs numpy + Pillow
+## Figures (`tools/figures/`): needs numpy + Pillow (`figure_check.py`: PyMuPDF)
 
 | Tool | What it does | Run |
 |------|--------------|-----|
 | `figure_a11y.py` | Colour-vision accessibility: simulates three CVD types plus greyscale, flags colour pairs that collapse, and writes the simulated images for you to look at. | `python3 figure_a11y.py figures/*.png` |
+| `figure_check.py` | Mechanical check of figures and tables in a **typeset PDF**: caption numbering (gaps, duplicates), every figure/table mentioned in the text and every mention captioned (references are matched across line breaks, plural forms such as "Figures 1, 2, and 5" are expanded, appendix tables are kept apart), vector figures and images running past the text column (🟡) or off the page (🔴) (white margins inside an image and clipped vector patterns do not count), text in vector figures under `--min-pt`, and rasters shrunk until their text is unreadable (font size estimated from the effective dpi, assuming the figure was drawn for 300 dpi). Writes a cropped PNG of every figure plus `_review_checklist.md` for a visual pass. Chinese (圖／表) and English captions. Exit 1 = some 🔴, 2 = PyMuPDF missing. | `python3 figure_check.py paper.pdf [--out figcheck/] [--min-pt 6] [--min-dpi 200] [--json]` |
 
 - Journals are mostly printed in black and white and ~8% of men have a red-green colour
   vision deficiency; a figure separating series by hue alone fails for both. This shows
@@ -175,6 +208,11 @@ Both have `--selftest`, which builds a synthetic corpus in a temporary folder.
 - 🔴 **Open the simulated images.** "These two collapse" is reliable; "this figure is
   fine" is not a guarantee. The simulation is a linear approximation, not a model of
   vision. Add `pymupdf` if you want to check PDF figures.
+- `figure_check.py` exists because a figure shrunk to save a page ended up with ~3 pt
+  axis labels and nobody noticed until the author did. Run it after every compression
+  (`method/COMPRESSION.md`) and before every delivery. In a review copy, comment markers
+  create reference noise; judge on the submission build. The font-size estimate for
+  raster figures is an estimate: look at the crops.
 
 ## References (`tools/refs/`): zero installs
 
@@ -184,6 +222,8 @@ Both have `--selftest`, which builds a synthetic corpus in a temporary folder.
 | `pdf_fetch.py` | Fetch reference PDFs in three layers (bib entries without a DOI are read from `eprint`/arXiv URLs, then resolved by **exact** title match on arXiv → OpenAlex, throttled; only books/chapters come back as `MANUAL`): open-access resolvers (adds Europe PMC / CORE / OpenAIRE) → `curl_cffi` TLS impersonation → a real Chrome on a persistent profile, which is what actually clears Cloudflare at ACM/Wiley/SAGE/AIP/Elsevier (TLS impersonation alone does not). Misses are tagged `PAYWALL` / `CAPTCHA` / `NO-LINK` so you know which are worth another five minutes. **Not stdlib**: `pip install curl_cffi patchright`; without them it degrades to urllib + OA sources and says so. Only fetches what you are entitled to. | `python3 pdf_fetch.py --bib references.bib --out refs-pdf` |
 | `retraction_scan.py` | Retraction check for everything you cite: each DOI is asked of Crossref (Retraction Watch data arrives as `update-to` / `updated-by` relations) **and** OpenAlex (`is_retracted`); flagged if either says so. Input: a `.bib`, a one-DOI-per-line file, or DOIs on the command line. Exit 1 = retracted found, 2 = some queries failed. | `python3 retraction_scan.py --bib references.bib [--out report.json]` |
 | `lit_map.py` | Literature map: co-citation ranking within a batch of literature (candidate classics, a starting point, judged by hand, see `method/RIGOR_PROCESS.md` stage 3) + most-cited recent work in a year window. Query by `title_and_abstract` (full-text search surfaces cross-field noise); OpenAlex bills by usage, 429 = daily quota spent. | `python3 lit_map.py --query "<topic>" --from-year 2010 --limit 200 --out map.md [--csv refs.csv] [--save-json]` |
+| `missing_refs.py` | The list of reference PDFs the author still has to download by hand: `.bib` entries with no `<pdfdir>/<citekey>.pdf` (a hand-filed `NN [Author Year] Title.pdf` that matches the entry also counts), minus whatever the author's own PDF library already holds (three gates: year + first-author surname + title similarity; ambiguous matches are listed for you, not the author). Writes `_missing.md` (doi.org links, URLs, ISBNs) and `_missing.tsv`. `--apply` copies unique library matches into the project. No network. | `python3 missing_refs.py --bib references.bib [--pdfdir refs-pdf] [--library ~/papers] [--apply]` |
+| `inbox_ingest.py` | Files the PDFs the author downloaded by hand (publisher file names, default `~/Downloads`, last 72 hours): matches each to a missing entry by DOI, title and content, verifies the content like any fetched PDF, names it `<citekey>.pdf` and logs it in `_inbox_log.tsv`. Not filed, and listed for you: DOI right but content wrong (supplement, erratum), one file matching several entries, files matching nothing (left in place), content mismatch. `--to-library` also copies into your library (deduplicated by SHA-256); `--clean` moves only filed sources to the Trash, never deletes. Preview by default. Content checks need `pdftotext`; without it, matching falls back to DOI and file name and says so. | `python3 inbox_ingest.py --bib references.bib [--pdfdir refs-pdf] [--hours 72 \| --all] [--apply] [--library DIR --to-library] [--clean]` |
 
 - A 429 from OpenAlex is a **daily quota wall** (resets midnight UTC), not "no
   results". Rerun later. `--email you@example.org` is optional but gets you the
@@ -193,6 +233,10 @@ Both have `--selftest`, which builds a synthetic corpus in a temporary folder.
   without a DOI is outside what the tool can check. It is not verified, and rerunning will
   not change it. `API_ERROR` is likewise not a pass; the exit code says the scan is
   incomplete. A `RETRACTED` hit still needs a human to read the notice.
+- The three reference tools chain: `pdf_fetch.py` gets what it can into `refs-pdf/`,
+  `missing_refs.py` lists only what is still missing and not in your library, and once
+  the author has downloaded those, `inbox_ingest.py` files them into the same
+  `refs-pdf/<citekey>.pdf` layout that `verify-citations` reads.
 - `lit_map.py --dois seeds.txt` takes a hand-picked seed set instead of a query.
   For a full bibliometric science map from the same raw data, pass `--save-json`
   and hand it to R's `bibliometrix` (see `setup/TOOLS.md`).

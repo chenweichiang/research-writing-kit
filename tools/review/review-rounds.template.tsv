@@ -1,0 +1,5 @@
+round	date	version	id	severity	repeat_of	disposition	note	summary
+1	2026-03-02	0.3.0	K1	fatal		fixed		De-identification rule was added only in the second analysis pass; the first-pass sample was never screened
+1	2026-03-02	0.3.0	K2	major		declined		Sample of 12 is too small for inferential tests; report descriptives only
+2	2026-03-16	0.4.0	L1	major	K2	pending	New evidence: the venue guidelines of 03-10 now require a power statement for any sample under 30	Small sample again; a power statement is missing
+2	2026-03-16	0.4.0	L2	fatal		withdrawn	Reviewer misread Table 2; the figure is correct	Participant count in Table 2 does not match the Method section

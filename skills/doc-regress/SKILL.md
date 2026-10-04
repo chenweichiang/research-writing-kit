@@ -59,7 +59,14 @@ as *unconfigured* rather than silently passing:
 - **R2 personal-data patterns** (`pii_patterns`, regexes for your country's ID /
   phone / account formats): identifying data must not ride along in a deliverable.
 - **R6 internal-note leakage** (`internal_words`): TODOs, drafting prompts,
-  instructions to the AI must not appear in the delivered version.
+  instructions to the AI, "to be confirmed" markers and working terms ("local library",
+  "decision log") must not appear in the delivered version (FAIL). Progress talk ("not
+  yet complete", "still to be confirmed") and words like "subagent" or "skeleton" have
+  legitimate uses too, so `internal_suspect` (one regex) reports them as WARN with
+  context for a human to judge: a delivered text does not narrate its own construction
+  (a real case: "author review and the second coder are not yet complete" reached a
+  results section). Add the project's own working words (internal file names, code
+  names) to `internal_words`.
 - **R-ATTR** (`entities`): an entity must be accompanied by an attribution marker.
 - **R-CORR** (`banned_claims`): a corrected statement must not come back.
 - **R-FACT** (`fact_ledger`): known-wrong values FAIL near the fact's keyword.

@@ -1,6 +1,6 @@
 ---
 name: paper-review
-description: Five-layer quality check for an academic draft (any language). Use when the author says "check this paper", "proofread", "catch typos", "look at this as a reviewer", "paper review", "check before I submit", asks whether the reported statistics are self-consistent / the numbers look suspicious, wants the draft checked against a reporting guideline (COREQ / SRQR / TREND / CONSORT / STROBE / PRISMA), asks "which declarations am I missing before submitting", or asks whether the figures still read for colour-blind readers or when printed in black and white (`tools/figures/figure_a11y.py`; judge from the simulated images). Reads the project's `ADJUDICATED.md` before reviewing (settled items are not re-raised). Mechanical layers run local tools when available (statistics = statcheck + scrutiny recomputation, not hand-rolled, when R is installed); semantic and logic layers are done by Claude under an anti-bias rubric. Unpublished drafts never go to third-party services. This skill makes minimal edits only; for a rewrite-style native polish (translationese, English that does not read natural) → co-author Phase 5.5.
+description: Five-layer quality check for an academic draft (any language). Use when the author says "check this paper", "proofread", "catch typos", "look at this as a reviewer", "check before I submit"; asks whether the reported statistics are self-consistent or the numbers look suspicious; wants a reporting-guideline check (COREQ / SRQR / TREND / CONSORT / STROBE / PRISMA) or asks which declarations are missing; asks whether figures still read for colour-blind readers or in black and white (`tools/figures/figure_a11y.py`), whether figure and table numbers in the typeset PDF are right or a figure is shrunk past legibility or runs off the column (`tools/figures/figure_check.py`); or whether a Chinese draft carries too much English or too many parenthetical glosses (`zh_gloss_scan.py --en`). Reads the project's `ADJUDICATED.md` first (settled items are not re-raised); logs each round's fatal and major findings in `docs/review-rounds.tsv`, and `tools/review/review_rounds.py` separates new from repeated findings and recommends stopping after two rounds with nothing new ("how many more rounds", "is the review converging"). Mechanical layers run local tools when available (statistics recomputed with statcheck + scrutiny when R is installed); semantic and logic layers are done by Claude under an anti-bias rubric. Unpublished drafts never go to third-party services. Minimal edits only; a rewrite-style native polish → co-author Phase 5.5.
 ---
 
 # Paper Review: five-layer quality check
@@ -21,6 +21,10 @@ convention, a term kept on purpose. Do not re-raise them unless you have **new
 evidence, stated explicitly**. A review that rediscovers a settled item costs a round
 and makes the author answer the same question twice; a clean-context reviewer is the
 most likely to do this, which is exactly why the file exists (see `doc-regress` §6).
+
+If the project keeps a round ledger (`docs/review-rounds.tsv`, see "Rounds and when to
+stop" below), run `tools/review/review_rounds.py` first and put the round number and
+whether the stop condition is already met at the top of the report.
 
 Confirm (or infer): file path; language (own / second / mixed); target venue
 (affects Layer 4 rubric); which layers to run (default all; "just typos" = layers 1–2).
@@ -49,7 +53,16 @@ review and has confirmed that the venue allows it.
   proposals and applications, which follow the field's register rather than the
   author's personal habits). `tools/zh-tw/zh_gloss_scan.py`
   inventories parenthetical asides of 12+ characters for the term-first-mention check
-  in Layer 3.
+  in Layer 3; with `--en` it lists English glosses after Chinese terms (repeats after
+  the first mention flagged as such) and bare English words in Chinese prose, ranked
+  by frequency. Proper nouns, model and software names and file names may stay; the
+  rest usually becomes Chinese.
+- **Internal wording that leaked into the deliverable (any language, even without a
+  doc-regress setup):** working notes and progress reports do not belong in a submitted
+  text. Typical leaks: "the author's local library" in a methods section, "author review
+  and the second coder are not yet complete" in a results section. A quick scan:
+  `grep -nEi "TODO|TBD|to be confirmed|not yet (complete|final|confirmed)|subagent|待確認|待補|(尚未|仍待)(完成|審定|補上|確認)|子代理" <draft>`;
+  add the project's own working words (internal file names, code names).
 - **Bundled (English drafts):** `tools/en/lt_check.sh` (grammar + US/UK spelling) if
   LanguageTool is installed; `tools/en/ai_style_diag.py` if the author built a corpus.
 - **Bundled, zero-install (either language):** `tools/claims/overclaim_lint.py`: the
@@ -88,6 +101,20 @@ Most venues' figure guidelines say outright that colour must not be the only car
 - **WARN** = contrast ratio below 1.4:1 in print (WCAG suggests ≥3:1 for graphical objects).
 - 🔴 **Open the simulated images it writes.** The simulation is a linear approximation:
   "these two collapse" is reliable, "this figure is fine" is not a guarantee.
+
+### 1f: Figures and tables in the typeset PDF (whenever there is a PDF)
+
+```bash
+python3 tools/figures/figure_check.py draft.pdf --out <tmp>/figcheck
+```
+
+Needs PyMuPDF (`pip install pymupdf`). Reports numbering gaps and duplicates, figures or
+tables mentioned in the text without a caption (or captioned but never mentioned),
+figures running past the text column (🟡) or the page edge (🔴), text in vector figures
+under 6 pt, and rasters shrunk until their text is unreadable (font size estimated from
+the effective dpi; a figure squeezed to save a page once ended up with about 3 pt axis
+labels). Look at the cropped PNGs it writes. Comment markers in a review copy cause
+reference noise; judge on the submission build.
 
 ## Layer 2: Semantic proofreading (Claude, strictly constrained)
 Constraints (counter LLM over-correction): **minimal edit**: change only what's
@@ -247,10 +274,36 @@ Rubric (score each 🔴fatal / 🟡major / 🟢minor):
    asked. Superlative hits over-report in humanities prose (idioms read as novelty
    claims); for argument-driven papers run `--only quant causal`.
 
+## Rounds and when to stop
+
+A reviewer simulation always finds something; without a record, review has no end.
+After ten rounds a draft can still show a "new" fatal item every round, with no way to
+tell a new problem from a settled one raised again in different words.
+
+1. After each round, append every fatal and major finding to the project's
+   `docs/review-rounds.tsv` (template `tools/review/review-rounds.template.tsv`; minor
+   findings are not logged). `repeat_of` names the earlier finding it repeats (an id
+   from an earlier round, or an `A` number from `ADJUDICATED.md`); blank means new. When
+   unsure, run `--suggest`: it lists "new" findings whose summary resembles an earlier
+   one.
+2. Run the ledger and paste its table at the top of the report:
+   ```bash
+   python3 tools/review/review_rounds.py docs/review-rounds.tsv [--adjudicated ADJUDICATED.md] [--suggest]
+   ```
+   Re-raising an adjudicated item (an `A` number, or one whose earlier disposition was
+   `declined`) without new evidence in `note` is 🔴 and exits 1: the same rule as Step 0,
+   enforced by the tool.
+3. **Stop condition: two consecutive rounds with no new fatal and no new major
+   finding.** When it is met, the report opens with "recommend stopping review"; what
+   remains goes to submission and external review. If the author still wants another
+   round, run it, and say in the report that the stop condition was already met. A
+   finding that turned out to be a reviewing error is `withdrawn` and does not count as
+   new.
+
 ## Output
 ```
 # Paper Review: <file>
-Venue: <target> | Language: <lang> | Layers: <layers>
+Venue: <target> | Language: <lang> | Layers: <layers> | Round N (table from review_rounds.py; say so if the stop condition is met)
 ## 🔴 Fatal   ## 🟡 Major   ## 🟢 Minor
 ## Mechanical fixes (Layer 1)
 ## Semantic diff (Layer 2, before→after)

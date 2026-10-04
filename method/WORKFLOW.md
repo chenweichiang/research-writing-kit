@@ -38,6 +38,12 @@ Before writing a single new word:
 5. **Read a real sample of the material before judging feasibility**: never judge
    research value from filenames, file counts, or folder structure. Sample-read
    3–5 items across the quality spectrum first.
+6. **Someone else's manuscript** (a co-author is the lead writer and you rewrite or
+   polish; a proposal with sub-projects by different people): follow
+   `method/COLLABORATION.md`. Never edit the original, write changes as an edit layer;
+   every sentence must trace back to a source (`tools/collab/source_trace.py --gate`
+   before handing back); never write in their site details or design assumptions;
+   open questions have a life cycle; keep an ownership table.
 
 > **Before a journal/conference submission, check the ledger.** Simultaneous
 > submission is forbidden almost everywhere and is a *cross-project* problem: the same
@@ -89,6 +95,12 @@ when, any embargo after acceptance, and whether the accepted manuscript and the 
 of record are treated differently. ⚠️ A preprint server is **not** a submission.
 Submitting to two journals at once is a submission problem, so keep the two questions apart.
 
+**Record the generative-AI rules too**, for journals and funders alike: whether AI may
+draft text, where the statement goes and which fields it needs, and what is allowed for
+AI-generated figures, with the link and the date read. Publishers differ sharply and
+several rewrote their policies in 2026; the signpost table and what it means for this
+pipeline are in `method/AI_DISCLOSURE.md`.
+
 ## Phase 1.5: Direction summary (non-blocking by default)
 
 Compress "gap / angle + contribution claim + main argument line + recommended
@@ -97,6 +109,24 @@ venue (with alternatives and why)" to **one page** and show the author.
 "where to submit" as explicit options (it affects their tenure points, timeline,
 cost). In default mode you may proceed on the recommended venue while the question
 is out; in skeleton mode, wait for the nod.
+
+**Compatibility.** This pipeline drafts with an AI (Phase 5). If the venue does not
+allow AI drafting, say so in the summary and let the author choose: another venue,
+another process (the author writes the first draft, AI only translates and polishes),
+or a question to the editor. Phases 2–4 go ahead; Phase 5 waits for the choice.
+
+**Contribution gate (once per manuscript).** Whoever writes a paper rates its topic
+too kindly. Hand the summary, `venue-notes.md` and the evidence in hand to a clean
+reviewer (`agents/clean-reviewer.md`) acting as that venue's editor: the contribution in
+one sentence and whether this venue's readers care; what level the evidence can carry
+(full paper, short paper, poster or exhibition paper, only a teaching record); the most
+likely reason for rejection, desk rejection included; and one verdict of five: **write
+the full paper / shrink to a short paper or poster / change venue / collect more data
+first / not worth writing**. The last four are real verdicts, not failures. Give them to
+the author with reasons and alternative venues, and stop for their choice even in
+default mode, because the scope changed. This judgment is cheapest early: data that
+was never collected, a desk rejection without comments, or a proposal that can only
+carry a poster are all better found before the draft than after it.
 
 ## Phase 2: Verify & fetch (kill hallucinated citations)
 
@@ -112,6 +142,11 @@ is out; in skeleton mode, wait for the nod.
   once by hand) / `NO-LINK` (tooling gap), so you know which are worth more time.
 - ⚠️ Whatever you could not read in full stays `❓unverified`: never treat an
   abstract, or a paper you only saw the landing page of, as confirmed.
+- **What is still missing goes to the author as a list, after subtracting their own
+  library** (`tools/refs/missing_refs.py`): a hand-written list will contain papers
+  they already hold. Once they have downloaded the rest by hand,
+  `tools/refs/inbox_ingest.py` matches the downloads folder against the list, verifies
+  each file's content and files it; downloads are verified like any other PDF.
 
 ## Phase 3.0: Method decision (compare comparable studies first, then choose)
 
@@ -351,6 +386,9 @@ reading a draft for its argument, still has a place after this phase.
    1d. **Figure and table provenance**: each figure/table → the script and data file
        that made it (logged in the ledger); each caption claim → visible in the
        figure; no truncated axes that mislead. Figures are evidence, not decoration.
+       On the typeset PDF, `tools/figures/figure_check.py` checks numbering, captions
+       against in-text references, figures running off the column or page, and
+       figures shrunk until their text is unreadable.
    1e. **Analysis-plan reconciliation** (if `analysis-plan.md` exists): run
        `python3 tools/method/analysis_plan_check.py analysis-plan.md --phase6`;
        write every deviation, or explicitly "no deviations" (never blank). The
@@ -362,11 +400,16 @@ reading a draft for its argument, still has a place after this phase.
        published since the `search-log.md` start date; fold anything relevant
        into the comparison table or skeleton, and record the check regardless
        of outcome.
-2. Final format check against `venue-notes.md`, every official hard rule.
+2. Final format check against `venue-notes.md`, every official hard rule. Over a page
+   or word limit: `method/COMPRESSION.md` (read how the limit is counted, find the
+   pinned boundaries, budget per section, cut light to heavy, report every cut; never
+   shrink figures or cut load-bearing evidence).
    2a. **The six submission declarations**, each marked "written" or "not
        applicable + why", never blank: generative-AI use disclosure (**always**, because
        this pipeline drafts with an AI. Say which tools did which tasks, and that
-       the authors take responsibility); research ethics (IRB approval or exemption
+       the authors take responsibility; place, fields and the rules for AI-generated
+       figures follow the venue, see `method/AI_DISCLOSURE.md`; re-check the statement
+       whenever the process or the model changed); research ethics (IRB approval or exemption
        id, consent, identifiable-data handling); data & code availability (and it
        must agree with the ledger. Rows marked "raw file not in repo" are exactly
        what a reviewer will ask about); author contributions (CRediT); competing
@@ -389,6 +432,8 @@ reading a draft for its argument, still has a place after this phase.
    ledger reconciliation / format tick-sheet incl. declarations / toolchain /
    `❓unverified` list).
 6. Deliver = the formatted document + the report (+ back-translation if second-lang).
+   Version number, file names, delivery folders and changelog follow
+   `method/VERSIONING.md`; run `tools/versioning/version_check.py` before handing over.
 
 ## Phase 7: Iterate with the author (repeat until good)
 

@@ -1,6 +1,6 @@
 ---
 name: co-author
-description: Collaborative long-form academic writing for papers and grant/funding proposals. Use when the author wants to turn a topic or sources into a paper or proposal ("help me write this paper", "build the skeleton", "co-author"); decide on a research method ("quantitative or qualitative?", "how do people in my field design a study like this" → Phase 3.0 compares at least 8 comparable studies and writes `method-decision.md`); add the submission declarations (AI-use disclosure, ethics, data availability, author contributions, competing interests, pre-registration) or asks what is missing; rewrite, upgrade, expand or resubmit an existing draft ("it got rejected, submit elsewhere", short paper to full paper, conference paper to journal article, talk or old proposal to journal paper → Phase 0.5, including the text-recycling inventory and its disclosure wording); say how the literature was found (a methods section or reviewer asking for the search strategy → the Phase 1 `search-log.md`); or wants a native polish ("this reads like a translation", "native English polish" → Phase 5.5, where editor subagents return change lists only and the main session adjudicates each item). The author decides what to say and gives final sign-off; Claude verifies literature, researches the venue, designs method or runs analysis when needed, drafts, and self-checks. Default is a verified complete draft; skeleton-first only when the author asks. Check-only → paper-review; slides → a deck skill.
+description: Collaborative long-form academic writing for papers and grant/funding proposals. Use to turn a topic or sources into a paper or proposal ("help me write this paper", "build the skeleton"); decide a research method (Phase 3.0 compares 8+ comparable studies, writes `method-decision.md`); add the submission declarations (AI use, ethics, data availability, contributions, competing interests, pre-registration) or check a venue's AI rules and AI-generated figures (`method/AI_DISCLOSURE.md`); rewrite, expand or resubmit an existing draft (rejected and retargeting, conference to journal, talk to paper → Phase 0.5, with text-recycling disclosure); document the literature search (`search-log.md`); native polish ("reads like a translation" → Phase 5.5, change lists adjudicated item by item); a one-line "full polish" before delivery; version numbers, changelog and delivery folders (`method/VERSIONING.md`); cutting to a page or word limit (`method/COMPRESSION.md`); merging a co-author's manuscript or a multi-team proposal with every sentence traced to its source (`method/COLLABORATION.md`); checking figures in the typeset PDF; whether a topic is worth a full paper at all (Phase 1.5 contribution gate). The author decides what to say and signs off; Claude verifies literature, researches the venue, designs method, drafts and self-checks. Default is a verified complete draft; skeleton-first only on request. Check-only → paper-review; slides → a deck skill.
 ---
 
 # co-author: collaborative paper / proposal writing
@@ -44,7 +44,10 @@ description: Collaborative long-form academic writing for papers and grant/fundi
    own voice. Author-written passages are preserved either way.
 6. **Delivery comes with a verification report.** Citations + format + toolchain +
    `❓unverified` list. Don't hand over anything you haven't cleaned yourself.
-7. **Deliver in the venue's format from version one.** Not raw markdown.
+7. **Deliver in the venue's format from version one.** Not raw markdown. Version
+   number, file names, delivery folders and changelog follow `method/VERSIONING.md`
+   (X = times sent out, Y = content, Z = wording; the `VERSION` file is the only
+   source; run `tools/versioning/version_check.py` before every delivery).
 8. **Files are the only authority; the conversation is not.** Long sessions drift:
    after a context compaction the model still carries a half-decayed version of the
    story and argues with the files without noticing. That is the structural cause of
@@ -56,6 +59,33 @@ description: Collaborative long-form academic writing for papers and grant/fundi
    and say so explicitly: "the conversation is not authoritative; the files are."**
    What the files don't record didn't happen; on conflict the file wins and the
    conflict is reported (it usually means a write-back was missed).
+
+## Full polish (one-line trigger)
+
+When the author says "full polish", "run everything before I send it" or similar, take
+the existing draft through the stages below in this order, **without asking at each
+stage**, and report once at the end. The order has reasons; do not swap stages.
+
+| # | Stage | Chinese draft | English draft | Why here |
+|---|---|---|---|---|
+| 1 | Citations | `verify-citations` on the whole draft + `tools/refs/retraction_scan.py` + `tools/claims/uncited_claims_scan.py` (Phase 6-1-0, 6-1a) | same | content errors first, or the polish has to be redone |
+| 2 | Proofreading | `paper-review` layers 1-2 (typos and punctuation, internal-wording grep, `tools/zh-tw/zh_gloss_scan.py --en` for English inside Chinese prose, semantic proofreading) | layers 1-2 (grammar checker, `tools/en/lt_check.sh`) | typos disturb the later judgments |
+| 3 | Native polish | Phase 5.5, `zh-tw-native-editor` | Phase 5.5, `en-native-editor` | get the language right first |
+| 4 | De-AI | `voice_lint.py --paper` + `zh_ai_style.py` (contrast total) | `ai_style_diag.py --gate` + `de-cadencing-scholar` | polish before rhythm; the other way round, the polish undoes the de-cadencing |
+| 5 | Overclaims | `tools/claims/overclaim_lint.py`, each hit adjudicated | same, `--lang en` | polishing and de-AI can both strengthen the wording |
+| 6 | Localization (zh-TW addon) | `tools/zh-tw/zh_localize.py` | the Chinese back-translation only | every earlier rewrite can bring in non-local terms, so scan last |
+| 7 | Regression | `doc-regress` (incl. R6 internal wording) + `register_profile.py` before and after; a co-author's manuscript adds `tools/collab/source_trace.py --gate` | same | confirm stages 1-6 broke no load-bearing string, number or citation |
+| 8 | New versioned PDF | `method/VERSIONING.md`: decide the number (wording only: patch; stage 1 changed content: minor) → CHANGELOG → build → `version_check.py` → `tools/figures/figure_check.py` | same; rebuild the back-translation PDF | the delivered file and the record must agree |
+
+- **Carry the author's standing preferences without being told** (the ones recorded in
+  their CLAUDE.md and voice rules), and the field register for papers and proposals
+  (Iron rule 5). Someone else's manuscript follows `method/COLLABORATION.md`: only the
+  clearest deviations, every sentence traceable to the original.
+- **The report always gives**: the numbers per stage (citations passed and flagged,
+  typos fixed, polish items proposed and accepted, contrast total before and after,
+  overclaim dispositions, localization hits, regression FAIL / WARN), the new version
+  and PDF path, and any stage that did not pass, with the reason. A stage that does not
+  apply (no numbers ledger, say) is reported as "not applicable", never skipped silently.
 
 ## The pipeline (see `method/WORKFLOW.md` for the full version)
 
@@ -74,6 +104,14 @@ description: Collaborative long-form academic writing for papers and grant/fundi
   background may be reused within reason; **results and discussion may not**. Disclose
   in the cover letter and cite the earlier work. Conference-to-journal extension is the
   common case and usually welcome, but venues state how much new material they expect.
+  **Someone else is the lead writer** (you rewrite or polish a co-author's manuscript;
+  a proposal with sub-projects by different people) → `method/COLLABORATION.md`: never
+  edit the original, write changes as an edit layer; every sentence traces back to a
+  source, checked with `python3 tools/collab/source_trace.py --orig <original and their
+  replies...> --draft <new draft> --gate` before handing back (fix every 🔴); never
+  write in their site details or design assumptions; open questions are opened,
+  tracked, closed and cleared before submission; keep an ownership table for sections,
+  figures and tables.
 - **Phase 1 (Two-track scouting):** full rigor checklist for the literature →
   argument → method pipeline is `method/RIGOR_PROCESS.md` (thirteen stages, each
   with its methodological rationale): declare the review type and a stopping
@@ -93,11 +131,41 @@ description: Collaborative long-form academic writing for papers and grant/fundi
   **current** format & review norms → `venue-notes.md`. **Include the preprint policy**: venues differ sharply.
   Most accept preprints, a few treat them as prior publication, some require the link
   at submission. Record whether/when you may post and any embargo. (A preprint server
-  is *not* a submission; two journals at once is.)
+  is *not* a submission; two journals at once is.) **Include the generative-AI rules**
+  for journals and funders alike: may AI draft, where the statement goes and which
+  fields it needs, what is allowed for AI-generated figures; link and date read. They
+  differ sharply (Taylor & Francis does not allow an AI first draft of a manuscript or
+  sections; Springer Nature does not allow figures generated from a text prompt alone;
+  ACM no longer requires disclosure of writing assistance). Signpost table as of
+  2026-10 and what it means for this workflow: `method/AI_DISCLOSURE.md`; re-read the
+  current page for every manuscript.
 - **Phase 1.5 (Direction summary):** one page (gap/angle + contribution + main line +
   recommended venue as explicit options). Non-blocking in default mode.
+  - **Is the venue compatible with this workflow?** If it does not allow AI drafting,
+    say so in the summary and let the author choose: another venue, another process
+    (they write the first draft, AI only translates and polishes), or a question to
+    the editor. Phases 2-4 go ahead; Phase 5 drafting waits for the choice.
+  - **Contribution gate (once per manuscript, after the summary is written).** Whoever
+    writes a paper rates its topic too kindly. Give the summary, `venue-notes.md` and
+    the list of evidence in hand to `clean-reviewer` and have it answer as that venue's
+    editor: (1) the contribution in one sentence, and whether this venue's readers care;
+    (2) what level the evidence can carry (full paper, short paper, poster or exhibition
+    paper, only a teaching record); (3) the most likely reason for rejection, desk
+    rejection included; (4) one verdict of five: **write the full paper / shrink to a
+    short paper or poster / change venue / collect more data first / not worth writing**.
+    The last four are real verdicts, not failures: pass them to the author with reasons
+    and alternative venues, and stop for their choice even in default mode (the scope
+    changed, and writing on costs a whole paper). Typical cases this catches early:
+    sessions held but the data never collected and no ethics approval; a desk rejection
+    with no comments; a proposal whose fallback was agreed in advance as a poster. Give
+    it `ADJUDICATED.md` too, so it re-raises settled directions only with new evidence.
 - **Phase 2 (Verify & fetch):** read each source enough to confirm direction; check
-  DOIs/ISBNs; `❓unverified` for anything you couldn't confirm.
+  DOIs/ISBNs; `❓unverified` for anything you couldn't confirm. **For the PDFs still
+  missing, subtract the author's own library first**: `python3 tools/refs/missing_refs.py
+  --bib <refs.bib> --pdfdir <project PDF folder> [--library <their PDF folder>]` writes
+  the list of what is really missing, with DOI/URL links. Once they have downloaded
+  those by hand, `tools/refs/inbox_ingest.py` matches the downloads folder against the
+  list and files each PDF (details in the `fetch-refs` skill).
 - **Phase 3.0 (Method decision): compare comparable studies first, then choose a
   method.** Do this whenever new data will be collected, existing data needs to
   become a paper, or a proposal is being written. Full guidance:
@@ -370,7 +438,13 @@ description: Collaborative long-form academic writing for papers and grant/fundi
   - **6-1c Figure and table provenance:** every figure/table points to the script and
     data file that produced it (logged in the ledger); every claim in a caption can be
     pointed to on the figure; truncated axes are marked. Figures are evidence, not
-    decoration, and they are the usual blind spot.
+    decoration, and they are the usual blind spot. On the typeset PDF run
+    `python3 tools/figures/figure_check.py <draft.pdf> --out <tmp>/figcheck` (needs
+    PyMuPDF): numbering gaps and duplicates, captions and in-text references that do not
+    match, figures running past the text column or the page, text in vector figures under
+    6 pt, rasters shrunk until their text is unreadable. Look at the cropped PNGs it writes
+    (a vision-capable subagent can take a few each). In a review copy, comment markers
+    create reference noise; judge on the submission build.
   - **6-1d Analysis-plan reconciliation (if `analysis-plan.md` exists):** run
     `python3 tools/method/analysis_plan_check.py analysis-plan.md --phase6`
     (write every deviation, or explicitly "no deviations", never leave it
@@ -383,7 +457,10 @@ description: Collaborative long-form academic writing for papers and grant/fundi
     into the comparison table or skeleton, and record the check in
     `search-log.md` regardless of the outcome.
   - **6-2 Format:** tick `venue-notes.md` item by item (length, structure, section order,
-    attachments, font/margins, every hard rule).
+    attachments, font/margins, every hard rule). Over a page or word limit →
+    `method/COMPRESSION.md`: read how the limit is counted, find the pinned boundaries,
+    budget per section, cut from light to heavy and report what each cut saved; 🔴 never
+    shrink figures, never cut the core claim or load-bearing evidence.
   - **6-2a Submission declarations, six items.** These are conditions for the
     submission being accepted and for later accountability, not formatting trivia;
     missing ones get desk-rejected or retracted. For each, record *required? / present?
@@ -393,9 +470,20 @@ description: Collaborative long-form academic writing for papers and grant/fundi
        AI-assisted; this declaration is not optional. Per ACM and most journals: list
        the tools and the tasks they did (literature search / drafting / rewriting /
        translation / code / analysis) and state that the authors take responsibility
-       for the whole text. Put it where the venue says (disclosure section or
-       acknowledgements). **The disclosure must match what actually happened.** Do
-       not shrink a co-written draft to "language polishing".
+       for the whole text. Place and fields follow `venue-notes.md` and
+       `method/AI_DISCLOSURE.md` (a statement in the manuscript with tool versions,
+       an AI Declaration, a separate closing section, the acknowledgements, the methods
+       section; it varies). If the venue does not allow AI drafting, that should have
+       surfaced in Phase 1.5, not here. **The disclosure must match what actually
+       happened.** Do not shrink a co-written draft to "language polishing"; when the
+       writing process or the model changed, re-check every verb in the statement. If
+       human coding was done with AI pre-labels visible, the methods disclose the
+       procedure (`method/RIGOR_PROCESS.md` Stage 11).
+       **AI-generated or AI-processed figures:** never for research results or
+       photographs of the actual work; conceptual figures follow the venue (tool and
+       version in the caption, Intellect also the full prompt; no text-prompt-only
+       figures for Springer Nature); masking or blurring goes in the statement too.
+       Keep engine, version, seed and prompt in `figures/ai-generation-log.md`.
     2. **Research ethics.** Human participants → IRB/ethics approval or exemption,
        with number and institution, in the Method; consent and handling of
        identifiable data stated.
@@ -434,7 +522,11 @@ description: Collaborative long-form academic writing for papers and grant/fundi
     pass that reads only the files.
   - **6-5 Verification report** (citations · format tick-list · toolchain results ·
     declarations table · `❓unverified` list) and **6-6 delivery as the formatted PDF**
-    (own-language and back-translation as a pair for second-language papers).
+    (own-language and back-translation as a pair for second-language papers). Before
+    handing it over run `python3 tools/versioning/version_check.py <project>
+    [--submission <submitted.pdf>]` (`VERSION` and CHANGELOG agree, the delivery folder
+    holds one version only, no version string in the submitted text, no delivered
+    number reused after its tag).
 - **Phase 7 (Iterate):** author reacts; substantive changes written back to
   `skeleton.md`; swap evidence per node without rebuilding the argument.
   **A number changes → update the ledger first, then the draft, then rerun the
@@ -481,6 +573,11 @@ description: Collaborative long-form academic writing for papers and grant/fundi
 - Pre-delivery scans (bundled, zero-install): `tools/refs/retraction_scan.py`,
   `tools/claims/uncited_claims_scan.py`; numbers ledger + regression rules via the
   `doc-regress` skill (`tools/regress/`).
+- Delivery: `method/VERSIONING.md` + `tools/versioning/version_check.py`;
+  `tools/figures/figure_check.py` on the typeset PDF (needs PyMuPDF); page and word
+  limits: `method/COMPRESSION.md`.
+- Co-authored manuscripts: `method/COLLABORATION.md` + `tools/collab/source_trace.py`.
+- Venue AI rules and AI figures: `method/AI_DISCLOSURE.md`.
 - Finish: `paper-review` + a PDF build (`build-pdf`).
 
 ## Not this skill

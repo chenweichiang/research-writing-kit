@@ -98,3 +98,50 @@ def test_zh_gloss_scan(tmp_path):
     assert r.returncode == 0
     assert "1 gloss candidate(s)" in r.stdout
     assert run_tool("zh-tw/zh_gloss_scan.py").returncode == 2
+
+
+GLOSS_EN_DRAFT = """---
+title: 草稿 (Draft title)
+---
+# 引言 (Heading gloss)
+
+本研究採用感性工學（Kansei engineering）作為框架，這個 prompt 會影響結果。
+再次談到感性工學（Kansei engineering）時，我們沿用同一個 prompt 與另一個 workflow。
+如 Borsboom 等人（2004）所述，效度（validity）是核心；此觀點已有討論（Chen, 2024）。
+
+```
+代碼中的 (inline gloss) 與 codeword
+```
+
+| 表格 | 內容 (table gloss) |
+|---|---|
+
+<!-- 註解中的 hidden（comment gloss） -->
+
+## References
+
+評估框架（Reference gloss）與 refword。
+"""
+
+
+def test_zh_gloss_scan_en(tmp_path):
+    f = tmp_path / "draft.md"
+    f.write_text(GLOSS_EN_DRAFT, encoding="utf-8")
+    r = run_tool("zh-tw/zh_gloss_scan.py", f, "--en")
+    assert r.returncode == 0, r.stderr
+    out = r.stdout
+    assert "== 1. English glosses: first occurrence" in out
+    assert "(Kansei engineering)" in out and "(validity)" in out
+    assert "already glossed at first mention" in out
+    assert "(kansei engineering) first at L6; repeated at L7" in out
+    # bare English: lowercase-initial words ranked first by frequency, capitalised ones separately
+    low = out.split("lowercase-initial")[1].split("== 2. Capitalised")[0]
+    assert "prompt x2" in low and "workflow x1" in low
+    assert low.index("prompt") < low.index("workflow")
+    # skipped: citations, front matter, headings, code, tables, comments, anything after References
+    for skipped in ("Chen", "Borsboom", "Draft title", "Heading gloss", "codeword", "table gloss",
+                    "comment gloss", "Reference gloss", "refword"):
+        assert skipped not in out, skipped
+    # the default mode is unchanged
+    assert "gloss candidate(s)" not in out
+    assert "gloss candidate(s)" in run_tool("zh-tw/zh_gloss_scan.py", f).stdout

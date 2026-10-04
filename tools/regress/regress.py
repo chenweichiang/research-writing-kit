@@ -208,6 +208,8 @@ def r6_internal_language(ctx):
     words = ctx.cfg.get("internal_words") or []
     if not words:
         return ctx.unconfigured("R6", "internal_words", "list markers like TODO / TBD / 'internal note'")
+    suspect = ctx.cfg.get("internal_suspect")
+    suspect = re.compile(suspect) if suspect else None
     for f in ctx.deliver_files():
         t = ctx.clean_text(f)
         for b in words:
@@ -215,6 +217,13 @@ def r6_internal_language(ctx):
                 i = t.index(b)
                 ctx.rec("FAIL", "R6", f"internal word '{b}' visible in delivered text",
                         f"{ctx.rel(f)}: ...{' '.join(t[max(0, i - 24):i + 26].split())}...")
+        # Phrases that are usually process talk ("not yet finalized", "the subagent") but can be
+        # legitimate prose: WARN with context, a human decides. Real case: "author review and the
+        # second coder are not yet complete" reached a review copy; no fixed word list caught it.
+        for m in (suspect.finditer(t) if suspect else ()):
+            i = m.start()
+            ctx.rec("WARN", "R6", f"possible process talk '{m.group(0)}' in delivered text",
+                    f"{ctx.rel(f)}: ...{' '.join(t[max(0, i - 24):i + 30].split())}...")
 
 
 # ── Numbers ledger ────────────────────────────────────────────────────────────

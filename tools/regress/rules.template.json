@@ -16,7 +16,10 @@
   "bib_files": [],
   "_bib_files": "e.g. [\"references.bib\"] — enables the @key dangling / orphan check",
 
-  "internal_words": ["TODO", "TBD", "FIXME", "internal note", "撰寫提示", "內部備忘", "待辦"],
+  "internal_words": ["TODO", "TBD", "FIXME", "internal note", "to be confirmed", "local library", "decision log", "撰寫提示", "內部備忘", "待辦", "待確認", "待補", "本機文獻庫", "裁定帳本"],
+  "_internal_words": "FAIL when any appears in delivered text. Add the names of your own working files and logs: a reader should never see them.",
+  "internal_suspect": "(?i:not yet (?:finali[sz]ed|complete[d]?|confirmed)|subagent|skeleton file)|(?:尚未|仍待)(?:完成|審定|補上|確認|進行)|子代理|骨架",
+  "_internal_suspect": "regex; matches are WARN with context, not FAIL: these phrases are usually process talk leaking from your notes, but can be real prose (\"the second coder coded independently\" must not trip it). null to switch off.",
 
   "pii_patterns": [
     ["e-mail address", "[\\w.+-]+@[\\w-]+\\.[\\w.]+"],

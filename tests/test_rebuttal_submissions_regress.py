@@ -100,6 +100,16 @@ def test_regress_catches_internal_word_and_banned_claim(tmp_path):
     assert "R-CORR" in rules and any(x.startswith("R6") for x in rules), rules
 
 
+def test_regress_process_talk_is_warn_not_fail(tmp_path):
+    cfg = _project(tmp_path, "# Methods\n\nAuthor review and the second coder are not yet complete. "
+                             "The second coder coded every item independently.\n")
+    r = run_tool("regress/regress.py", "--config", cfg, "--json")
+    out = json.loads(r.stdout)
+    warns = [d for d in out["warn"] if d["rule"] == "R6"]
+    assert len(warns) == 1 and "not yet complete" in warns[0]["msg"], out["warn"]
+    assert not any(d["rule"] == "R6" for d in out["fail"]), out["fail"]
+
+
 def test_regress_banned_claim_is_case_insensitive(tmp_path):
     cfg = _project(tmp_path, "# Intro\n\nFounded in 1987, the studio grew.\n")
     r = run_tool("regress/regress.py", "--config", cfg, "--json")

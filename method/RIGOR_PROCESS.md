@@ -54,7 +54,8 @@ version above:**
 6. **Qualitative and practice-based research have their own rigor criteria**: the
    language of quantitative reliability and validity doesn't transfer directly.
 7. **The extra risks of AI-assisted research**: fabricated citations, distorted
-   summaries, the validity problem of an LLM acting as a coder.
+   summaries, the validity problem of an LLM acting as a coder, and what to disclose
+   when a human coder could see the AI's pre-labels (Stage 11).
 8. **A literature update before delivery**: the field may have moved between when
    the project started and when it's submitted.
 
@@ -364,6 +365,26 @@ cases).
   across 164 interviews found AI coding substantially over-coded, and the authors
   do not recommend it as a replacement for human coding (Boettinger et al. 2026
   [abstract only]).
+- **When a human coder could see the AI's labels, report reliability separately.**
+  If the coding interface pre-selects the model's code, or the coder looked at the
+  model's output first, the pre-selected option becomes a default: agreement between
+  human and model goes up, and by how much cannot be estimated afterwards. Whether
+  the coder felt independent is a separate matter; what has to be disclosed is the
+  procedure:
+  - say what was visible at the moment of judgment (for example, "final codes were
+    assigned with the model's codes visible and were not reviewed by a third
+    party");
+  - do not report human-model agreement as independent reliability, and do not use
+    it as evidence that the model's coding is valid;
+  - where you can, code blind first (model codes hidden, hypotheses unknown), then
+    review against the pre-labels; the difference between the two passes is your
+    evidence of how much the pre-labels moved the coder;
+  - a kappa between two people needs both coding under the same condition (both
+    blind, or both reviewing).
+  A typical case: an author corrects a few dozen of the model's open-ended codes on
+  a page where the model's code is already ticked. Report the author's codes as
+  final, describe the condition exactly as above, and leave out an author-model
+  kappa.
 - **Output**: analysis scripts and records, a numbers ledger (already required,
   see `templates`'s numbers-ledger convention and `method/WORKFLOW.md` Phase 3),
   and a list of exploratory analyses.
