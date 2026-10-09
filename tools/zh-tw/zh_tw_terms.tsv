@@ -37,6 +37,8 @@ cn	tw	mode	skip_near	need_near	note	source
 智能	智慧	flag			AI 脈絡	own
 卸載	解除安裝	flag			軟體脈絡	own
 網絡	網路	fix			具體網路脈絡	own
+儀錶板	儀表板	fix			OpenCC 字級轉換會把「仪表板」轉成「儀錶板」；樂詞網＝儀表板（2026-10-09 使用者裁定）	own
+可視化	視覺化	fix			樂詞網＝視覺化；台灣作者 5 篇在用，使用者裁定照收（2026-10-09）	own
 視屏	螢幕／影片	flag				own
 缺省	預設	fix				own
 字符	字元	fix				own

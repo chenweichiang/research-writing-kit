@@ -2,7 +2,7 @@
 
 [![版本](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![最近更新](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![程式 MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![文件 CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**版本 `v1.10.0`**（2026-10-04）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
+**版本 `v1.10.1`**（2026-10-09）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
 **English → [README.en.md](README.en.md)**
 
@@ -323,6 +323,7 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 
 ## 版本紀錄
 
+- **v1.10.1**（2026-10-09）：`tools/zh-tw/zh_tw_terms.tsv` 新增「儀錶板→儀表板」「可視化→視覺化」兩詞。OpenCC 字級轉換會把「仪表板」轉成「儀錶板」；兩者的樂詞網譯名是「儀表板」「視覺化」。詞表 171 詞＋61 條白名單。
 - **v1.10.0**（2026-10-04）：對齊作者 9 月到 10 月初的論文與計畫書工作，補進十二項流程，並把文章版號規則定下來。方法層新增四份文件：`method/VERSIONING.md` 規定版號（X＝送出次數、Y＝內容、Z＝措辭）、`VERSION` 檔為唯一來源、CHANGELOG 先寫再建置、交付資料夾只放一版、送件版正文不印版號；`method/COLLABORATION.md` 處理合作者主筆的稿與多人計畫書：原檔不改、改動寫成潤稿層、每句要指得回來源、待確認事項有開、追、關、送件四段、維護歸屬表（起因是一次 AI 改寫在合作者的稿裡增添了十來處原稿沒有的內容，其中兩處是沒做過的方法程序）；`method/COMPRESSION.md` 是超頁超字的壓縮程序：先查官方怎麼算、找被釘死的邊界、各節預算、由輕到重下刀並逐刀回報，不縮圖、不拿證據換頁數；`method/AI_DISCLOSURE.md` 整理八家國際出版社 2026-10-04 查閱的生成式 AI 規定（能不能讓 AI 起草、聲明放哪、AI 生成圖的規定），並寫明對流程的影響：場域不准 AI 起草時，Phase 1.5 就攤給作者選；台灣兩個補助來源放在繁中在地化包。`method/RIGOR_PROCESS.md` 階段 11 補上人工判讀看過 AI 預標時要揭露的程序事實。新工具六支：`tools/figures/figure_check.py`（排好的 PDF 圖表編號、引用、超出版心或頁面、圖內字太小；需 PyMuPDF）、`tools/collab/source_trace.py`（合作者稿逐句溯源）、`tools/versioning/version_check.py`（交付前查版號）、`tools/review/review_rounds.py`（審查輪次收斂與停審條件）、`tools/refs/missing_refs.py` 與 `inbox_ingest.py`（先扣掉自己文獻庫的缺件清單、下載匣收件；手動歸檔的 `NN [作者 年] 標題.pdf` 也算已有）；`tools/zh-tw/zh_gloss_scan.py` 加 `--en`（中文稿裡的英文夾註與正文夾英文）；`tools/regress/regress.py` 的 R6 加 `internal_suspect`，「尚未完成」「仍待確認」這類施工進度句報 WARN。skill 層：`co-author` 加一句話觸發的「全套潤修」八關、Phase 1.5 的場域相容性與貢獻閘門（乾淨審稿人五選一：寫全文、縮成短文或海報、換場域、先補資料、不值得寫）、缺件與收件、交付前的版號與圖表檢查；`paper-review` 加輪次收斂與停審、`--en` 夾英文、內部用語掃描、1f 圖表檢查；`fetch-refs` 加缺件清單與下載匣收件；`doc-regress` 的 R6 說明補上 WARN 層。co-author 與 paper-review 的 description 重寫後各為 1,463 與 1,441 字元，在清單上限內。
 - **v1.9.5**（2026-10-04）：對齊 10/3 論文線兩項。`skills/verify-citations` 的 OpenLibrary 說明改成照實記錄：舊端點 `/api/books?bibkeys=` 9/19 一律回 404，10/3 又恢復回應，但官方文件標為 Legacy、可能淘汰，而且對髒資料 ISBN 回的版本與 `/isbn/` 不同，所以仍以 `/isbn/<isbn>.json` 為準；v1.8.0 紀錄裡「現已一律回 404」是當時的實測。co-author、paper-review、verify-citations、rebuttal 四個 skill 的 description 補上內文早已支援、卻沒寫進觸發詞的用途：短文擴成全文與會議論文轉期刊（含文字回收盤點）、交代文獻怎麼找的（`search-log.md`）、圖表色盲與黑白可讀性（`figure_a11y.py`）、沒附引用的數字與宣稱（`uncited_claims_scan.py`）、審稿人問檢索方法時以 `search-log.md` 回答而不事後重跑。co-author 的 description 原本約 1,700 字元，超過 Claude Code skill 清單每筆 1,536 字元的上限、尾段會被截掉，這次精簡到上限內；rebuttal 內文補上檢索方法的回答方式。
 - **v1.9.4**（2026-09-28）：`NOTICE.md` 引用範例裡的版本號從 v1.6.0 起就沒再改過，更正為目前版本，並加進維護端的發版對帳，之後會跟著標籤一起檢查。從這一版起，每個版本在 GitHub 也發 Release（附版本紀錄），不再只有標籤。
