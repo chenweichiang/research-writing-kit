@@ -15,6 +15,11 @@ What is checked:
     (needs pdftotext for PDFs)
   - the VERSION tag (vX.Y.Z) has not been changed since it was tagged: a tagged version
     is a delivered one and must not be reused
+  - the delivered files are not older than VERSION (bumped but not rebuilt = FAIL) or than
+    any manuscript source file (.md .typ .qmd .tex .bib .csl .yaml; notes, ledgers and the
+    changelog do not count) (edited but maybe not rebuilt = WARN)
+  - at the end it prints the absolute path of every delivered file: quote those lines when
+    reporting a delivery, so nobody has to ask "where is the file, is it the latest one?"
 
 Delivery folders: `latest/` (also `latest-submission/`) and snapshots in
 `versions/vX.Y.Z/`. The Chinese names `最新交付/`、`最新投稿檔/` and `版本/` are
@@ -38,6 +43,14 @@ REVIEW_FOOTER = re.compile(r"review copy|審閱稿|draft v\d", re.I)
 LATEST_NAMES = ("latest", "latest-submission", "最新交付", "最新投稿檔")
 VERSIONS_NAMES = ("versions", "版本")
 FAIL, WARN, OK = [], [], []
+DELIVERED = []   # absolute paths of the delivered files, printed last
+# Manuscript sources: editing one means the deliverable has to be rebuilt. Notes, ledgers and
+# review records are not sources.
+SOURCE_RE = re.compile(r"\.(md|typ|qmd|tex|bib|csl|yaml|yml)$", re.I)
+NOT_SOURCE = {"CHANGELOG.md", "README.md", "CLAUDE.md", "ADJUDICATED.md", "skeleton.md", "venue-notes.md",
+              "search-log.md", "method-decision.md", "analysis-plan.md", "TODO.md", "NOTES.md"}
+SKIP_DIRS = {"versions", "版本", "docs", "node_modules", "__pycache__", "out", "build", "_build", "regress",
+             "tests", "references-pdf", "refs-pdf", "notes"} | set(LATEST_NAMES)
 
 
 def find_up(start, name):
@@ -152,6 +165,29 @@ def main():
                     WARN.append(f"PDF metadata (Title / Subject / Keywords) of {f} has no version")
         if no_meta_tool:
             WARN.append("pdfinfo (poppler) not found: PDF metadata was not checked")
+        # Is the delivery current? Asked again and again ("is this the latest version, where is
+        # the file?"): VERSION newer than the delivered files = bumped but not rebuilt (FAIL); a
+        # manuscript source newer than them = edited but maybe not rebuilt (WARN, with file names).
+        if files:
+            oldest = min(os.path.getmtime(os.path.join(latest, f)) for f in files)
+            if vf and os.path.getmtime(vf) > oldest + 1:
+                FAIL.append(f"VERSION is newer than the files in {rel}: the version was bumped but the "
+                            "deliverable has not been rebuilt")
+            newer = []
+            for d, dirs, fs in os.walk(root):
+                dirs[:] = [x for x in dirs if not x.startswith(".") and x not in SKIP_DIRS
+                           and os.path.realpath(os.path.join(d, x)) != os.path.realpath(latest)]
+                for f in fs:
+                    if SOURCE_RE.search(f) and not f.startswith(".") and f not in NOT_SOURCE:
+                        fp = os.path.join(d, f)
+                        if os.path.getmtime(fp) > oldest + 1:
+                            newer.append(os.path.relpath(fp, root))
+            if newer:
+                WARN.append("these sources are newer than the delivered files (edited but not rebuilt?): "
+                            + ", ".join(sorted(newer)[:8])
+                            + (f" and {len(newer) - 8} more" if len(newer) > 8 else ""))
+            for f in sorted(files):
+                DELIVERED.append(os.path.join(os.path.realpath(latest), f))
 
     for s in a.submission:
         if s.lower().endswith(".pdf"):
@@ -185,7 +221,8 @@ def main():
                 OK.append(f"{tag} is tagged, no changes since")
 
     if a.json:
-        print(json.dumps({"version": ver, "fail": FAIL, "warn": WARN, "ok": OK}, ensure_ascii=False, indent=1))
+        print(json.dumps({"version": ver, "fail": FAIL, "warn": WARN, "ok": OK, "delivered": DELIVERED},
+                         ensure_ascii=False, indent=1))
     else:
         for x in OK:
             print("  ✓ " + x)
@@ -193,6 +230,10 @@ def main():
             print("  🟡 " + x)
         for x in FAIL:
             print("  🔴 " + x)
+        if DELIVERED:
+            print("  delivered files (quote these lines when you report the delivery):")
+            for x in DELIVERED:
+                print("    " + x)
         print(f"-- version {ver or '?'} | FAIL {len(FAIL)} | WARN {len(WARN)} --")
     return 1 if FAIL else 0
 

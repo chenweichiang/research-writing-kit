@@ -1,4 +1,5 @@
 """tools/collab/source_trace and tools/versioning/version_check."""
+import os
 import shutil
 import subprocess
 
@@ -181,6 +182,35 @@ def vcheck(root, *extra):
 def test_clean_project_passes(tmp_path):
     r = vcheck(make_project(tmp_path))
     assert r.returncode == 0, r.stdout
+
+
+@needs_git
+def test_version_newer_than_delivery_fails(tmp_path):
+    root = make_project(tmp_path)
+    os.utime(root / "latest" / "paper_v1.2.0.docx", (1_700_000_000, 1_700_000_000))
+    r = vcheck(root)
+    assert r.returncode == 1, r.stdout
+    assert "has not been rebuilt" in r.stdout
+
+
+@needs_git
+def test_source_newer_than_delivery_warns(tmp_path):
+    root = make_project(tmp_path)
+    for f in ("VERSION", "CHANGELOG.md"):
+        os.utime(root / f, (1_600_000_000, 1_600_000_000))
+    os.utime(root / "latest" / "paper_v1.2.0.docx", (1_700_000_000, 1_700_000_000))
+    (root / "manuscript.md").write_text("# Paper\n", encoding="utf-8")
+    (root / "ADJUDICATED.md").write_text("a ledger, not a source\n", encoding="utf-8")
+    r = vcheck(root)
+    assert "newer than the delivered files" in r.stdout
+    assert "manuscript.md" in r.stdout and "ADJUDICATED.md" not in r.stdout
+
+
+@needs_git
+def test_prints_absolute_delivery_paths(tmp_path):
+    root = make_project(tmp_path)
+    r = vcheck(root)
+    assert os.path.join(os.path.realpath(root), "latest", "paper_v1.2.0.docx") in r.stdout
 
 
 @needs_git

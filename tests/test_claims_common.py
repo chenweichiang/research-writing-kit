@@ -56,3 +56,40 @@ def test_md_prose_strip_and_mask():
     masked = mp.mask_nonprose(src)
     assert masked.count("\n") == src.count("\n"), "masking keeps line numbers"
     assert "note; note" not in masked and "code;" not in masked
+
+
+def _cats(tmp_path, text, lang):
+    f = tmp_path / "gap.md"
+    f.write_text(text, encoding="utf-8")
+    out = tmp_path / "gap.json"
+    run_tool("claims/overclaim_lint.py", f, "--lang", lang, "--json", out)
+    return [h["category"] for h in json.loads(out.read_text(encoding="utf-8"))["hits"]]
+
+
+def test_overclaim_lint_nobody_did_it(tmp_path):
+    for s in ["就作者所知，這是第一個把聲音原型放進課堂的研究。", "目前尚無研究探討這個問題。",
+              "國內外均未見相關研究。", "本研究填補了這一領域的空白。", "迄今缺乏實證支持。"]:
+        assert "沒人做過" in _cats(tmp_path, s, "zh"), s
+    # reported even with a citation next to it: a citation cannot carry "nobody has done this"
+    assert "沒人做過" in _cats(tmp_path, "就筆者所知（王，2020），尚無研究處理此事。", "zh")
+    for s in ["To the best of our knowledge, this is the first study of its kind.",
+              "No prior research has examined voice prototyping in class.",
+              "This question has not yet been investigated.",
+              "Our work fills an important gap in the literature.",
+              "The topic remains understudied."]:
+        assert "nobody-did-it" in _cats(tmp_path, s, "en"), s
+    assert "沒人做過" not in _cats(tmp_path, "我們以三個資料庫查詢，結果列於附錄。", "zh")
+    assert "nobody-did-it" not in _cats(
+        tmp_path, "We searched three databases; results are listed in Appendix A.", "en")
+
+
+def test_overclaim_lint_undated_official_document(tmp_path):
+    assert "官方文件未標年" in _cats(tmp_path, "依據教育部《教學實踐研究計畫申請要點》辦理。", "zh")
+    for s in ["依據教育部《教學實踐研究計畫申請要點》（2025）辦理。",
+              "依據 114 年度《教學實踐研究計畫申請要點》辦理。",
+              "依據民國 113 年修正之《著作權法》。"]:
+        assert "官方文件未標年" not in _cats(tmp_path, s, "zh"), s
+    assert "official-doc-undated" in _cats(
+        tmp_path, "UNESCO guidance on generative AI in education stresses age limits.", "en")
+    assert "official-doc-undated" not in _cats(
+        tmp_path, "UNESCO (2023) guidance on generative AI in education stresses age limits.", "en")

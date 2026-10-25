@@ -5,6 +5,10 @@ description: Collect the PDFs of a paper's references so they can be verified. U
 
 # fetch-refs: collect reference PDFs
 
+> After the conversation has been compacted and only the top of this file is visible:
+> invoke this skill again before moving on to a later step (after compaction Claude Code
+> re-attaches only about the first 5,000 tokens of each invoked skill).
+
 > Generated from the Research Writing Kit; adapt to what's installed.
 > Feeds `verify-citations`. **Only download what you're authorized to**. Respect
 > paywalls and licenses; prefer open access.
@@ -39,11 +43,32 @@ For each reference:
    them, as in `Vallg˚arda`). Measured on 504 already-collected PDFs from 15 paper
    projects, these two downgraded only that one wrong file. A looser third check
    (author name within the first 250 characters) misfired on 17 book covers and JSTOR
-   cover pages and was dropped.
+   cover pages and was dropped. (c) **The first page carries an arXiv identifier from
+   three or more years after the bib year.** The first two digits of an arXiv ID are the
+   upload year, and a 1991 article is not a 2023 preprint. On 733 collected PDFs this
+   caught two wrong files filed for old classics (recent preprints that discuss the
+   classic and share its title words and surname); one had passed as verified at
+   phrase similarity 1.00. Downgrade only: authors do upload old papers years later.
+   Two normalisations come before any comparison: Unicode NFKC, so publisher ligatures
+   match (Elsevier prints `Ofﬂoading` with a single `ﬂ` character), with split-off
+   accent marks removed first; and **Chinese or Japanese titles are compared as
+   character strings** (Han characters, letters and digits only; the first 12
+   characters of the title must appear in the first pages; Simplified and Traditional
+   are folded together when OpenCC is installed). A word-based check scores every
+   Chinese title 0 and rejects the right file.
    Honest limit: papers that cite each other share surnames and vocabulary and no
    content check catches all of them; the aim is to turn silent passes into visible
    doubt, not to claim a clean filter.
-3a. **An OA flag is not a download.** Index records (`oa_status=green`, a
+3a. 🔴 **Files already in the folder get the same check.** A file the author put
+   there, a previous run's download or a copy from their library is not proof that it is
+   the cited work; one proposal cited two classics from files that turned out to be other
+   papers, found only when someone read them. Check them like new downloads, but **only
+   flag, never move or delete**: in a measurement of 733 collected files, every file that
+   failed the check was one the check cannot read (a chapter inside a proceedings volume,
+   a garbled text layer, a poor OCR scan, the author's own work, a non-PDF), while the
+   real wrong files had passed and were caught only by the identity checks above. List
+   the flagged ones for the author to open.
+3b. **An OA flag is not a download.** Index records (`oa_status=green`, a
    `best_oa_location` URL) point at institutional repositories that move or shut down
    while the index stays as it was. If the fetch fails, report "needs a browser".
    Don't argue from the flag that it should have worked, and don't retry to timeout.
@@ -172,6 +197,8 @@ python3 tools/refs/missing_refs.py --bib references.bib --pdfdir refs-pdf --libr
 #    library match = year + first-author surname + title similarity (three gates);
 #    --apply copies unique library matches into refs-pdf/; ambiguous matches are listed for you, not the author
 #    writes refs-pdf/_missing.md (for the author: doi.org links, URLs, ISBNs) and _missing.tsv
+#    also content-checks the PDFs already in refs-pdf/ (rule 3a): doubtful ones are listed on screen and in
+#    refs-pdf/_check_present.md, never moved; --no-check-present skips it
 
 # 2) after the author has downloaded them (default: ~/Downloads, last 72 hours; preview first, no --apply)
 python3 tools/refs/inbox_ingest.py --bib references.bib --pdfdir refs-pdf

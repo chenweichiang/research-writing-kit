@@ -46,7 +46,8 @@ Deciding while you edit means drifting into accepting everything.
 
 **Who drafts the verdict table:** the named agent `clean-reviewer` (template
 `agents/clean-reviewer.md`). Adjudication is judgment work and needs the strongest model at
-the highest effort, which only an agent definition's frontmatter can pin. Give it only the
+the highest effort, which the agent definition's frontmatter pins once, so no call has to
+pass it. Give it only the
 full reviews, the manuscript, `ADJUDICATED.md` and the venue rules as file paths, and ask for
 a verdict, basis and exact location for every point. The main session then checks each
 verdict's basis and that no point is missing before Phase 3. Without subagents, draft the

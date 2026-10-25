@@ -1,9 +1,13 @@
 ---
 name: co-author
-description: Collaborative long-form academic writing for papers and grant/funding proposals. Use to turn a topic or sources into a paper or proposal ("help me write this paper", "build the skeleton"); decide a research method (Phase 3.0 compares 8+ comparable studies, writes `method-decision.md`); add the submission declarations (AI use, ethics, data availability, contributions, competing interests, pre-registration) or check a venue's AI rules and AI-generated figures (`method/AI_DISCLOSURE.md`); rewrite, expand or resubmit an existing draft (rejected and retargeting, conference to journal, talk to paper → Phase 0.5, with text-recycling disclosure); document the literature search (`search-log.md`); native polish ("reads like a translation" → Phase 5.5, change lists adjudicated item by item); a one-line "full polish" before delivery; version numbers, changelog and delivery folders (`method/VERSIONING.md`); cutting to a page or word limit (`method/COMPRESSION.md`); merging a co-author's manuscript or a multi-team proposal with every sentence traced to its source (`method/COLLABORATION.md`); checking figures in the typeset PDF; whether a topic is worth a full paper at all (Phase 1.5 contribution gate). The author decides what to say and signs off; Claude verifies literature, researches the venue, designs method, drafts and self-checks. Default is a verified complete draft; skeleton-first only on request. Check-only → paper-review; slides → a deck skill.
+description: Collaborative long-form academic writing for papers and grant/funding proposals. Use to turn a topic or sources into a paper or proposal ("help me write this paper", "build the skeleton"); decide a research method (Phase 3.0 compares 8+ comparable studies, writes `method-decision.md`); add the submission declarations (AI use, ethics, data availability, contributions, competing interests, pre-registration) or check a venue's AI rules (`method/AI_DISCLOSURE.md`); rewrite, expand or resubmit an existing draft (Phase 0.5, with text-recycling disclosure); document the literature search (`search-log.md`); native polish ("reads like a translation" → Phase 5.5); a one-line "full polish" before delivery; version numbers and delivery folders (`method/VERSIONING.md`); cutting to a page or word limit (`method/COMPRESSION.md`); merging a co-author's manuscript or a multi-team proposal with every sentence traced to its source, diffing a returned Word file that has no tracked changes, second-coder agreement and kappa (`method/COLLABORATION.md`); checking figures in the typeset PDF; whether a topic is worth a paper and which venue fits ("can this be a paper", "where should I submit" → Phase 1.5 contribution gate and venue table). The author decides what to say and signs off; Claude verifies literature, researches the venue, designs method, drafts and self-checks. Default is a verified complete draft; skeleton-first only on request. Check-only → paper-review; submitting → submit; slides → a deck skill.
 ---
 
 # co-author: collaborative paper / proposal writing
+
+> After the conversation has been compacted and only the top of this file is visible:
+> invoke this skill again before moving on to a later step (after compaction Claude Code
+> re-attaches only about the first 5,000 tokens of each invoked skill).
 
 > **This skill was generated from the Research Writing Kit and should be adapted to
 > the author.** Placeholders in `<ANGLE BRACKETS>` are filled in at setup.
@@ -95,6 +99,11 @@ stage**, and report once at the end. The order has reasons; do not swap stages.
   a *cross-project* problem. The same manuscript under a new title, sent elsewhere,
   looks clean from inside either folder. Keep one ledger above all projects, never
   change a `manuscript_id` when retargeting, and update it the day a status changes.
+  **A new project folder under version control: the first commit is `.gitignore`**,
+  excluding publishers' PDFs (`refs-pdf/`, `*.pdf` outside the delivery folder) and any
+  participant data. `.gitignore` is not retroactive: a file committed once stays in the
+  history, so a repository whose history holds journal PDFs or raw data must never be
+  made public.
 - **Phase 0.5 (Onboard existing draft):** provenance triage (preserve author-written
   passages), reverse-extract skeleton, treat old citations as unverified, disposition
   table, read a real sample before judging. **Also inventory text recycling**: every
@@ -141,6 +150,26 @@ stage**, and report once at the end. The order has reasons; do not swap stages.
   current page for every manuscript.
 - **Phase 1.5 (Direction summary):** one page (gap/angle + contribution + main line +
   recommended venue as explicit options). Non-blocking in default mode.
+  - **Venue comparison table** (also the answer when the author asks "can this be a
+    paper, where should I send it, which journal is better"): at least three candidates,
+    one of them a safe fallback, with fixed columns, written into `venue-notes.md`:
+
+    | Venue | Type and standing | Takes this kind of paper? | Length limit | Deadline or review time | Fees | AI policy | Preprints | Ledger conflict | Source (link + date read) |
+    |---|---|---|---|---|---|---|---|---|---|
+
+    *Type and standing*: journal, full conference paper, short paper, poster, exhibition
+    paper; the indexing as the official page or the index itself states it (and note it
+    when the author's institution or funder counts venues differently). *Takes this kind
+    of paper?*: quote the Aims & Scope, then list one or two papers on a similar topic
+    from the last two years (with DOIs you could resolve); if none, write "none seen in
+    the last two years". *Deadline or review time*, *acceptance rate*: only official
+    figures, otherwise "not published"; never estimate. *Fees*: APC, registration,
+    open-access charges, and whether the author's institution reimburses them. *Ledger
+    conflict*: the result of `tools/submissions/check_submissions.py`; the same
+    manuscript under review elsewhere means "cannot submit". 🔴 Every cell comes from
+    this year's official page or the index; memory decides only where to look. A cell
+    you could not fill says "not found", never blank and never a guess. Under the table,
+    one recommendation with reasons; the choice is the author's.
   - **Is the venue compatible with this workflow?** If it does not allow AI drafting,
     say so in the summary and let the author choose: another venue, another process
     (they write the first draft, AI only translates and polishes), or a question to
@@ -320,9 +349,13 @@ stage**, and report once at the end. The order has reasons; do not swap stages.
   subsection does not restate its chapter title; ② the "not X but Y" frame is kept only
   where the contrast carries weight, everything else is stated plainly; ③ sentences
   over ~120 characters (Chinese) / ~45 words (English) are split unless they are
-  enumerations; ④ a term is handled once at first mention (an in-place one-sentence
-  definition, a parenthetical original-language gloss, or a pointer to the full
-  explanation) and **not** collected into a glossary (harder to read). Explanatory
+  enumerations; ④ a term is handled once at first mention, by default with an in-place
+  one-sentence definition or a pointer to the full explanation; a parenthetical
+  original-language gloss only where it is needed (no established translation yet, the
+  venue requires it, or the original is the name readers will search for), because
+  glosses after every term were the first thing an author asked to remove; when you
+  have to coin a translation, offer candidates and let the author pick. Terms are
+  **not** collected into a glossary (harder to read). Explanatory
   asides in parentheses become defining sentences. Traditional-Chinese drafts get all
   four measured by the bundled tools (`setup/addons/zh-tw/README.md` §4).
   **Figures before prose** (same verdict): a table that repeats an overview figure
@@ -517,8 +550,9 @@ stage**, and report once at the end. The order has reasons; do not swap stages.
     carries the common discipline (quote and locate every criticism, reopen an
     adjudicated item only with new evidence), so the prompt gives the file paths and
     what to focus on this round. It is a named agent because the review needs the
-    strongest model at the highest effort, and effort can only be pinned in an agent
-    definition's frontmatter, never in the Agent call. Without subagents, do a separate
+    strongest model at the highest effort, and the agent definition's frontmatter pins
+    the effort once (the Agent call accepts an effort only from Claude Code 2.1.292 on,
+    and only when someone remembers to pass it). Without subagents, do a separate
     pass that reads only the files.
   - **6-5 Verification report** (citations · format tick-list · toolchain results ·
     declarations table · `❓unverified` list) and **6-6 delivery as the formatted PDF**
@@ -526,7 +560,11 @@ stage**, and report once at the end. The order has reasons; do not swap stages.
     handing it over run `python3 tools/versioning/version_check.py <project>
     [--submission <submitted.pdf>]` (`VERSION` and CHANGELOG agree, the delivery folder
     holds one version only, no version string in the submitted text, no delivered
-    number reused after its tag).
+    number reused after its tag, the delivered files not older than `VERSION` or the
+    manuscript sources). Report the delivery by quoting the absolute paths it prints,
+    one file per line with version and page or word count, never a relative path.
+    Submitting it (readiness check, Word version, template and anonymization checks,
+    upload package, wrap-up after submission) is the `submit` skill.
 - **Phase 7 (Iterate):** author reacts; substantive changes written back to
   `skeleton.md`; swap evidence per node without rebuilding the argument.
   **A number changes → update the ledger first, then the draft, then rerun the

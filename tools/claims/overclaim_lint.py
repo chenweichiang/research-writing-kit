@@ -22,6 +22,14 @@ a human decision — does the evidence carry this word?
   - **Quoted source text and object-language in quotation marks are out of scope** —
     skip them by hand; the scanner cannot tell whose words they are.
 
+Two categories behave differently from the rest:
+  - nobody-did-it / 沒人做過 ("to the best of our knowledge", "no prior research", "fills a gap",
+    就作者所知, 尚無研究): reported even when a citation is nearby. A citation cannot carry
+    "nobody has done this"; only a search trail can (databases, query strings, date).
+  - official-doc-undated / 官方文件未標年 (a guideline, regulation or policy cited without a
+    year): skipped when a year sits next to it. These documents are revised often, and an
+    undated citation does not say which version is meant.
+
 Where it sits in the pipeline:
   English : ai_style_diag → Harper / LanguageTool / Vale → **overclaim_lint** →
             de-cadencing pass (agents/de-cadencing-scholar.md, tic #6 is this list)
@@ -57,11 +65,24 @@ ZH = [
     ("證據強度", r"證明了|證實了|確立了|揭示了|一致顯示|一致認為|普遍認為|眾所周知|不言而喻|顯而易見|顯然|無可否認|毋庸置疑"),
     ("最高級", r"最(?:重要|關鍵|核心|有效|佳|好|強|大|直接|明確|乾淨|精確|標準|常見|成熟)"),
     ("無出處歸屬", r"(?<!「)(?:研究顯示|研究表明|有研究指出|許多研究(?:顯示|指出|表明)|許多學者認為|學者普遍認為|專家認為|業界普遍認為)(?!」)"),
+    ("沒人做過", r"[就據](?:作者|筆者|我們|本研究)所知|尚無(?:研究|文獻|相關研究|實證)|(?:目前|迄今|至今|過去)(?:仍|尚)?(?:沒有|缺乏|未見|未有|少有)(?:研究|文獻|相關(?:研究|文獻)|實證)|國內外(?:均|皆)?(?:尚無|未見|缺乏)|填補.{0,8}(?:空白|缺口)"),
+    ("官方文件未標年", r"《[^》\n]{2,40}(?:要點|辦法|準則|指引|指南|計畫|政策|白皮書|綱要|規定|條例|法|規範|方案|報告)》"),
 ]
+EN.append(("nobody-did-it", r"\bto the best of (?:our|my|the authors?'?) knowledge\b|\bno (?:prior|previous|existing|published) (?:research|work|studies|study|literature)\b|\b(?:has|have) (?:never|not (?:yet )?)been (?:studied|examined|explored|investigated|addressed|reported)\b|\b(?:little|no) (?:research|attention|work) has (?:been|examined|addressed)\b|\bfills? (?:a|the|this|an important) (?:gap|void)\b|\bremains? (?:unexplored|understudied|largely unknown)\b"))
+EN.append(("official-doc-undated", r"\b(?:UNESCO|OECD|European Commission|the EU|Ministry of [A-Z]\w+|Department of [A-Z]\w+|National [A-Z]\w+ (?:Council|Foundation|Agency))\b[^.\n]{0,60}?\b(?:guidelines?|guidance|policy|policies|framework|white paper|act|regulations?|recommendations?)\b"))
 EN.append(("unattributed", r"\b(?:studies|research|experts?|scholars|many (?:researchers|scholars|studies))\s+(?:have\s+|has\s+)?(?:shown|shows?|suggests?|suggested|indicates?|agree|argue|found)\b|\bit is (?:generally|commonly|widely) (?:believed|known|agreed)\b"))
 # Attribution to unnamed authorities ("studies show", 研究顯示) is only an overclaim when nothing
 # is cited. A citation in the window around the hit (year + bracket, [n], et al.) = sourced, skip.
 ATTRIB = {"無出處歸屬", "unattributed"}
+# "To the best of our knowledge", "no prior research", 就作者所知, 尚無研究: the claim reviewers most
+# often knock down with one line ("you missed X"). It only stands with a search trail behind it
+# (search-log.md: databases, query strings, date), so these are reported even when a citation is near.
+# Official documents (guidelines, regulations, policies) are revised every year or two; cited without
+# a year, nobody can tell which version is meant. A year in the window around the hit (Western,
+# ROC era, academic year) = dated, skip.
+GAP = {"沒人做過", "nobody-did-it"}
+UNDATED = {"官方文件未標年", "official-doc-undated"}
+YEAR_RX = re.compile(r"(?:19|20)\d{2}|民國\s*\d{2,3}|\d{2,3}\s*(?:學)?年度?|\d{3}\s*年")
 CITE_RX = re.compile(r"\d{4}[a-z]?\s*[）)]|\[\d+(?:\s*[,，–-]\s*\d+)*\]|et al\.|\[@")
 HAN = re.compile(r"[一-鿿]")
 
@@ -105,6 +126,8 @@ def scan(path: Path, lang: str):
             for m in rx.finditer(line):
                 if cat in ATTRIB and CITE_RX.search(line[max(0, m.start() - 40):m.end() + 80]):
                     continue
+                if cat in UNDATED and YEAR_RX.search(line[max(0, m.start() - 40):m.end() + 60]):
+                    continue
                 ctx = line[max(0, m.start() - 30):m.end() + 30].strip()
                 hits.append({"line": n, "category": cat, "match": m.group(), "context": ctx})
     return lang, hits
@@ -131,6 +154,14 @@ def main():
             print(f"  L{h['line']:<5} {h['match']:<18} …{h['context']}…")
         if len(hs) > a.max:
             print(f"  … {len(hs) - a.max} more (raise --max or use --json)")
+    if any(h["category"] in GAP for h in hits):
+        print("\nNobody-did-it claims: keep one only with a search trail (search-log.md or venue-notes.md: "
+              "which databases, the query strings, the date), rewritten as a checkable statement "
+              "(\"searching Scopus and Web of Science for X and Y up to October 2026 found no ...\"); "
+              "without a trail, cut it or soften it to \"few studies\".")
+    if any(h["category"] in UNDATED for h in hits):
+        print("Undated official documents: add the year of issue or of the last amendment, and check on the "
+              "official page that the version you cite is the current one.")
     print(f"\nDisposition: evidence carries it → keep (real 0/72 or 100% results are data, "
           f"do not soften them); it doesn't → converge ({CONVERGE_EN if lang == 'en' else CONVERGE_ZH}). "
           f"Quoted source text and object-language in quotes: skip by hand.")

@@ -422,3 +422,70 @@ def test_missing_inbox_folder_is_reported(ib):
     shutil.rmtree(ib.inbox)
     r = ib.run("--all")
     assert r.returncode != 0 and "Inbox folder not found" in r.stdout
+
+
+# ------------------------------------------------------------------ content-check fixes
+def _rc():
+    return load_tool("refs/refs_common.py")
+
+
+def test_norm_text_ligatures_ordinals_and_split_accents():
+    rc = _rc()
+    assert rc.norm_text("Ofﬂoading in the 21 st Century") == "offloading in the 21st century"
+    assert rc.norm_text("Vallg˚arda") == "vallgarda"
+
+
+def test_cjk_title_found():
+    rc = _rc()
+    head = "設計學報 第 30 卷 設計師在設計思考中的角色與實踐：一個案例研究 摘要 本研究"
+    assert rc.cjk_title_found("設計師在設計思考中的角色與實踐", head) is True
+    assert rc.cjk_title_found("高齡者遊戲化介面的可用性評估", head) is False
+    assert rc.cjk_title_found("Designing Tangible Interfaces", head) is None
+
+
+@pytest.mark.skipif(load_tool("refs/refs_common.py")._S2T is None, reason="OpenCC not installed")
+def test_cjk_title_simplified_vs_traditional():
+    rc = _rc()
+    assert rc.cjk_title_found("設計師在設計思考中的角色與實踐", "设计师在设计思考中的角色与实践") is True
+
+
+def test_arxiv_stamp_doubt():
+    rc = _rc()
+    e = {"year": "1991", "title": "The Computer for the 21st Century"}
+    assert "2023 arXiv preprint" in rc.arxiv_stamp_doubt(e, "arxiv:2309.03971v1 [cs.et] 7 sep 2023")
+    assert rc.arxiv_stamp_doubt({"year": "2022"}, "arxiv:2309.03971v1") == ""   # preprint a year later
+    assert rc.arxiv_stamp_doubt(e, "no identifier here") == ""
+
+
+@needs_pdftotext
+def test_verify_downgrades_late_arxiv_preprint(tmp_path):
+    rc = _rc()
+    f = tmp_path / "weiser.pdf"
+    make_pdf(f, title="Analog Computing for the 21st Century and Beyond Today",
+             author="arXiv:2309.03971v1 Bernd Ulmann")
+    e = {"key": "weiser1991", "title": "Analog Computing for the 21st Century and Beyond Today",
+         "author": "Weiser, Mark", "year": "1991"}
+    ok, _n, note = rc.verify(str(f), e)
+    assert ok and "LOW-CONFIDENCE" in note and "arXiv preprint" in note
+
+
+@needs_pdftotext
+def test_missing_refs_checks_pdfs_already_present(tmp_path):
+    bib = tmp_path / "r.bib"
+    bib.write_text("@article{right2021, author={Lee, Kim}, title={Tangible Feedback for Remote "
+                   "Collaboration in Design Studios}, year={2021}}\n"
+                   "@article{wrong2019, author={Ono, Haruki}, title={Soft Robotic Skins as Expressive "
+                   "Interfaces}, year={2019}}\n", encoding="utf-8")
+    pdfdir = tmp_path / "refs-pdf"
+    pdfdir.mkdir()
+    make_pdf(pdfdir / "right2021.pdf", title="Tangible Feedback for Remote Collaboration in Design Studios",
+             author="Kim Lee, Jun Park")
+    make_pdf(pdfdir / "wrong2019.pdf", title="Speculative Kitchens and Domestic Futures", author="Lin Wu")
+    r = run_tool("refs/missing_refs.py", "--bib", bib, "--pdfdir", pdfdir, home=tmp_path)
+    assert r.returncode == 0, r.stderr
+    assert "[wrong2019]" in r.stdout and "[right2021]" not in r.stdout
+    report = (pdfdir / "_check_present.md").read_text(encoding="utf-8")
+    assert "wrong2019" in report and "right2021" not in report
+    assert (pdfdir / "wrong2019.pdf").exists(), "flag only, never move or delete"
+    r = run_tool("refs/missing_refs.py", "--bib", bib, "--pdfdir", pdfdir, "--no-check-present", home=tmp_path)
+    assert "[wrong2019]" not in r.stdout

@@ -80,8 +80,19 @@ Newest first, one section per version:
   - **the submitted version's text carries no version number** (a reviewer who sees
     "v0.29.1" assumes a half-finished draft). The number goes only in the file name and
     the PDF metadata (Keywords or Subject).
-- **Closing every delivery**: rebuild, report the file paths and the version, and tag a
-  version that was sent out with git tag `vX.Y.Z`.
+- **Closing every delivery** (spelled out because "where is the file?" and "is this the
+  latest version?" kept coming back after deliveries):
+  1. Rebuild. Empty `latest/` and move the previous version to `versions/vX.Y.Z/` first,
+     then put this version in.
+  2. Run `version_check.py` (below). Besides the rules it compares `VERSION` and the
+     manuscript sources with the delivered files (version bumped but not rebuilt = FAIL,
+     source edited but not rebuilt = WARN) and ends by printing the **absolute path** of
+     each delivered file.
+  3. Report by quoting those absolute paths, one file per line with its version and page
+     or word count, never a relative path such as `latest/paper.pdf`; then reveal the
+     first file in the file manager (`open -R` on macOS).
+  4. Tag a version that was sent out with git tag `vX.Y.Z`, and push the tag with the
+     branch.
 
 ## Receiving versions from others
 
@@ -102,4 +113,7 @@ What it checks: `VERSION` is valid; the topmost CHANGELOG section has the same n
 `latest/` holds exactly one version and it is the one in `VERSION`; the delivered PDF's
 metadata carries the number; the submission PDF's text has no version string; `VERSION`
 was already tagged and there are changes after the tag (a delivered number being
-reused). Run it before every delivery; fix every FAIL before handing anything over.
+reused); `VERSION` or a manuscript source (.md, .typ, .qmd, .tex, .bib; ledgers and notes
+do not count) is newer than the delivered files (edited but not rebuilt). It ends with
+the absolute paths of the delivered files. Run it before every delivery; fix every FAIL
+before handing anything over.

@@ -6,10 +6,11 @@ effort: xhigh
 ---
 
 > Model note: this is the heaviest judgment job in the kit, so it needs the strongest model
-> tier at the highest reasoning effort. An Agent call has a model parameter but no effort
-> parameter, so the effort can only be pinned here, in this file's frontmatter; that is why the
-> final review is its own agent rather than a general-purpose dispatch, which runs at the
-> session's effort. `xhigh` is set above; if your model offers `max`, you may raise it, and if
+> tier at the highest reasoning effort. The effort is pinned here, in this file's frontmatter,
+> so nobody has to remember it at each call: older Claude Code versions had no effort parameter
+> on the Agent call at all, and since version 2.1.292 the call accepts one, but a general-purpose
+> dispatch that leaves it out still runs at the session's effort. That is why the final review is
+> its own agent. `xhigh` is set above; if your model offers `max`, you may raise it, and if
 > it does not offer `xhigh`, use the highest level it lists. Set the strongest model here too
 > (a `model:` line in the frontmatter) or pass it explicitly at every call; never let it inherit
 > a cheaper session model.

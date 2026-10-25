@@ -21,11 +21,19 @@ What it does:
      skipped and the report says so.
   3. Writes what is left to <pdfdir>/_missing.md (for you to read: DOI / URL / ISBN links)
      and <pdfdir>/_missing.tsv (machine readable).
+  4. Checks the PDFs already in <pdfdir> with the same content check new downloads get
+     (needs pdftotext): a file someone put there by hand, an earlier run's download or a
+     library copy is not proof that it is the cited work. Files that fail or come out
+     LOW-CONFIDENCE are only listed (on screen and in <pdfdir>/_check_present.md), never
+     moved or deleted: in one measurement every file that failed was one the check cannot
+     read (a chapter inside a proceedings volume, a garbled text layer, a poor OCR scan, a
+     non-PDF), while the real wrong files had passed. Skip it with --no-check-present.
 
 Next step: download the PDFs into ~/Downloads and run inbox_ingest.py to file them.
 
 Usage:
   missing_refs.py --bib references.bib [--pdfdir refs-pdf] [--library ~/papers] [--apply]
+                  [--no-check-present]
 
 The default is a dry run for the library copy; only the two list files are written.
 """
@@ -61,6 +69,18 @@ def group_of(e):
     if e.get("url"):
         return "url"
     return "none"
+
+
+def check_present(entries, pdfdir):
+    """Run the content check on the PDFs already in pdfdir. Returns [(key, path, note)] for the
+    ones a human should open: content mismatch, not a PDF, or LOW-CONFIDENCE. Never moves files."""
+    by_key = {e["key"]: e for e in entries}
+    doubtful = []
+    for key, path in sorted(rc.present_files(entries, pdfdir).items()):
+        ok, _n, note = rc.verify(path, by_key[key])
+        if not ok or "LOW-CONFIDENCE" in note:
+            doubtful.append((key, path, note))
+    return doubtful
 
 
 def write_outputs(pdfdir, todo):
@@ -107,6 +127,8 @@ def main():
                          "library check is skipped")
     ap.add_argument("--apply", action="store_true",
                     help="copy each confident library match into --pdfdir as <citekey>.pdf")
+    ap.add_argument("--no-check-present", action="store_true",
+                    help="skip the content check of PDFs already in --pdfdir")
     a = ap.parse_args()
     if not os.path.isfile(a.bib):
         ap.error("bib file not found: %s" % a.bib)
@@ -156,6 +178,26 @@ def main():
             print("   [%s] %s" % (e["key"], rc.delatex(e.get("title", ""))[:50]))
             for L in Ls:
                 print("       ? %s" % L["name"])
+
+    if not a.no_check_present:
+        if not rc.have_pdftotext():
+            print("\nNote: pdftotext not found, so the PDFs already in %s were NOT content-checked." % a.pdfdir)
+        else:
+            doubtful = check_present(entries, a.pdfdir)
+            out = os.path.join(a.pdfdir, "_check_present.md")
+            if doubtful:
+                print("\nAlready in %s but to confirm by hand (%d; nothing was moved):" % (a.pdfdir, len(doubtful)))
+                for k, path, note in doubtful:
+                    print("   [%s] %s: %s" % (k, os.path.basename(path), note))
+                with open(out, "w", encoding="utf-8") as fh:
+                    fh.write("# PDFs already in the folder to confirm by hand\n\n"
+                             "The content check did not pass or came out LOW-CONFIDENCE. Nothing was moved. "
+                             "Open the first page and confirm it is the cited work; chapters in edited "
+                             "volumes, scans and your own works often fail the check and only need a look.\n\n")
+                    for k, path, note in doubtful:
+                        fh.write("- `%s` (%s): %s\n" % (k, os.path.basename(path), note))
+            elif os.path.exists(out):
+                os.remove(out)
 
     groups, md, tsv = write_outputs(a.pdfdir, todo)
     print("\nTo download by hand: DOI %d | books %d | URL only %d | nothing to go on %d" % (

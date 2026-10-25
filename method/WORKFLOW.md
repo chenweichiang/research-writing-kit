@@ -20,6 +20,11 @@ Get: (1) the topic, sources, or which existing draft to work on (messy is fine);
 analyze; (4) the mode (default "write it to good", or explicit skeleton-first);
 (5) whether there's an **existing draft** to work from → if so, Phase 0.5 first.
 
+If the project folder will be under version control, its first commit is `.gitignore`,
+excluding publishers' PDFs and participant data. `.gitignore` does not reach back: a
+file committed once stays in the history, and a repository whose history holds journal
+PDFs or raw data can never be made public.
+
 ## Phase 0.5: Onboard an existing draft (only if one exists)
 
 Before writing a single new word:
@@ -109,6 +114,17 @@ venue (with alternatives and why)" to **one page** and show the author.
 "where to submit" as explicit options (it affects their tenure points, timeline,
 cost). In default mode you may proceed on the recommended venue while the question
 is out; in skeleton mode, wait for the nod.
+
+**Venue comparison table.** The options go to the author as a table in `venue-notes.md`
+(also the answer to "can this be a paper, where should I send it"): at least three
+candidates, one of them a safe fallback; columns for type and standing (indexing as
+the official page or the index states it), whether the venue takes this kind of paper
+(the Aims & Scope quoted, one or two similar papers from the last two years with
+resolvable DOIs, or "none seen"), length limit, deadline or review time, fees, AI policy,
+preprint policy, conflicts in the submission ledger, and the source with the date it was
+read. Every cell comes from this year's official page or the index; a cell that could not
+be filled says "not found", and acceptance rates or review times are never estimated.
+One recommendation with reasons goes under the table; the choice is the author's.
 
 **Compatibility.** This pipeline drafts with an AI (Phase 5). If the venue does not
 allow AI drafting, say so in the summary and let the author choose: another venue,
@@ -426,14 +442,17 @@ reading a draft for its argument, still has a place after this phase.
    hand it the project's `ADJUDICATED.md` (decisions already made, with reasons), or
    it will re-raise settled questions as discoveries. Re-opening an adjudicated item
    requires new evidence. This is a judgement task that needs the strongest model at
-   the highest effort. An Agent call can set the model but not the effort, so the
-   review runs as a named agent whose definition pins both (`agents/clean-reviewer.md`).
+   the highest effort. The review runs as a named agent whose definition pins both
+   the model and the effort (`agents/clean-reviewer.md`), so no call has to remember them.
 5. Produce the **verification report** (citations / retraction & uncited scans /
    ledger reconciliation / format tick-sheet incl. declarations / toolchain /
    `❓unverified` list).
 6. Deliver = the formatted document + the report (+ back-translation if second-lang).
    Version number, file names, delivery folders and changelog follow
-   `method/VERSIONING.md`; run `tools/versioning/version_check.py` before handing over.
+   `method/VERSIONING.md`; run `tools/versioning/version_check.py` before handing over
+   and report the absolute paths it prints. Submitting it is the `submit` skill
+   (readiness verdict by a clean reviewer, Word round-trip, template and anonymization
+   checks, upload package, the wrap-up after sending).
 
 ## Phase 7: Iterate with the author (repeat until good)
 

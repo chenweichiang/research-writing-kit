@@ -5,6 +5,10 @@ description: Check whether in-text citations are actually supported by the cited
 
 # verify-citations: check citations against the real source
 
+> After the conversation has been compacted and only the top of this file is visible:
+> invoke this skill again before moving on to a later step (after compaction Claude Code
+> re-attaches only about the first 5,000 tokens of each invoked skill).
+
 > Generated from the Research Writing Kit; adapt to what's installed.
 > Requires the reference PDFs (see `fetch-refs`). Never fabricate support.
 
@@ -122,6 +126,16 @@ For each "claim + citation" pair in the draft:
    dropped**. Sort by severity; read the FAILs first; then split "real problem (edit)"
    from "false alarm (citation is fine)".
 
+### Re-checking during a revision loop
+When a draft has already been checked and only some paragraphs changed since, re-check
+only what changed: a pair counts as unchanged when the citation key, the clause text
+(whitespace normalised), the page locator and the cited PDF are all the same as last
+round; a new key or a replaced PDF means the whole key is re-checked. Carry the earlier
+verdicts for the unchanged pairs forward and say in the report how many were carried
+and how many re-checked. Keep the previous round's claim list and verdict table for
+this (the claim list is the comparison basis). 🔴 **The last round before submission is
+always a full check**, never incremental.
+
 ## Retraction scan, every delivery
 ```bash
 python3 tools/refs/retraction_scan.py --bib references.bib
@@ -148,10 +162,13 @@ foundational works (→ the presumption-of-correctness rules in the template).
 - ⚠️ Couldn't get the full text (paywall/Cloudflare) → `❓unverifiable`, never
   "confirmed."
 - **Scanned PDFs with no text layer, and CJK-heavy PDFs:** if MinerU is installed
-  (see `setup/TOOLS.md`), prefer `mineru -p <pdf> -o <outdir> [-s start -e end]` and
-  read the produced markdown. It handles scans, CJK layouts, complex tables and
-  formulas well. Fallback: render pages to images (`pdftoppm`) and read them visually
-  (slower). For books, extract only the intro / relevant chapters.
+  (see `setup/TOOLS.md`), prefer `mineru-kit parse <pdf> -o <outdir> -p all -f markdown
+  --ocr-mode ocr --disable-image-analysis` (MinerU 4.x; `-p 1-5,8` for a page range;
+  `--ocr-mode auto` when the PDF already has a text layer) and read the produced markdown. The older `mineru -p <pdf> -o <outdir>` form no longer
+  works in 4.x, where `mineru` is a document-library command. Do not add `--remote`: it
+  sends the file to MinerU's cloud service. It handles scans, CJK layouts, complex
+  tables and formulas well. Fallback: render pages to images (`pdftoppm`) and read them
+  visually (slower). For books, extract only the intro / relevant chapters.
 - Names/dates/spellings are checked even in "fact-locked" existing drafts. An old
   typo protected as "don't rewrite" otherwise propagates.
 - **Co-cited pairs** (`\cite{a,b}` / `[@a; @b]`) share one clause; each source may

@@ -108,12 +108,64 @@ one row per unit:
    of commenting, so sections and the order of arguments may have changed. Compare the
    structure (sections, figures and tables, list of claims) first, then the sentences.
    Ask early how each co-author works: comments, tracked changes, or full rewrites.
+   **A returned Word file without tracked changes** (the most common case): take the
+   .docx you sent as the old version and run
+   ```bash
+   python3 tools/collab/docx_diff.py sent.docx docs/received/YYYYMMDD-<source>/returned.docx \
+       --out docs/received/YYYYMMDD-<source>/changes.md --json changes.json
+   ```
+   It lists every modification, insertion, deletion and move (table cells, headers,
+   footers and footnotes included) and reports any tracked changes and comments the
+   co-author left. The change list is for the author to read; the JSON is for writing the
+   changes back into the source (markdown, Typst) one by one. After writing them back,
+   run it again: what remains should be only the entries you deliberately did not take.
+   Exit 0 = no change, 1 = changes, 2 = a file could not be read. If the version you sent
+   was not kept, look in `latest/`, `versions/` and the sent mail first; failing that, fall
+   back to the structural comparison by hand and note in the CHANGELOG that this round
+   had no mechanical comparison. Needs python-docx.
 3. Update the ownership table; re-convert, re-apply the edit layer, and handle the
    entries that no longer match.
 4. Run `source_trace.py`, the regression rules, and the language and de-AI checks (the
    "full polish" pass in the co-author skill).
 5. Bump your own minor version (`method/VERSIONING.md`) and log "merged <source>'s MMDD
    version" in the CHANGELOG.
+
+Feedback that arrives in a group chat or by voice is handled like an open question: who
+said it, when, in their words, logged in the open-question list. A remark in a group chat
+is not the lead author's agreement; a change to someone else's section still goes through
+the ownership table. Files sent in the chat go through step 2.
+
+## A second coder and inter-rater agreement (qualitative coding)
+
+When the paper reports inter-rater agreement (kappa), the second coder is often not a
+methods specialist, and a code table in a spreadsheet is hard to fill in. `coding_pack.py`
+turns the codebook and the response files into one offline web page instead: one response
+at a time, number keys to tick codes, one CSV exported at the end.
+
+```bash
+# 1. build the page (name the output so .gitignore excludes it, e.g. coder*; it prints only
+#    question count, response count and the pack hash)
+python3 tools/collab/coding_pack.py build --codebook codebook.md --csv B_BLANK_q1.csv --csv B_BLANK_q2.csv \
+    --id-col pid --text-col response --coder "Coder B" --out coderB_page.html [--ui zh-TW]
+# 2. the coder's export -> the project's 0/1 coding tables (BLANK becomes DONE; an existing DONE is never overwritten)
+python3 tools/collab/coding_pack.py import coding_export_CoderB.csv --into coding-pack/
+# 3. score: per-code kappa, PABAK, prevalence and bootstrap CI; codes below the threshold or with low prevalence flagged
+python3 tools/collab/coding_pack.py score A_DONE.csv B_DONE.csv --id-col pid --text-col response \
+    --threshold 0.61 --low-prev 0.10
+```
+
+- 🔴 The page contains participants' answers. Open it locally or hand it to the coder
+  directly (a USB stick, an institutional mail attachment); never put it on a public web
+  page, upload it to a cloud AI or paste it into a chat. The author side needs only the
+  counts, the hash and the kappa figures.
+- Fix the threshold and the low-prevalence rule before seeing the data; the kappa before
+  discussion is the one to report. A coding procedure already frozen in the project
+  (its README) takes precedence; the page is only an input form and does not change the
+  coding rules.
+- A pack hash that does not match means the BLANK files changed after the page was
+  built, or the export belongs to another batch. Do not force the import; find out which
+  file is the frozen one.
+- Needs numpy for `score`; `build` and `import` run on the standard library.
 
 ## Handing back to a co-author
 

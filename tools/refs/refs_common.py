@@ -30,6 +30,15 @@ STOP_VERIFY = {"the", "a", "an", "of", "in", "and", "for", "on", "to", "with", "
                "into", "through", "from", "by", "at", "or", "how", "what", "be", "are"}
 DOI_RE = re.compile(r"10\.\d{4,9}/[^\s\"<>]+")
 
+try:  # optional: Simplified/Traditional folding for Chinese titles (pip install opencc-python-reimplemented)
+    import opencc
+    try:
+        _S2T = opencc.OpenCC("s2t").convert
+    except Exception:
+        _S2T = opencc.OpenCC("s2t.json").convert
+except Exception:
+    _S2T = None
+
 
 # ---------------------------------------------------------------- naming
 def safe_name(name):
@@ -327,6 +336,22 @@ def present_keys(entries, pdfdir):
     return have, ambiguous
 
 
+def present_files(entries, pdfdir):
+    """{key: path} for entries whose PDF in the project folder can be pinned to one file:
+    <citekey>.pdf, or a single confident file-name match. Ambiguous matches are left out."""
+    out = {}
+    files = load_library(pdfdir) if os.path.isdir(pdfdir) else []
+    for e in entries:
+        p = pdf_path(pdfdir, e["key"])
+        if os.path.isfile(p):
+            out[e["key"]] = p
+            continue
+        kind, hit = library_match(e, files)
+        if kind == "confident":
+            out[e["key"]] = hit["path"]
+    return out
+
+
 # ---------------------------------------------------------------- PDF text (pdftotext)
 def have_pdftotext():
     return shutil.which("pdftotext") is not None
@@ -387,11 +412,13 @@ def title_phrase_score(title, head):
 
 def identity_doubt(e, head, p1):
     """After a phrase match passes, ask: is this the paper, or a paper that mentions it?
-    Returns a reason string, or "" when nothing looks off. Two signals:
+    Returns a reason string, or "" when nothing looks off. Three signals:
       1. page 1 prints a DOI that is not the bib's, and the bib's DOI appears nowhere in the
          front pages (template placeholders and arXiv-DOI bibs are ignored);
       2. the title has three content words or fewer and the first author's surname is absent
-         from the first eight pages (phrase matching cannot discriminate short titles)."""
+         from the first eight pages (phrase matching cannot discriminate short titles);
+      3. page 1 carries an arXiv identifier from three or more years after the bib year
+         (see arxiv_stamp_doubt)."""
     want = (e.get("doi") or "").lower().strip().replace("//", "/")
     if want and not want.startswith("10.48550/"):
         found = {x.rstrip(".,;)]").replace("//", "/") for x in DOI_RE.findall(p1)}
@@ -403,7 +430,74 @@ def identity_doubt(e, head, p1):
     if sn and n_words <= 3 and sn not in _fold_name(head):
         return "title has only %d content words and first author %s is absent from the first 8 pages" % (
             n_words, sn)
+    return arxiv_stamp_doubt(e, p1)
+
+
+# new-style arXiv identifiers YYMM.NNNNN, old-style subject/YYMMNNN; only the stamp on page 1
+_ARXIV_STAMP = re.compile(r"arxiv:\s*((?:[a-z\-]+(?:\.[a-z]{2})?/)?(\d{2})\d{2}[.\d]\d*(?:v\d+)?)")
+
+
+def arxiv_stamp_doubt(e, p1):
+    """Page 1 carries an arXiv identifier whose year is more than two years after the bib year.
+    Returns a reason, or "".
+
+    The first two digits of an arXiv identifier are the upload year, and a 1991 article is not
+    a 2023 preprint. Measured on 733 already-collected PDFs: two wrong files had been filed for
+    old classics (each a recent preprint that discusses the classic and shares its title words
+    and surname), and one of them had passed as verified at phrase similarity 1.00. Only a
+    downgrade, never a rejection: authors do upload old papers to arXiv years later (the same
+    measurement found one such case), and the two-year slack allows for a journal version that
+    appears a year or two after its preprint."""
+    try:
+        by = int(str(e.get("year") or "")[:4])
+    except ValueError:
+        return ""
+    m = _ARXIV_STAMP.search(p1 or "")
+    if not m:
+        return ""
+    yy = int(m.group(2))
+    sy = 1900 + yy if yy >= 90 else 2000 + yy
+    if sy - by > 2:
+        return "page 1 is a %d arXiv preprint (arXiv:%s) but the bib year is %d" % (sy, m.group(1), by)
     return ""
+
+
+_ORDINAL_SPLIT = re.compile(r"(\d)\s+(st|nd|rd|th)\b")
+
+
+def norm_text(s):
+    """Normalise extracted PDF text before matching: drop stray modifier symbols (Unicode Sk,
+    such as the split-off ring in `vallg˚arda`; NFKC would expand them into a space plus a
+    combining mark and break surname matching), NFKC (splits publisher ligatures: `ﬂ` in
+    `Ofﬂoading` becomes `fl`), lower-case, and rejoin ordinals that OCR split (`21 st` → `21st`)."""
+    s = "".join(c for c in (s or "") if unicodedata.category(c) != "Sk")
+    return _ORDINAL_SPLIT.sub(r"\1\2", unicodedata.normalize("NFKC", s).lower())
+
+
+_CJK_CHAR = re.compile(r"[\u3400-\u9fff\uf900-\ufaff]")
+_CJK_KEEP = re.compile(r"[^\u3400-\u9fff\uf900-\ufaffa-z0-9]")
+CJK_KEY_LEN = 12
+
+
+def cjk_title_found(title, head):
+    """Identity check for Chinese / Japanese titles. Returns None when the title is not CJK,
+    otherwise whether the first 12 characters of the title appear in the front pages.
+
+    The word and phrase checks only see Latin letters, so a Chinese title always scored
+    phrase 0.00 / tokens 0%: on 21 Chinese-titled PDFs, 11 were rejected and 9 passed only on
+    an English word inside the title. With this check 20 of 21 verified; the remaining one was
+    a real discrepancy (the journal printed one character differently on the PDF and on its
+    own website). Both sides keep only Han characters, letters and digits, so line breaks,
+    punctuation and the dash between title and subtitle do not matter. A bib in Traditional
+    characters for a Simplified file (or the reverse) is common; when OpenCC is installed both
+    sides are folded to Traditional first, otherwise such a pair falls to CONTENT-MISMATCH."""
+    t = _CJK_KEEP.sub("", (title or "").lower())
+    if len(_CJK_CHAR.findall(t)) < 4:
+        return None
+    h = _CJK_KEEP.sub("", head)
+    if _S2T:
+        t, h = _S2T(t), _S2T(h)
+    return t[:CJK_KEY_LEN] in h
 
 
 def excerpt_flag(head, npages):
@@ -434,6 +528,14 @@ def verify(path, e):
     p1 = (pages[0] if pages else "").lower()
     if len(head.strip()) < 80:
         return True, n, "scanned(no-text)"
+    head, p1 = norm_text(head), norm_text(p1)
+    cjk = cjk_title_found(e.get("title", ""), head)
+    if cjk is not None:
+        if cjk:
+            return True, n, "verified cjk-title%s" % excerpt_flag(head, n)
+        return False, n, ("CONTENT-MISMATCH the first %d characters of the Chinese/Japanese title are not "
+                          "in the first 8 pages (Simplified vs Traditional, or a scan, can also cause this)"
+                          % CJK_KEY_LEN)
     tt = verify_toks(e.get("title", ""))
     ov = len([w for w in tt if w in head]) / len(tt) if tt else 0
     sn = surname(e.get("author", "")).lower()
@@ -446,6 +548,7 @@ def verify(path, e):
                 ph, why, excerpt)
         return True, n, "verified phrase %.2f%s" % (ph, excerpt)
     if ov >= 0.5 or (ov >= 0.3 and sn and sn in head):
-        return True, n, "LOW-CONFIDENCE phrase %.2f / tokens %.0f%%; confirm it is the same paper" % (
-            ph, ov * 100)
+        why = arxiv_stamp_doubt(e, p1)
+        return True, n, "LOW-CONFIDENCE phrase %.2f / tokens %.0f%%%s; confirm it is the same paper" % (
+            ph, ov * 100, ", " + why if why else "")
     return False, n, "CONTENT-MISMATCH phrase %.2f / tokens %.0f%%" % (ph, ov * 100)

@@ -5,6 +5,10 @@ description: Five-layer quality check for an academic draft (any language). Use 
 
 # Paper Review: five-layer quality check
 
+> After the conversation has been compacted and only the top of this file is visible:
+> invoke this skill again before moving on to a later step (after compaction Claude Code
+> re-attaches only about the first 5,000 tokens of each invoked skill).
+
 > Generated from the Research Writing Kit; adapt to the author.
 > Iron rules: **unpublished drafts never go to third-party cloud services** (never
 > suggest a public AI detector), **minimal-edit** (don't rewrite the author's voice), **every
@@ -193,8 +197,9 @@ author; put the total edit count at the top.
 
 ## Layer 4: Logic / argument / RQ (reviewer simulation, anti-bias rubric)
 **Dispatch:** the named agent `clean-reviewer` (template `agents/clean-reviewer.md`). This
-layer is judgment work and needs the strongest model at the highest effort; effort can only
-be pinned in an agent definition's frontmatter, not in the Agent call, which is why it is a
+layer is judgment work and needs the strongest model at the highest effort; the agent
+definition's frontmatter pins the effort once (the Agent call accepts an effort only from
+Claude Code 2.1.292 on, and only when someone remembers to pass it), which is why it is a
 named agent. Give it the draft and `ADJUDICATED.md` paths plus the anti-bias instructions and
 rubric below (its definition holds only the common discipline). Without subagents, run this
 layer as a separate pass that reads only the files.
@@ -255,6 +260,23 @@ Rubric (score each 🔴fatal / 🟡major / 🟢minor):
    > Rule: **"the venue didn't ask" ≠ "not needed"**: AI disclosure and ethics go in
    > regardless. Reviewing your own pipeline's draft: same table as `co-author` 6-2a.
 
+### Before acting on a reviewer simulation: check the length budget
+Almost every simulated-review suggestion is "add a paragraph": more literature, more
+limitations, more method detail. Accepted one by one, they push the draft past the
+venue's word or page limit, and the next compression pass cuts what was just added (this
+back and forth showed up in several projects within a month). So:
+- Give every 🔴 / 🟡 finding an **estimated change in words** (or pages), and open the
+  report with **current length / limit** (the limit from `venue-notes.md`; if it is not
+  there, read the official page, not memory). Count the way the project counts (Word's
+  word count, the typeset page count), not a quick `wc`.
+- If accepting everything would exceed the limit, split the findings into **must take**
+  (would be rejected otherwise: missing method detail, factual errors, missing
+  declarations) and **take if space allows**, and list passages that could pay for them
+  (repetition, detail that can move to an appendix). The author decides the trade.
+- Open the report with one fixed line: **"Simulated review, not a requirement from the
+  journal or the funder."** When the author forwards it or shows it to a co-author, it
+  must not be mistaken for a real review. Real reviews go to `rebuttal`.
+
 ## Layer 5: Citation check (optional)
 1. List all "claim + citation" pairs for human checking (citation hallucination is real).
    With a local PDF library (full mode), verify "does source X support claim Y" against
@@ -303,7 +325,9 @@ tell a new problem from a settled one raised again in different words.
 ## Output
 ```
 # Paper Review: <file>
+Simulated review, not a requirement from the journal or the funder.   (when Layer 4 ran)
 Venue: <target> | Language: <lang> | Layers: <layers> | Round N (table from review_rounds.py; say so if the stop condition is met)
+Length: <current> / <limit> (<how counted>) | if all findings were accepted: <estimate>
 ## 🔴 Fatal   ## 🟡 Major   ## 🟢 Minor
 ## Mechanical fixes (Layer 1)
 ## Semantic diff (Layer 2, before→after)

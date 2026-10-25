@@ -20,12 +20,12 @@ out of the box. The English tools need one or two free offline programs.
 | `register/` | `register_profile.py` | native-polish deviation list: which features sit outside the field's p10–p90 band, which way to move them, with bounds per line range (zh + en) |
 | `register/` | `polish_check.py` | checks an editor's change list before it touches the draft: invariants, word budget, forbidden forms, register direction; `--apply` writes back only when all pass |
 | `claims/` | `uncited_claims_scan.py` | sentences that claim (numbers / causes / firsts) but cite nothing |
-| `claims/` | `overclaim_lint.py` | wording that says more than the data supports (EN + zh-TW) |
+| `claims/` | `overclaim_lint.py` | wording that says more than the data supports (EN + zh-TW), incl. "nobody has done this" claims and official documents cited without a year |
 | `refs/` | `snowball.py` | forward / backward / related citation snowballing |
 | `refs/` | `retraction_scan.py` | has anything you cite been retracted (Crossref + OpenAlex) |
 | `refs/` | `pdf_fetch.py` | fetch reference PDFs: OA resolvers → TLS impersonation → real browser (needs `curl_cffi`, `patchright`) |
 | `refs/` | `lit_map.py` | candidate classics by co-citation within a literature batch (not global citation count) |
-| `refs/` | `missing_refs.py` | the reference PDFs still to download by hand (DOI / URL / ISBN links), after subtracting your own PDF library |
+| `refs/` | `missing_refs.py` | the reference PDFs still to download by hand (DOI / URL / ISBN links), after subtracting your own PDF library; also content-checks the PDFs already in the folder (flags only) |
 | `refs/` | `inbox_ingest.py` | files the PDFs you downloaded by hand: matches them to missing entries, verifies content, names them `<citekey>.pdf`, tidies the downloads folder |
 | `method/` | `method_decision_check.py` | format gate for `method-decision.md` (English or zh-TW template) |
 | `method/` | `analysis_plan_check.py` | format + timing gate for `analysis-plan.md`; `--phase6` checks deviations were recorded |
@@ -37,7 +37,14 @@ out of the box. The English tools need one or two free offline programs.
 | `submissions/` | `style_reaudit.py` | re-run style/de-AI measurement on every drafting/under-review manuscript after a rule change |
 | `review/` | `review_rounds.py` | review-round ledger: new vs repeated fatal/major findings, re-raised adjudicated items without new evidence, when to stop reviewing |
 | `collab/` | `source_trace.py` | does every sentence of a rewritten co-authored draft trace back to the original, the co-author's replies or the proposal |
-| `versioning/` | `version_check.py` | pre-delivery version check: `VERSION`, CHANGELOG, one-version delivery folder, PDF metadata, no version in the submitted text, no reused tag |
+| `collab/` | `docx_diff.py` | the Word file you sent vs the one a co-author returned without tracked changes: every modification, insertion, deletion and move (tables, headers, footers, footnotes), plus leftover tracked changes and comments (needs python-docx) |
+| `collab/` | `coding_pack.py` | second-coder pack: one offline HTML page from a codebook and response CSVs (English or `--ui zh-TW`), the coder's export back into 0/1 coding tables, per-code Cohen's kappa, PABAK and prevalence with bootstrap CIs (numpy for scoring) |
+| `submit/` | `deadline.py` | a deadline in any timezone (AoE, PST, UTC+8, IANA) converted to yours, time left, suggested submit time 24 h before |
+| `submit/` | `docx_roundtrip.py` | built docx vs its source: sentences lost or added, plus leftovers (`[@key]`, `??`, TODO, 【待確認】, runs of empty paragraphs) (needs pandoc) |
+| `submit/` | `word_count.sh` + `wordcount_approx.py` | word count by Word itself (macOS + Word only); elsewhere an approximate count, exit 3, to be reported as approximate |
+| `submit/` | `template_diff.py` | manuscript docx vs the official template docx: paper, margins, fonts, spacing, styles the template lacks (needs python-docx) |
+| `submit/` | `anon_check.py` | double-blind leak check: docx/PDF metadata, tracked changes, comments, names and affiliations in the text, links, image EXIF (exiftool, PyMuPDF for PDFs) |
+| `versioning/` | `version_check.py` | pre-delivery version check: `VERSION`, CHANGELOG, one-version delivery folder, PDF metadata, no version in the submitted text, no reused tag, delivered files not older than the sources; prints the delivered files' absolute paths |
 | `figures/` | `figure_a11y.py` | colour-vision accessibility of figures |
 | `figures/` | `figure_check.py` | figures and tables in the typeset PDF: numbering, captions vs in-text references, overflow past the column or page, text shrunk too small (needs PyMuPDF) |
 | `en/` | `lt_check.sh`, `ai_style_diag.py` | English grammar pass; English AI fingerprint vs your field (+ LLM convergence-word density, list in `en_slop_terms.tsv`) |
@@ -159,22 +166,42 @@ Both have `--selftest`, which builds a synthetic corpus in a temporary folder.
 - A reviewer simulation always finds something. Without the ledger a review has no end,
   and the author gets asked about the same settled point in new words every round.
 
-## Co-authored manuscripts (`tools/collab/`): zero installs (python-docx / pdftotext for those formats)
+## Co-authored manuscripts (`tools/collab/`): zero installs (python-docx / pdftotext for those formats; numpy for kappa)
 
 | Tool | What it does | Run |
 |------|--------------|-----|
 | `source_trace.py` | Sentence by sentence, can each sentence of a rewritten draft be traced back to the sources (original manuscript, the co-author's replies, the proposal, analysis reports)? Coverage by character bigrams (Chinese) or words (English) against the best-matching source sentence, with a neighbour window for split and merged sentences: traced ≥ 0.70, rewritten 0.40–0.70, untraced < 0.40. 🔴 = untraced and about the study itself (numbers, method words, course / students / site facts), or a number found in no source, or a rewrite carrying in a 12+ character span with a method word or number the source lacks; 🟠 = an untraced literature claim (send it to citation verification); 🟡 = other untraced lines (usually connectives; still check that they add no claim). Reads `.md .txt .typ .tex`, `.docx` (python-docx), `.pdf` (pdftotext). `--gate` exits 1 on any 🔴. | `python3 source_trace.py --orig original.docx replies.md proposal.pdf --draft new.docx [--report out.md] [--gate]` |
 
-- It exists because an AI rewrite of a co-author's paper added a dozen statements the
-  original never made, two of them claims about procedures never carried out. "Traced"
-  measures overlapping wording, not identical meaning: the rewritten and 🟡 lines still
-  need a human eye. Method: `method/COLLABORATION.md`.
+| `docx_diff.py` | The .docx you sent vs the one a co-author returned with no tracked changes. Lists every modification, insertion, deletion and move, table cell by table cell, plus headers, footers, footnotes and endnotes, style and image changes; reports tracked changes and comments the co-author left. `--out` writes the change list for the author, `--json` the changes for writing back into the source. Exit 0 = no change, 1 = changes, 2 = unreadable file. Needs python-docx (lxml). | `python3 docx_diff.py sent.docx returned.docx [--out changes.md] [--json changes.json]` |
+| `coding_pack.py` | Second-coder pack for inter-rater agreement. `build`: one offline HTML page from a codebook (markdown) and the BLANK response CSVs; the coder ticks codes with number keys and exports one CSV (UI in English, `--ui zh-TW` for Traditional Chinese). `import`: the export back into the project's 0/1 coding tables (BLANK becomes DONE, an existing DONE is never overwritten; a pack hash ties the export to the frozen BLANK files). `score`: per-code Cohen's kappa, PABAK, prevalence, bootstrap CIs, codes under `--threshold` or under `--low-prev` prevalence flagged. `build` and `import` are stdlib; `score` needs numpy. | `python3 coding_pack.py build --codebook codebook.md --csv q1.csv --coder "Coder B" --out pack.html` · `import export.csv --into DIR` · `score A_DONE.csv B_DONE.csv` |
+
+- `source_trace.py` exists because an AI rewrite of a co-author's paper added a dozen
+  statements the original never made, two of them claims about procedures never carried
+  out. "Traced" measures overlapping wording, not identical meaning: the rewritten and 🟡
+  lines still need a human eye. Method: `method/COLLABORATION.md`.
+- 🔴 The `coding_pack.py` page contains participants' answers: open it locally or hand it
+  to the coder directly, never post it or upload it to a cloud AI. Fix the kappa threshold
+  and the low-prevalence rule before seeing the data; report the kappa from before
+  discussion.
 
 ## Versioning (`tools/versioning/`): zero installs (pdfinfo / pdftotext for PDF checks)
 
 | Tool | What it does | Run |
 |------|--------------|-----|
-| `version_check.py` | Checks the rules in `method/VERSIONING.md` before a delivery: `VERSION` holds a valid `X.Y.Z` (two-part legacy numbers warn); the topmost CHANGELOG section carries the same number; the delivery folder (`latest/`, or `最新交付/`) holds exactly one version and it is `VERSION`; delivered PDFs carry the number in their metadata; a `--submission` PDF has no version string or review-copy footer in its text; `VERSION` was not already tagged with changes after the tag (a delivered number being reused). Exit 1 on any FAIL. | `python3 version_check.py <project dir> [--latest latest] [--submission submission.pdf ...] [--json]` |
+| `version_check.py` | Checks the rules in `method/VERSIONING.md` before a delivery: `VERSION` holds a valid `X.Y.Z` (two-part legacy numbers warn); the topmost CHANGELOG section carries the same number; the delivery folder (`latest/`, or `最新交付/`) holds exactly one version and it is `VERSION`; delivered PDFs carry the number in their metadata; a `--submission` PDF has no version string or review-copy footer in its text; `VERSION` was not already tagged with changes after the tag (a delivered number being reused); the delivered files are not older than `VERSION` (FAIL: bumped, not rebuilt) or than a manuscript source (WARN: edited, maybe not rebuilt). Ends by printing each delivered file's absolute path, to quote when reporting the delivery. Exit 1 on any FAIL. | `python3 version_check.py <project dir> [--latest latest] [--submission submission.pdf ...] [--json]` |
+
+## Submission (`tools/submit/`): stdlib, plus pandoc / python-docx / exiftool / PyMuPDF where a step needs them
+
+The tools behind the `submit` skill (the last mile before sending, and the wrap-up after).
+
+| Tool | What it does | Run |
+|------|--------------|-----|
+| `deadline.py` | Converts a deadline given in any timezone (AoE, PST/PDT/EST…, `UTC+8`, IANA names) to this machine's local timezone or `--to <tz>`, with the time left and a suggested submit time 24 hours before. Daylight saving follows the deadline date. | `python3 deadline.py "2026-11-01 23:59" --tz AoE [--to Europe/Paris]` |
+| `docx_roundtrip.py` | Builds nothing; compares a built .docx with its source as plain text, sentence by sentence (in the source but missing from the docx, in the docx but not in the source), and scans for leftovers: `[@key]`, `??`, TODO, 【待確認】, unreplaced `{{`, Word reference errors, runs of empty paragraphs. Deliver only on exit 0. Needs pandoc (python-docx for the empty-paragraph check). | `python3 docx_roundtrip.py source.md built.docx [--json]` |
+| `word_count.sh` | Asks Microsoft Word itself for the word count (and can save a PDF through Word). **macOS + Word only**; anywhere else it falls back to `wordcount_approx.py` and exits 3, and that number must be reported as approximate. | `bash word_count.sh built.docx [--pdf out.pdf]` |
+| `wordcount_approx.py` | Approximate word count (CJK characters counted one by one, Latin words by spaces) for .docx, .md, .txt. A fallback, not the venue's count. | `python3 wordcount_approx.py file.docx` |
+| `template_diff.py` | Manuscript .docx vs the official template .docx: paper size, margins, header and footer distance, default fonts (ASCII and East Asian separately), size, line spacing, space before and after, first-line indent, alignment, and styles the manuscript uses that the template lacks. Compares style definitions, not hand formatting on single paragraphs. Exit 1 on differences. Needs python-docx. | `python3 template_diff.py manuscript.docx template.docx [--only-diff] [--json]` |
+| `anon_check.py` | Double-blind leak check over .docx, .pdf and image files or folders: creator and last-modified-by, authors of tracked changes and comments, names and affiliations in the body, headers and footers, hyperlinks, PDF Author and XMP, image EXIF (author, GPS). 🔴 must be cleared; 🟠 self-disclosure phrasing ("our previous work") is the author's call. It lists what it actually checked and says so when it checked nothing. exiftool for EXIF, PyMuPDF for PDFs. | `python3 anon_check.py review.docx review.pdf figures/ --names "Jane Doe,Doe, J." --affil "Example University"` |
 
 ## Regression suite (`tools/regress/`): zero installs
 
@@ -222,7 +249,7 @@ Both have `--selftest`, which builds a synthetic corpus in a temporary folder.
 | `pdf_fetch.py` | Fetch reference PDFs in three layers (bib entries without a DOI are read from `eprint`/arXiv URLs, then resolved by **exact** title match on arXiv → OpenAlex, throttled; only books/chapters come back as `MANUAL`): open-access resolvers (adds Europe PMC / CORE / OpenAIRE) → `curl_cffi` TLS impersonation → a real Chrome on a persistent profile, which is what actually clears Cloudflare at ACM/Wiley/SAGE/AIP/Elsevier (TLS impersonation alone does not). Misses are tagged `PAYWALL` / `CAPTCHA` / `NO-LINK` so you know which are worth another five minutes. **Not stdlib**: `pip install curl_cffi patchright`; without them it degrades to urllib + OA sources and says so. Only fetches what you are entitled to. | `python3 pdf_fetch.py --bib references.bib --out refs-pdf` |
 | `retraction_scan.py` | Retraction check for everything you cite: each DOI is asked of Crossref (Retraction Watch data arrives as `update-to` / `updated-by` relations) **and** OpenAlex (`is_retracted`); flagged if either says so. Input: a `.bib`, a one-DOI-per-line file, or DOIs on the command line. Exit 1 = retracted found, 2 = some queries failed. | `python3 retraction_scan.py --bib references.bib [--out report.json]` |
 | `lit_map.py` | Literature map: co-citation ranking within a batch of literature (candidate classics, a starting point, judged by hand, see `method/RIGOR_PROCESS.md` stage 3) + most-cited recent work in a year window. Query by `title_and_abstract` (full-text search surfaces cross-field noise); OpenAlex bills by usage, 429 = daily quota spent. | `python3 lit_map.py --query "<topic>" --from-year 2010 --limit 200 --out map.md [--csv refs.csv] [--save-json]` |
-| `missing_refs.py` | The list of reference PDFs the author still has to download by hand: `.bib` entries with no `<pdfdir>/<citekey>.pdf` (a hand-filed `NN [Author Year] Title.pdf` that matches the entry also counts), minus whatever the author's own PDF library already holds (three gates: year + first-author surname + title similarity; ambiguous matches are listed for you, not the author). Writes `_missing.md` (doi.org links, URLs, ISBNs) and `_missing.tsv`. `--apply` copies unique library matches into the project. No network. | `python3 missing_refs.py --bib references.bib [--pdfdir refs-pdf] [--library ~/papers] [--apply]` |
+| `missing_refs.py` | The list of reference PDFs the author still has to download by hand: `.bib` entries with no `<pdfdir>/<citekey>.pdf` (a hand-filed `NN [Author Year] Title.pdf` that matches the entry also counts), minus whatever the author's own PDF library already holds (three gates: year + first-author surname + title similarity; ambiguous matches are listed for you, not the author). Writes `_missing.md` (doi.org links, URLs, ISBNs) and `_missing.tsv`. `--apply` copies unique library matches into the project. Also runs the content check on the PDFs already in the folder (they get no free pass for having been put there): doubtful ones are listed and written to `_check_present.md`, never moved (`--no-check-present` skips it; needs `pdftotext`). No network. | `python3 missing_refs.py --bib references.bib [--pdfdir refs-pdf] [--library ~/papers] [--apply]` |
 | `inbox_ingest.py` | Files the PDFs the author downloaded by hand (publisher file names, default `~/Downloads`, last 72 hours): matches each to a missing entry by DOI, title and content, verifies the content like any fetched PDF, names it `<citekey>.pdf` and logs it in `_inbox_log.tsv`. Not filed, and listed for you: DOI right but content wrong (supplement, erratum), one file matching several entries, files matching nothing (left in place), content mismatch. `--to-library` also copies into your library (deduplicated by SHA-256); `--clean` moves only filed sources to the Trash, never deletes. Preview by default. Content checks need `pdftotext`; without it, matching falls back to DOI and file name and says so. | `python3 inbox_ingest.py --bib references.bib [--pdfdir refs-pdf] [--hours 72 \| --all] [--apply] [--library DIR --to-library] [--clean]` |
 
 - A 429 from OpenAlex is a **daily quota wall** (resets midnight UTC), not "no
