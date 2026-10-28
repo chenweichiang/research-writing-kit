@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """English AI style-fingerprint diagnostic — local, no upload (unpublished-draft rule).
 
 Measures the AI syntax fingerprints reviewers actually notice — em-dash / semicolon

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """Voice lint (Chinese) — mechanically catch specific "doesn't sound like me" tics,
 no judgement calls. Rules are DATA, not baked in: ship your own via a rules file so
 each author enforces their own voice. Local-only.

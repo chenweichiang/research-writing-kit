@@ -1,8 +1,10 @@
 # Bundled tools
 
 Small, local, privacy-respecting checkers you can run from day one. **The Chinese
-tools need nothing installed** (Python 3 standard library only). They work
-out of the box. The English tools need one or two free offline programs.
+tools need nothing installed** (Python 3.9 or newer, standard library only). They work
+out of the box. The English tools need one or two free offline programs. Each tool
+declares its Python packages at the top of the file (PEP 723 inline metadata), so
+`uv run tools/<folder>/<tool>.py` installs them for you; `pip install` works as well.
 
 > Everything here runs **on your machine** and sends no draft text anywhere. Never paste an
 > unpublished draft into a cloud "AI detector."

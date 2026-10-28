@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = ["pymupdf"]
+# ///
 """figure_check.py: pre-flight check of figures and tables in a typeset PDF.
 
 Why: a figure or table error never fails the build; it shows up when a reader opens the

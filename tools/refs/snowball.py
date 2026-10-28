@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """snowball.py — forward/backward citation snowballing (OpenAlex primary, Semantic Scholar fallback)
 
 Fills fetch-refs' blind spot: collecting reference PDFs is *backward* (what you

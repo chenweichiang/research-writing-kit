@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """check_response.py — completeness check for a response-to-reviewers letter.
 
 Three ways an R&R goes wrong, all of them checklist problems rather than skill

@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """English metadiscourse measurement (Hyland framework) — local, no upload. This is
 not a detector.
 

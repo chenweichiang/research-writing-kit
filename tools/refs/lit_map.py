@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """lit_map.py — a literature map: who a batch of same-topic papers co-cite, as a starting point
 for judging "classics" (OpenAlex, stdlib only)
 

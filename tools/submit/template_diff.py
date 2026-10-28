@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = ["python-docx"]
+# ///
 """template_diff.py: format comparison of a manuscript docx against an official template docx.
 
 Why it exists: a journal template's margins, fonts and line spacing cannot be judged by eye;

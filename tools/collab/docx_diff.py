@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = ["lxml"]
+# ///
 """docx_diff.py: compare two Word files and list every change (for when a co-author returns
 a file without tracked changes).
 

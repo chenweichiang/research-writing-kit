@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """inbox_ingest.py: file the reference PDFs you downloaded by hand (stdlib only, no network;
 the external `pdftotext` binary is optional).
 

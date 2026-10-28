@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """register_profile.py: the register deviation list for a native-polish pass. Which
 features of the draft fall outside the range of published papers from the same field,
 and which way each one should move. Local, no upload. Not a detector.

@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """Chinese AI syntax-fingerprint diagnostic (Chinese-calibrated), local, no upload.
 
 English AI-style tools count words by \\b\\w+\\b; Chinese has no spaces, so word

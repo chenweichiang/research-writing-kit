@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """version_check.py: pre-delivery version check for a manuscript or deliverable project.
 
 Checks VERSION, CHANGELOG, the delivery folder, PDF metadata, the body text of the

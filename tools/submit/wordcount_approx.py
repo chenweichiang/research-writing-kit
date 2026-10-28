@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """wordcount_approx.py: approximate word count (CJK characters + Latin words + digit runs).
 
 This is an APPROXIMATION and can differ from Word's own count by ten percent or more.

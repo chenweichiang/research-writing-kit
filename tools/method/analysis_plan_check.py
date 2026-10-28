@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """analysis_plan_check.py — gate for a pre-data-collection plan (analysis-plan.md)
 
 Why this exists: of the thirteen stages in `method/RIGOR_PROCESS.md`, only "before data

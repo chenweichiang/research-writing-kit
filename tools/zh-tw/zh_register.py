@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """zh_register.py: the register profile of a Chinese academic draft, i.e. where each of
 52 features falls among published journal papers from the same field. Local, no upload.
 This is not a detector.

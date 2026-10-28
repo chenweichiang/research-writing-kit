@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """anon_check.py: anonymization check before double-blind review: metadata, comments and tracked
 changes, names and affiliations in the text, hyperlinks, embedded-image EXIF.
 

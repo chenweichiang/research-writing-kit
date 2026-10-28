@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """polish_check.py: checks a native-polish change list before any of it touches the
 draft. Applies the edits to an in-memory copy and verifies invariants, forbidden forms,
 sentence length and register direction. Chinese and English. Local, no upload.

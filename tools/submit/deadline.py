@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """deadline.py: convert a submission deadline to your own timezone, then show how long is
 left and a suggested submit time.
 

@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """uncited_claims_scan.py — find sentences that make a claim but carry no citation
 (deterministic, zero LLM).
 

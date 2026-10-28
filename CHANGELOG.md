@@ -3,6 +3,19 @@
 版號採語意化版本（主版號．次版號．修訂號）：次版號加一表示方法、skill 或工具有新增或行為改變，修訂號加一表示只改文字、詞表或修正。
 Versions follow semantic versioning (major.minor.patch): a minor bump adds or changes a method, skill or tool; a patch bump changes only wording, term tables or fixes.
 
+## v1.11.4（2026-10-29）
+
+- `tools/regress/dead_rule_check.py` 在 Python 3.9 上會出錯，已修正。CI 改在 Python 3.9 與 3.13 上各跑一次，並裝齊所有選配套件與程式；有任何測試被略過就算失敗。兩份 README 寫明需要 Python 3.9 或更新。
+  `tools/regress/dead_rule_check.py` failed on Python 3.9; fixed. CI now runs on Python 3.9 and 3.13 with every optional package and program installed, and fails if any test is skipped. Both READMEs state that Python 3.9 or newer is required.
+- 每支工具的檔頭用內嵌中繼資料（PEP 723）寫明它要的 Python 套件，裝了 uv 就能用 `uv run tools/<資料夾>/<工具>.py` 直接執行；新增測試，檢查標頭存在、且沒有備案的匯入都有列出。
+  Each tool declares the Python packages it needs in an inline metadata block (PEP 723) at the top of the file, so with uv installed `uv run tools/<folder>/<tool>.py` runs it directly; a new test checks that the block is present and lists every import that has no fallback.
+- README 與專案頁對引用查核與資料去向的說法改得更準確：方法規定每條文獻都要抓到原文、確認方向才能寫進稿子；稿件與資料除了 Claude 本身，不交給其他線上服務。
+  The READMEs and the project page describe citation checking and where data goes more precisely: the method requires each reference to be fetched and its direction confirmed before it goes into a draft, and drafts and data go to no online service other than Claude itself.
+- 新增行為準則（Contributor Covenant 3.0）、issue 表單（回報問題、建議）、pull request 範本與 Dependabot（GitHub Actions）；CI 用到的 Actions 改釘在 commit SHA，權限只給讀取。
+  Added a code of conduct (Contributor Covenant 3.0), issue forms (bug report, suggestion), a pull request template and Dependabot for GitHub Actions; the Actions used in CI are pinned to commit SHAs with read-only permissions.
+- `CITATION.cff` 加上作者的 ORCID。
+  `CITATION.cff` adds the author's ORCID.
+
 ## v1.11.3（2026-10-29）
 
 - 新增 `SECURITY.md`：哪些問題算漏洞、怎麼透過 GitHub 的 Report a vulnerability 私下回報；`CONTRIBUTING.md` 連過去，repo 也開啟了私下回報。

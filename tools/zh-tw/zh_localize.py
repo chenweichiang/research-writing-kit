@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """Taiwan-Mandarin localization check — mainland-vs-Taiwan term list + 台/臺
 consistency + a false-positive whitelist. Local-only, never uploads. Report-only.
 

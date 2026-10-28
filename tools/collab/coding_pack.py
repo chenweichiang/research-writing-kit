@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = ["numpy"]
+# ///
 """coding_pack.py: a second-coder pack for qualitative coding. Question CSVs plus a codebook
 become one offline HTML page; the coder's export becomes the project's 0/1 coding tables;
 Cohen's kappa scores the agreement.

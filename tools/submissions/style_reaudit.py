@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """Re-run the style-fingerprint tools on every tracked manuscript after a
 measurement-rule change.
 

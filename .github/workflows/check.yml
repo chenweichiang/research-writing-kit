@@ -9,24 +9,22 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  check:
-    runs-on: ubuntu-latest
+  release-check:
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
         with:
-          python-version: "3.11"
-
-      - name: Install test dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install pytest pyyaml numpy pillow
-          sudo apt-get update -q
-          sudo apt-get install -y -q pandoc
+          python-version: "3.13"
 
       - name: Release check
         env:
@@ -34,6 +32,7 @@ jobs:
           PR_BASE: ${{ github.base_ref }}
           PUSH_BEFORE: ${{ github.event.before }}
         run: |
+          python -m pip install pyyaml
           if [ "$EVENT" = "pull_request" ]; then
             BASE="origin/$PR_BASE"
           elif [ -n "$PUSH_BEFORE" ] && git cat-file -e "$PUSH_BEFORE^{commit}" 2>/dev/null; then
@@ -48,6 +47,36 @@ jobs:
           python -m pip install ruff==0.14.3
           ruff check tools tests
 
-      - name: Smoke tests
-        if: ${{ !cancelled() }}
-        run: python -m pytest tests -q -rxX
+  tests:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.9 is the /usr/bin/python3 that macOS ships, which the README points macOS users to;
+        # 3.13 stands for current Python.
+        python-version: ["3.9", "3.13"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # Everything the optional features need, so that no test is skipped here.
+      - name: Install test dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q pandoc poppler-utils libimage-exiftool-perl
+          python -m pip install pytest pyyaml numpy pillow pymupdf python-docx lxml opencc-python-reimplemented
+
+      # A skipped test here means a dependency is missing in CI, and the feature it covers went unchecked.
+      - name: Tests (no skips allowed)
+        shell: bash
+        run: |
+          python -m pytest tests -q -rs | tee pytest.log
+          if grep -qE '[0-9]+ skipped' pytest.log; then
+            echo "::error::Tests were skipped. Install what they need in this workflow so they run."
+            exit 1
+          fi

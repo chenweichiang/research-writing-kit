@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """method_decision_check.py — format gate for a method-decision memo (does NOT judge whether the method is right)
 
 Why this exists: "research the field's methods before deciding" is easy to fake — a comparison

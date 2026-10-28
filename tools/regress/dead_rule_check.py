@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """dead_rule_check.py — find rules that are registered but never really execute
 (the false-green-light detector).
 
@@ -34,6 +38,7 @@ import argparse
 import ast
 import builtins
 import contextlib
+import dis
 import importlib.util
 import inspect
 import io
@@ -252,7 +257,7 @@ def main():
             print(f"{'[--]':<7}{name:<26} skipped (a forwarding lambda; measuring it is meaningless)")
             continue
         code = f.__code__
-        total = len({ln for _, _, ln in code.co_lines() if ln})
+        total = len({ln for _, ln in dis.findlinestarts(code) if ln})  # co_lines() needs 3.10; this works on 3.9
         hit = set()          # distinct line numbers executed (loops must not inflate)
         left = []            # line the rule's own frame returned from
 

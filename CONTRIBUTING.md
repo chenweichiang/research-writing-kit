@@ -17,16 +17,16 @@ Security problems go through private reporting instead of an issue; see [`SECURI
 Keep each pull request to one change. Before opening it, run the tests and the release check:
 
 ```bash
-python -m pip install pytest pyyaml numpy pillow
+python -m pip install pytest pyyaml numpy pillow pymupdf python-docx lxml opencc-python-reimplemented
 python -m pytest tests -q
 python tools/dev/release_check.py --base origin/main
 ```
 
-CI runs both on every pull request. The release check rejects em dashes and mainland-Mandarin terms in added lines, e-mail addresses and home-directory paths anywhere, and skill or agent files whose frontmatter does not parse.
+Some tests also need pandoc, poppler and exiftool; without them those tests are skipped locally. CI installs everything, runs the tests on Python 3.9 and 3.13, and fails if any test is skipped. The release check rejects em dashes and mainland-Mandarin terms in added lines, e-mail addresses and home-directory paths anywhere, and skill or agent files whose frontmatter does not parse.
 
 Conventions:
 
-- Tools use the Python standard library where they can. A new dependency belongs in the tool's own docstring and in `setup/TOOLS.md`, with what happens when it is missing.
+- Tools use the Python standard library where they can, and run on Python 3.9. A new dependency belongs in the tool's own docstring, in the `dependencies` list of its inline metadata block at the top of the file (`# /// script`), and in `setup/TOOLS.md`, with what happens when it is missing.
 - The core (`method/`, `skills/`, `agents/`, `templates/`) stays language-neutral. Anything specific to Traditional Chinese or Taiwan goes under `setup/addons/zh-tw/` or `tools/zh-tw/`.
 - New tools need a test in `tests/` and a row in the tool tables of both `README.md` and `README.en.md`.
 - Changes to the method go in `CHANGELOG.md` as well, in both languages.
@@ -52,16 +52,16 @@ Conventions:
 一個 pull request 只做一件事。送出前請跑測試與發版檢查：
 
 ```bash
-python -m pip install pytest pyyaml numpy pillow
+python -m pip install pytest pyyaml numpy pillow pymupdf python-docx lxml opencc-python-reimplemented
 python -m pytest tests -q
 python tools/dev/release_check.py --base origin/main
 ```
 
-CI 在每個 pull request 都會跑這兩項。發版檢查會擋：新增行裡的長破折號與大陸用語、任何位置的電子郵件地址與家目錄路徑，以及 frontmatter 解析不了的 skill 與 agent 檔。
+有些測試另外需要 pandoc、poppler 與 exiftool，本機沒裝時這些測試會略過。CI 會全部裝好，在 Python 3.9 與 3.13 上各跑一次，有任何測試被略過就算失敗。發版檢查會擋：新增行裡的長破折號與大陸用語、任何位置的電子郵件地址與家目錄路徑，以及 frontmatter 解析不了的 skill 與 agent 檔。
 
 慣例：
 
-- 工具盡量只用 Python 標準函式庫。新增的相依套件要寫在該工具的 docstring 與 `setup/TOOLS.md`，並說明沒裝時會怎樣。
+- 工具盡量只用 Python 標準函式庫，並要能在 Python 3.9 上執行。新增的相依套件要寫在該工具的 docstring、檔頭內嵌中繼資料（`# /// script`）的 `dependencies` 清單，以及 `setup/TOOLS.md`，並說明沒裝時會怎樣。
 - 核心（`method/`、`skills/`、`agents/`、`templates/`）維持語言中立，繁體中文或台灣專屬的內容放 `setup/addons/zh-tw/` 或 `tools/zh-tw/`。
 - 新工具要在 `tests/` 加測試，並在 `README.md` 與 `README.en.md` 的工具表各加一列。
 - 方法有改動時，`CHANGELOG.md` 中英文都要寫。

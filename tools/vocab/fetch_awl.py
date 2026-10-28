@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """Fetch Coxhead's Academic Word List (AWL) from the official Victoria University of
 Wellington pages and write it as a local TSV (headword, sublist, related_forms).
 

@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """Parenthetical-gloss inventory for Chinese drafts — local, no upload, report-only.
 
 Lists every full-width parenthetical 「（…）」 of N+ characters that is neither a

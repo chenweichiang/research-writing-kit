@@ -1,0 +1,18 @@
+name: Suggestion / 建議
+description: A change to the method, a new check, or a term for the Taiwan Mandarin table. 方法的修改、新的檢查，或台灣用語詞表的詞條。
+labels: [enhancement]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What should change / 要改什麼
+      description: For a term-table entry, give the term, the context where it goes wrong, and a source (for example 樂詞網, or usage in published Taiwanese papers). 詞表詞條請附詞、出錯的上下文與出處。
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why / 為什麼
+      description: The situation where the current behaviour falls short. 目前的做法在什麼情況下不夠用。
+    validations:
+      required: true

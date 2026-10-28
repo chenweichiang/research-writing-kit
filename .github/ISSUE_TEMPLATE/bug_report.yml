@@ -1,0 +1,60 @@
+name: Bug report / 回報問題
+description: A tool, skill or document in the kit does something wrong. 工具、skill 或文件出錯。
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not paste unpublished manuscript text, participant data or personal information. A short made-up text that reproduces the problem is enough.
+        請不要貼未發表的稿件內容、受試者資料或個資；能重現問題的一小段自編文字就夠了。
+  - type: input
+    id: version
+    attributes:
+      label: Kit version / 套件版本
+      description: The version line at the top of the README, or `git describe --tags` in your clone. README 最上面的版本行，或在 clone 的資料夾跑 `git describe --tags`。
+      placeholder: v1.11.4
+    validations:
+      required: true
+  - type: input
+    id: component
+    attributes:
+      label: Which tool, skill or file / 哪一支工具、哪個 skill 或檔案
+      placeholder: tools/refs/retraction_scan.py
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Setup mode / 安裝模式
+      options:
+        - lite
+        - full
+        - not set up yet / 還沒安裝
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Operating system and Python version / 作業系統與 Python 版本
+      placeholder: macOS 15, Python 3.9.6
+  - type: textarea
+    id: steps
+    attributes:
+      label: What you ran and what happened / 執行了什麼、發生了什麼
+      description: The exact command or request, and the full error if there is one. 實際的指令或請求，有錯誤訊息請完整貼上。
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected / 預期的結果
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy / 隱私
+      options:
+        - label: What I pasted contains no unpublished manuscript text, participant data or personal information. 貼上的內容沒有未發表稿件、受試者資料或個資。
+          required: true

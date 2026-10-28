@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """check_submissions.py — duplicate-submission guard + submission status overview.
 
 Why a central ledger: simultaneous submission is a cross-project problem and is

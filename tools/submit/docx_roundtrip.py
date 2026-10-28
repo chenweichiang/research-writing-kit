@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """docx_roundtrip.py: convert a built docx back to text, compare it with the source, and
 scan for leftovers a delivered manuscript must not carry.
 

@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """overclaim_lint.py — bilingual (English / Traditional Chinese) overclaim scan.
 A fixed station in the de-AI pass, not an optional extra.
 

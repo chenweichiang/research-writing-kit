@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """source_trace.py: sentence by sentence, can a rewritten draft be traced back to its sources?
 
 Why it exists: an AI rewrite can add statements the original manuscript never made,

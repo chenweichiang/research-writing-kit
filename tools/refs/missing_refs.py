@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """missing_refs.py: list the reference PDFs you still have to download by hand (stdlib only,
 no network).
 

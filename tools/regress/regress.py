@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 r"""regress.py — regression suite for long documents: every rule is a mistake you
 actually made once, turned into a permanent mechanical check.
 

@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = ["numpy", "pillow"]
+# ///
 """figure_a11y.py — colour-vision accessibility check for figures (CVD + greyscale).
 
 Why: a large share of readers print in black and white, and roughly 8% of men have a

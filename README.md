@@ -2,7 +2,7 @@
 
 [![版本](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![最近更新](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![程式 MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![文件 CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**版本 `v1.11.3`**（2026-10-29）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
+**版本 `v1.11.4`**（2026-10-29）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
 **English → [README.en.md](README.en.md)**
 
@@ -23,9 +23,9 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 
 - **你擁有想法與論證，AI 負責跑腿**：找文獻、查證引用、架論證骨架、寫成稿、還自己檢查。
 - **先架骨架再寫字**：不從空白頁硬擠出稿（那種硬擠就是「AI 味」的來源），先把論證結構立好，再照著它寫成文字。
-- **絕不編造引用**：每一條文獻都真的抓下來、確認方向對。查不到就標「未驗證」，不假裝。
+- **引用要對過原文才能用**：方法規定每一條文獻都要真的抓下來、確認方向對，才能寫進稿子；查不到的標「未驗證」，不假裝。
 - **論文像你的領域，信件像你**：論文、計畫書、申請書拿同領域已發表論文當準繩，稿子的每項語言特徵要落在真人論文的常見區間內，不磨成通用 AI 腔，也不套個人口吻；你自己的文風只用在信件與自述。
-- **誠實內建**：效果量＋信賴區間（不只 p 值）、資料不交給第三方服務、交稿前去 AI 味、乾淨二審。
+- **誠實內建**：效果量＋信賴區間（不只 p 值）、稿件與資料除了 Claude 本身不交給其他線上服務、交稿前去 AI 味、乾淨二審。
 
 ---
 
@@ -276,10 +276,12 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 | 工具 | 用途 | 怎麼取得 |
 |------|------|----------|
 | Claude Code | 整套方法的執行者：訪談你、找文獻、架骨架、寫稿、自我檢查 | [claude.com/claude-code](https://claude.com/claude-code)（需付費 Claude 方案：Pro／Max／Team 或 API 計費） |
-| Python 3 | 跑隨包附的本機檢查工具 | macOS 要先裝 Xcode Command Line Tools（`xcode-select --install`）或 `brew install python`；Linux 多數發行版內建；Windows 到 python.org 抓安裝檔 |
+| Python 3.9 或更新 | 跑隨包附的本機檢查工具（CI 在 3.9 與 3.13 上測） | macOS 要先裝 Xcode Command Line Tools（`xcode-select --install`）或 `brew install python`；Linux 多數發行版內建；Windows 到 python.org 抓安裝檔 |
 | git | 下載與更新這個 repo（`git clone` / `git pull`） | macOS 裝 Xcode Command Line Tools 就有；或用 GitHub 頁面的 Download ZIP（之後無法一鍵更新） |
 
 ### 選配的本機程式（哪個功能用到、怎麼裝）
+
+下表的 Python 套件可以用 `pip install` 裝，也可以裝了 [uv](https://docs.astral.sh/uv/) 之後用 `uv run tools/<資料夾>/<工具>.py` 執行：每支工具檔頭都寫了它要的套件，uv 會自動備好。
 
 | 程式 | 哪裡用到 | 怎麼裝 |
 |------|----------|--------|

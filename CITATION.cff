@@ -6,7 +6,8 @@ type: software
 authors:
   - family-names: Chiang
     given-names: Chenwei
-version: 1.11.3
+    orcid: "https://orcid.org/0000-0002-9066-135X"
+version: 1.11.4
 date-released: 2026-10-29
 license:
   - MIT

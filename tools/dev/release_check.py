@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = ["pyyaml"]
+# ///
 """release_check.py: the maintainer's pre-release gate for this kit (not for authors).
 
 Five checks, each one a thing that has to be true before a change ships:

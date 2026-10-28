@@ -2,7 +2,7 @@
 
 [![version](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![updated](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![code MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![docs CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**Version `v1.11.3`** (2026-10-29) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
+**Version `v1.11.4`** (2026-10-29) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
 
 **中文版 → [README.md](README.md)**
 
@@ -24,9 +24,9 @@ This is a writing method, plus a small toolbox that installs itself: once instal
 
 - **You own the ideas and the argument. The AI does the legwork**: finds literature, verifies citations, builds the argument skeleton, writes the draft, and checks its own work.
 - **Skeleton before prose**: no squeezing a draft out of a blank page (that squeezing is where "AI flavour" comes from). Build the argument structure first, then write the words to fit it.
-- **Never fabricates a citation**: every reference is really fetched and its direction of support confirmed. If it cannot be found, it is marked "unverified". No pretending.
+- **Every citation is checked against its source**: the method requires each reference to be fetched and its direction of support confirmed before it goes into the draft. One that cannot be found is marked "unverified" instead of being kept quietly.
 - **Papers sound like your field, letters sound like you**: papers, grant proposals and applications are measured against published papers in your field, so each language feature of the draft sits inside the range real papers use. They are neither sanded into generic AI prose nor pushed into one person's idiolect. Your own voice is kept for letters and personal statements.
-- **Honesty built in**: effect sizes with confidence intervals (not just p-values), no handing data to third-party services, a de-AI pass before delivery, a clean second review.
+- **Honesty built in**: effect sizes with confidence intervals (not just p-values), drafts and data go to no online service other than Claude itself, a de-AI pass before delivery, a clean second review.
 
 ---
 
@@ -280,10 +280,12 @@ These are your files. They live in your paper folder; this repo never holds them
 | Tool | Purpose | How to get it |
 |------|---------|---------------|
 | Claude Code | Runs the whole method: interviews you, finds literature, builds the skeleton, writes the draft, checks its own work | [claude.com/claude-code](https://claude.com/claude-code) (needs a paid Claude plan: Pro, Max, Team, or API billing) |
-| Python 3 | Runs the bundled local checking tools | macOS: install the Xcode Command Line Tools first (`xcode-select --install`) or `brew install python`; most Linux distributions ship it; Windows: download the installer from python.org |
+| Python 3.9 or newer | Runs the bundled local checking tools (CI tests on 3.9 and 3.13) | macOS: install the Xcode Command Line Tools first (`xcode-select --install`) or `brew install python`; most Linux distributions ship it; Windows: download the installer from python.org |
 | git | Downloads and updates this repo (`git clone` / `git pull`) | On macOS it comes with the Xcode Command Line Tools; or use Download ZIP on the GitHub page (no one-line updates afterwards) |
 
 ### Optional local programs (which feature uses it, how to install)
+
+The Python packages below can be installed with `pip install`, or, with [uv](https://docs.astral.sh/uv/) installed, run a tool as `uv run tools/<folder>/<tool>.py`: each tool lists the packages it needs at the top of the file, and uv provides them.
 
 | Program | Used where | How to install |
 |---------|------------|----------------|

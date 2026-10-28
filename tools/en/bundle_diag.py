@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """Lexical-bundle overuse diagnostic (English + Traditional Chinese) — local, no upload.
 
 Why this exists: research on LLM vs. human academic writing finds systematic

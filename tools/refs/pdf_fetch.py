@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """pdf_fetch: layered PDF retrieval for reference collection.
 
 Only download what you are authorized to. This reaches subscription content

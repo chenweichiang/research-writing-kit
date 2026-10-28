@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = []
+# ///
 """retraction_scan.py — has anything I cite been retracted? (Crossref + OpenAlex, stdlib)
 
 Retraction Watch data is served through Crossref: a retracted article carries an
