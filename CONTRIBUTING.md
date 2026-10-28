@@ -6,6 +6,8 @@ Issues and pull requests are welcome, in Traditional Chinese or English.
 
 Open an issue with the command you ran, what you expected, what happened (the full error if there is one), your operating system and Python version, and whether you set the kit up in lite or full mode. For a wrong result from a checking tool, a short text that reproduces it helps more than a description.
 
+Security problems go through private reporting instead of an issue; see [`SECURITY.md`](SECURITY.md).
+
 ## Term table (Taiwan Mandarin)
 
 `tools/zh-tw/zh_tw_terms.tsv` decides what `zh_localize.py` flags. To add, remove or narrow a term, open an issue with the term, the context where it goes wrong, and a source such as the National Academy for Educational Research term database (樂詞網) or usage counts from published Taiwanese papers. The table is synchronised from the maintainer's copy, so changes are applied there rather than merged directly into the file.
@@ -38,6 +40,8 @@ Conventions:
 ## 回報問題
 
 開 issue 時請附上執行的指令、預期結果、實際結果（有錯誤訊息請貼完整）、作業系統與 Python 版本，以及安裝時選的是 lite 還是 full 模式。檢查工具判錯時，一小段能重現的文字比描述更有用。
+
+安全性問題請私下回報，不要開 issue，方式見 [`SECURITY.md`](SECURITY.md)。
 
 ## 台灣用語詞表
 

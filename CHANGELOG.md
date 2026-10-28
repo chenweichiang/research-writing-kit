@@ -3,6 +3,13 @@
 版號採語意化版本（主版號．次版號．修訂號）：次版號加一表示方法、skill 或工具有新增或行為改變，修訂號加一表示只改文字、詞表或修正。
 Versions follow semantic versioning (major.minor.patch): a minor bump adds or changes a method, skill or tool; a patch bump changes only wording, term tables or fixes.
 
+## v1.11.3（2026-10-29）
+
+- 新增 `SECURITY.md`：哪些問題算漏洞、怎麼透過 GitHub 的 Report a vulnerability 私下回報；`CONTRIBUTING.md` 連過去，repo 也開啟了私下回報。
+  Added `SECURITY.md`: what counts as a vulnerability and how to report one privately through GitHub's Report a vulnerability; `CONTRIBUTING.md` links to it, and private reporting is enabled on the repository.
+- `tools/common/md_prose.py` 的說明文字整理。
+  Docstring wording in `tools/common/md_prose.py` tidied.
+
 ## v1.11.2（2026-10-28）
 
 - `zh_ai_style.py` 拿掉選配的外部後設論述量表整合（該專案已不公開）；`setup/TOOLS.md` 與繁中選配包裡的說明一併移除。

@@ -38,8 +38,8 @@ def mask_nonprose(txt: str, *, layout: bool = False) -> str:
     不遮表格與標題，那是讀者真的看得到的交付文字,術語與在地化必須查。
        (文風指標才要剝表格,走 `strip_markup(drop_tables=True)`。)
 
-    2026-08-23 實測動機:註解裡示範用的「軟件/用戶/數據庫」被 zh_localize 當成真的陸用語;
-    `voice_lint` 把 `<!--` `-->` 兩個註解符號本身的 `--` 當成破折號報了 4 次。
+    不遮會誤報:註解裡當範例寫出來的陸用語,會被 zh_localize 當成正文裡真的用了,
+    `voice_lint` 也會把 `<!--` `-->` 兩個註解符號本身的 `--` 當成破折號。
     """
     def blank(m):
         return "".join("\n" if c == "\n" else " " for c in m.group(0))
