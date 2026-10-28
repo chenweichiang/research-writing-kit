@@ -8,7 +8,7 @@ problems, and all of them invisible to a human reading their own letter at 2am:
   · the letter says "we have revised this" but the manuscript never changed
   · point numbers get renumbered and the letter now cites ones that don't exist
 
-⚠️ This checks COMPLETENESS, not quality. Every point being answered does not mean
+This checks COMPLETENESS, not quality. Every point being answered does not mean
    it is answered well. Judgement is a human's job (or a clean-context review pass).
 
 No dependencies (Python 3 standard library only).

@@ -3,20 +3,20 @@
 
 Measures the AI syntax fingerprints reviewers actually notice — em-dash / semicolon
 density, contrast sentences (`rather than`, `instead of`, `not..but`, "X, not Y",
-`not only`, measured as **five shapes plus a de-duplicated TOTAL** — see below),
+`not only`, measured as five shapes plus a de-duplicated TOTAL, see below),
 rule-of-three, sentence length, burstiness, LLM convergence-word density (word list
 `en_slop_terms.tsv` beside this file), and stock generative-AI openers at the start of
 the paper/Introduction — as PERCENTILES against a baseline corpus of published papers
 in your field. Cloud detectors (GPTZero-style) upload your draft and false-positive on
 academic prose; this is the local alternative.
 
-⚠️ REQUIRES A BASELINE CORPUS you assemble yourself: a folder of .txt full texts of
+REQUIRES A BASELINE CORPUS you assemble yourself: a folder of .txt full texts of
    PUBLISHED papers in your target venues (needs ≥30 to compute percentiles).
-   🔴 Corpus hygiene: put ONLY other people's published papers in it — never your own
+   Corpus hygiene: put ONLY other people's published papers in it, never your own
    drafts/posters/co-authored work (comparing your style against a baseline that
    contains your own writing makes the diagnosis cancel itself out). Exclude any of
    your own files with --exclude.
-   🔴 Corpus vintage: prefer papers published **before 2023** if you can find enough of
+   Corpus vintage: prefer papers published before 2023 if you can find enough of
    them — anything published after generative AI became common may itself have been
    AI-polished, which would quietly raise your "normal" and hide the very drift you're
    trying to catch. If you don't have 30 pre-2023 papers in your venues, a mixed-vintage
@@ -43,13 +43,13 @@ Reading: percentile >90 = well above field norm = a source of "looks like AI". T
 useful for a tic that's rare in the field (median near 0), where a percentile alone
 can undersell how far out your draft sits.
 
-🔴 **Contrast sentences: judge the TOTAL, never a single shape.** A pattern seen across
+Contrast sentences: judge the TOTAL, never a single shape. A pattern seen across
 several drafts, generalized here: an editing pass swapped `rather than` for a mix of
 "X, not Y" and `instead of` — but nothing was counting "X, not Y" at the time, so the
-edit looked clean. The **total** contrast-sentence density never moved, and reviewers
+edit looked clean. The total contrast-sentence density never moved, and reviewers
 still flagged the sentence type. Cut the non-load-bearing ones to a plain, direct
 statement (say the side that matters; if the contrast is genuinely load-bearing, give
-it its own sentence). **Do not swap one contrast shape for another** — a reviewer
+it its own sentence). Do not swap one contrast shape for another, a reviewer
 notices the total, not which of the five forms carries it.
 
 Editing: keep em-dashes/semicolons doing conceptual work (antithesis / closing /
@@ -250,7 +250,7 @@ def clean(txt: str) -> str:
     """Strip everything that is not prose, then drop review line numbers and
     anything after References.
 
-    🔴 The stripping rules live in `../common/md_prose.py` — layout syntax
+    The stripping rules live in `../common/md_prose.py`, layout syntax
     (frontmatter, table separators, HTML comments, citation keys) otherwise gets
     counted as punctuation and inflates every number. See that module for the
     measured damage."""
@@ -412,7 +412,7 @@ def main():
         med = vals[len(vals) // 2]
         p90[key] = vals[int(len(vals) * 0.9)]
         ratio = f"{target[key] / med:>9.1f}x" if med > 0 else f"{'—':>10}"
-        # 🔴 A low percentile only means something for burstiness. Flagging
+        # A low percentile only means something for burstiness. Flagging
         # "neither..nor appears 0 times, corpus median is also 0" is pure noise —
         # it teaches the reader to ignore the warnings.
         flag = " <<" if rank > 90 or (key in LOW_IS_BAD and rank < 10) else ""
@@ -422,7 +422,7 @@ def main():
         print("convergence-word hits: "
               + (", ".join(f"{w}×{n}" for w, n in top) if top else "none"))
 
-    # 🔴 Contrast: judge the TOTAL, and show the actual sentences — you can't edit
+    # Contrast: judge the TOTAL, and show the actual sentences, you can't edit
     # what you can't see, and the number alone invites swapping shapes instead of cutting.
     raw_c = contrast_counts(body)
     over = target["contrast"] > p90["contrast"]

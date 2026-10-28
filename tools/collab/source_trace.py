@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 """source_trace.py: sentence by sentence, can a rewritten draft be traced back to its sources?
 
-Why it exists: an AI rewrite of a co-author's manuscript added a dozen statements
-the original never made, two of them method claims for procedures never carried
-out. The co-author found them only by comparing the two texts sentence by
-sentence. The rule is "every statement of fact, method or authorial claim must
-point back to the original manuscript, the co-author's replies or the proposal;
-if it cannot, do not write it or mark it for the author", but nobody reliably
-compares 240 sentences by hand. This tool does the comparison mechanically:
-sentences with no source are listed, and those carrying numbers or method words
-are flagged red.
+Why it exists: an AI rewrite can add statements the original manuscript never made,
+including method claims for procedures that were never carried out. The rule is
+"every statement of fact, method or authorial claim must point back to the
+original manuscript, the co-author's replies or the proposal; if it cannot, do
+not write it or mark it for the author", but nobody reliably compares 240
+sentences by hand. This tool does the comparison mechanically: sentences with no
+source are listed, and those carrying numbers or method words are flagged red.
 
 Each draft sentence is compared with every source sentence (best match; Chinese
 by character bigrams, English by words and word pairs; the source window
@@ -18,13 +16,13 @@ includes the neighbouring sentences so split and merged sentences still match):
   rewritten  0.40 to 0.70       reworded; a human should check the meaning
   untraced   < 0.40             no source found
 Flags:
-  🔴 untraced and about the study itself (numbers, method words, or site facts such
+  red     untraced and about the study itself (numbers, method words, or site facts such
      as course / teacher / student); or a number that appears in
      no source; or a rewritten sentence that smuggles in a 12+ character span
      (Chinese) absent from the source and containing a method word or a number
-  🟠 untraced literature claim (carries a citation, talks about other people's
+  orange  untraced literature claim (carries a citation, talks about other people's
      work): the source is the cited paper, so route it to citation verification
-  🟡 any other untraced sentence (mostly connectives and transitions; still
+  yellow  any other untraced sentence (mostly connectives and transitions; still
      confirm no new claim slipped in)
 A citation list "(A, 2011; B, 2009)" is not split inside the parentheses.
 

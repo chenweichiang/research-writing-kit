@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """English syntactic-feature comparison (Biber tagger) — local, no upload. Runs in a
-**separate, optional** environment (`pybiber` + `spaCy` — see install notes below);
+separate, optional environment (`pybiber` + `spaCy`, see install notes below);
 none of the rest of this kit needs it.
 
 Why this exists: `ai_style_diag.py` measures punctuation, contrast sentences and
@@ -10,11 +10,11 @@ instruction-tuned LLM writing and found GPT-4o producing present-participial
 clauses at 5.3x the human rate (d=1.38), that-clauses as subject at 2.6x (d=0.77),
 nominalizations at 2.1x (d=1.23), and phrasal coordination at 1.9x (d=0.81) — one
 "dense, noun-heavy" style.
-⚠️ Those ratios are specific to GPT-4o/Llama 3 in that study, not a guarantee about
+Those ratios are specific to GPT-4o/Llama 3 in that study, not a guarantee about
    any other model — so beyond those four named features, this tool also compares
    the full 66-feature set against your own baseline and lists everything that falls
    outside the 5th/95th percentile, whichever direction it goes.
-⚠️ Cross-genre generalization of this kind of measure is weak (a classifier trained
+Cross-genre generalization of this kind of measure is weak (a classifier trained
    on one paper's prose can drop close to chance on a different genre in the same
    field), so the baseline has to be same-genre papers — this tool reuses
    `ai_style_diag.py`'s `--corpus` loading and its own-draft/template exclusion rules,

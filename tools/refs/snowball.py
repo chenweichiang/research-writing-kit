@@ -167,10 +167,10 @@ def main():
     agg, errors = {}, []
     for doi in seeds:
         seed, err = resolve_seed(doi, a.email)
-        # 🔴 429 is a DAILY QUOTA wall, and when you hit it the very FIRST OpenAlex
+        # 429 is a DAILY QUOTA wall, and when you hit it the very FIRST OpenAlex
         #    call — seed resolution — already returns 429. This used to `continue`
         #    past the whole seed, which meant the Semantic Scholar fallback below was
-        #    **never reached even once** (measured: 0 S2 calls). forward_s2 only needs
+        #    never reached even once (measured: 0 S2 calls). forward_s2 only needs
         #    the DOI, not OpenAlex's seed id, so skip resolution and go straight to it.
         if seed is None:
             if err == "429" and a.direction == "forward":

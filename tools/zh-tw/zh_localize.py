@@ -82,11 +82,11 @@ def main():
     arg = sys.argv[1] if len(sys.argv) > 1 else "-"
     text = sys.stdin.read() if arg == "-" else \
         Path(arg).expanduser().read_text(encoding="utf-8", errors="ignore")
-    # 🔴 Mask HTML comments and code fences: internal notes never reach the
+    # Mask HTML comments and code fences: internal notes never reach the
     #    submitted paper, so flagging terms inside them is a false alarm.
     #    MASK rather than delete — this tool reports line numbers, and deleting
     #    lines would shift every one of them.
-    #    ⚠️ Deliberately does NOT mask tables and headings: readers see that text,
+    #    Deliberately does NOT mask tables and headings: readers see that text,
     #    so its terminology must still be checked.
     text = mask_nonprose(text)
     print(report(text))

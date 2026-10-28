@@ -1,9 +1,9 @@
-# 台灣慣用語詞表（SSoT）——zh_localize_check／delegate.py／deck verify_deck／research-writing-kit 共用。
-# 讀取與比對規則見同目錄 zh_tw_terms.py；改完跑 server/scripts/dev/sync_zh_tw_terms.py 同步各 repo 副本。
+# 台灣慣用語詞表。zh_localize.py 與 zh_tw_terms_audit.py 都讀這份。
+# 讀取與比對規則見同目錄 zh_tw_terms.py。
 # 收詞判準（2026-09-12）：候選詞先用 zh_tw_terms_audit.py 掃《設計學報》台灣作者論文（120 篇，已排除 19 篇對岸作者稿）；
-#   台灣作者 3 篇以上在用＝台灣學界正常用法，不收，或用 need_near 限縮到該報的脈絡。使用者明訂的裁定（~/.claude/CLAUDE.md 對照表）照收。
-# mode：fix＝單一答案、可自動替換（只有 delegate.py 會真的替換）；flag＝看脈絡、只提示；allow＝比對前先遮掉的白名單片段。
-# 出處（source 欄）：own＝使用者裁定與原 zh_localize；deck＝deck-template verify_deck 原清單；delegate＝delegate.py 原 AUTO_FIX／FLAG_ONLY；
+#   台灣作者 3 篇以上在用＝台灣學界正常用法，不收，或用 need_near 限縮到該報的脈絡。維護者另行指定的詞照收。
+# mode：fix＝單一答案、可自動替換；flag＝看脈絡、只提示；allow＝比對前先遮掉的白名單片段。
+# 出處（source 欄）：own＝維護者自訂；deck、delegate＝維護者另兩套工具（簡報檢查、批次改寫）沿用的清單；
 #   zhtw-mcp＝sysprog21/zhtw-mcp assets/ruleset.json @cae49bb03a2a（MIT License，Copyright (c) 2026 National Cheng Kung University, Taiwan；其兩岸詞彙資料源自 OpenCC，Apache-2.0）；
 #   speak-human-tw＝Raymondhou0917/speak-human-tw references/taiwan-localization.md（MIT License，Copyright (c) 2026 Raymond Hou (雷蒙三十)）。
 cn	tw	mode	skip_near	need_near	note	source
@@ -37,8 +37,8 @@ cn	tw	mode	skip_near	need_near	note	source
 智能	智慧	flag			AI 脈絡	own
 卸載	解除安裝	flag			軟體脈絡	own
 網絡	網路	fix			具體網路脈絡	own
-儀錶板	儀表板	fix			OpenCC 字級轉換會把「仪表板」轉成「儀錶板」；樂詞網＝儀表板（2026-10-09 使用者裁定）	own
-可視化	視覺化	fix			樂詞網＝視覺化；台灣作者 5 篇在用，使用者裁定照收（2026-10-09）	own
+儀錶板	儀表板	fix			OpenCC 字級轉換會把「仪表板」轉成「儀錶板」；樂詞網＝儀表板（2026-10-09 維護者決定）	own
+可視化	視覺化	fix			樂詞網＝視覺化；台灣作者 5 篇在用，維護者決定照收（2026-10-09）	own
 視屏	螢幕／影片	flag				own
 缺省	預設	fix				own
 字符	字元	fix				own

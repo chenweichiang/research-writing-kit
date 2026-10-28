@@ -2,7 +2,7 @@
 """dead_rule_check.py — find rules that are registered but never really execute
 (the false-green-light detector).
 
-🔴 Why: a project confirmed "all 8 rules are in RULES" and called it verified, but
+Why: a project confirmed "all 8 rules are in RULES" and called it verified, but
 one rule returned on its first line every time (it needed a numbered reference
 list; the project used BibTeX). No error, FAIL 0 in every report — and citation
 integrity had never been checked once.
@@ -69,17 +69,17 @@ RULE_NAME = re.compile(r"^r(_|\d+_)")
 
 
 def unregistered_rules(path, mod, registered):
-    """Module-level functions that look like rules (`r_*` / `r1_*`) but are **not in
+    """Module-level functions that look like rules (`r_*` / `r1_*`) but are not in
     RULES at all**.
 
-    🔴 Added 2026-09-19. This script only ever measured whether a *registered* rule
+    Added 2026-09-19. This script only ever measured whether a *registered* rule
     executes its body, so it was blind to the more complete failure: a rule that
     never enters the loop. Real case: a regress skeleton shipped `r_stale_values`
     and `r_ledger_present` written but unregistered - FAIL 0 in every report, and
     this detector said "no dead rules" every time. The detector was handing out the
     false green light it exists to catch.
 
-    ⚠️ Name-matching is a heuristic, so the output says "suspected" and asks for a
+    Name-matching is a heuristic, so the output says "suspected" and asks for a
     human call: deliberately keeping a function unregistered is legitimate (a helper
     for project rules, or a rule replaced by a better one). Declare it in
     `RULES_DEREGISTERED = {"name": "why"}` and this stops reporting it - which also
@@ -106,8 +106,8 @@ def unregistered_rules(path, mod, registered):
 def undefined_calls(path):
     """Calls to names that do not exist, so the rule raises NameError on that line.
 
-    🔴 Added 2026-09-20. A regress skeleton's citation rule called `fail()` and
-    `info()` while the file only defined `rec()`, so **every reporting path raised
+    Added 2026-09-20. A regress skeleton's citation rule called `fail()` and
+    `info()` while the file only defined `rec()`, so every reporting path raised
     NameError**, including the most important one (a dangling citation is a FAIL).
     The runner's try/except caught it and printed a single WARN, so it did not look
     broken, and it passed silently whenever there was nothing to report, which is
@@ -117,7 +117,7 @@ def undefined_calls(path):
     lines, so it is filed under "early return, the setting is probably empty" and
     the diagnosis points the wrong way.
 
-    ⚠️ Deliberately conservative: only module-visible names count, so it
+    Deliberately conservative: only module-visible names count, so it
     under-reports rather than over-reports. Method calls (`ctx.rec(...)`) are not
     examined here; a wrong attribute is caught by running the rule."""
     t = ast.parse(pathlib.Path(path).read_text(encoding="utf-8"))
@@ -137,7 +137,7 @@ def guard_return_lines(f):
     """Line numbers of the rule's guard returns: a `return` inside an `if` that is a
     top-level statement of the body and is followed by more statements.
 
-    🔴 Added 2026-09-25. The line-ratio check alone passed r_entity_attribution
+    Added 2026-09-25. The line-ratio check alone passed r_entity_attribution
     (4/11 lines, 36 %) and r_corrected_claims (3/11, 27 %) with an empty config:
     both returned on the guard, checked nothing, and were reported [OK]. The
     shorter the rule, the larger the share its guard takes, so a threshold cannot

@@ -16,7 +16,7 @@ Usage:
     commas may be used inside an entry.
   - A two-word Latin name also gets its reversed forms ("Doe Jane", "Doe, Jane") added.
 
-Severity: 🔴 name / affiliation / extra string hit, metadata containing a name, EXIF GPS or
+Severity: name / affiliation / extra string hit, metadata containing a name, EXIF GPS or
             author, leftover tracked changes or comments
           🟠 self-disclosure phrasing (a human must judge), identifiable metadata that is not a
             listed name, an empty run, an area that could not be checked
@@ -24,7 +24,7 @@ Severity: 🔴 name / affiliation / extra string hit, metadata containing a name
 Optional dependencies (degrade with a clear message, never silently): exiftool (image and
 embedded-image EXIF), PyMuPDF (PDF files). Without exiftool the EXIF areas are reported as
 "not checked" (🟠); without PyMuPDF a PDF is reported as unreadable (exit 2).
-Exit codes: 0 = no 🔴; 1 = at least one 🔴; 2 = at least one file could not be read (takes
+Exit codes: 0 = no ; 1 = at least one ; 2 = at least one file could not be read (takes
 priority over 1)
 """
 import argparse

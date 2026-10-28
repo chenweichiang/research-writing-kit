@@ -16,11 +16,11 @@ Status per entry:
   API_ERROR    a query failed (network / 429 quota) — NOT a pass; rerun later
   NO_DOI       entry has no DOI — cannot be scanned at all (books, early papers)
 
-🔴 NO_DOI is not "scanned clean". Retraction matching runs on DOI records; an
+NO_DOI is not "scanned clean". Retraction matching runs on DOI records; an
    entry without a DOI simply falls outside what this tool can check. They are
    listed separately so a complete scan does not look incomplete, and so nobody
    mistakes "no DOI" for "verified".
-🔴 API_ERROR is not "scanned clean" either. The exit code says so.
+API_ERROR is not "scanned clean" either. The exit code says so.
 
 Zero-install: Python 3 standard library only. Free keyless APIs.
 
@@ -182,7 +182,7 @@ def scan_entry(e, ua, email):
     if notices or oa:
         row["status"] = "RETRACTED"
     elif cr_err or oa_err:
-        # 🔴 One source failing is enough to make the verdict unreliable: a retraction
+        # One source failing is enough to make the verdict unreliable: a retraction
         #    known only to the source that failed would be missed. Report, don't pass.
         row.update(status="API_ERROR", error="; ".join(x for x in (cr_err, oa_err) if x))
     elif msg is None and oa is None:

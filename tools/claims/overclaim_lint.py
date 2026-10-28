@@ -3,14 +3,14 @@
 A fixed station in the de-AI pass, not an optional extra.
 
 Why: AI-polished prose has two fingerprints, not one. Style tools catch the first
-(convergence words, cadence, em-dash rhythm). The second is **saying more than the
+(convergence words, cadence, em-dash rhythm). The second is saying more than the
 data supports** — "all", "never", "the only", "proves", "clearly", "significantly"
 used non-statistically. Strip the convergence words and leave the overclaims, and
 the draft still reads like a model wrote it. Worse, an overclaim survives review as
 a *substantive* problem: a reviewer who reads "this proves" for a study with n=12
 stops trusting the rest of the paper.
 
-Position: **report-only. It never edits and never blocks delivery.** Every hit needs
+Position: report-only. It never edits and never blocks delivery. Every hit needs
 a human decision — does the evidence carry this word?
   - It does  → keep it. Real 0/72 or 100% results ARE absolutes; do not soften data.
   - It doesn't → converge:
@@ -19,7 +19,7 @@ a human decision — does the evidence carry this word?
       significantly (non-statistical) → markedly, or delete
       完全 → 幾乎/多半      永遠 → 往往           唯一 → 之一
       證明了 → 顯示         一致顯示 → 多數研究顯示   最 → 較
-  - **Quoted source text and object-language in quotation marks are out of scope** —
+  - Quoted source text and object-language in quotation marks are out of scope:
     skip them by hand; the scanner cannot tell whose words they are.
 
 Two categories behave differently from the rest:
@@ -31,9 +31,9 @@ Two categories behave differently from the rest:
     undated citation does not say which version is meant.
 
 Where it sits in the pipeline:
-  English : ai_style_diag → Harper / LanguageTool / Vale → **overclaim_lint** →
+  English : ai_style_diag → Harper / LanguageTool / Vale → overclaim_lint →
             de-cadencing pass (agents/de-cadencing-scholar.md, tic #6 is this list)
-  Chinese : voice_lint (hard rules to zero) → **overclaim_lint** → zh_ai_style →
+  Chinese : voice_lint (hard rules to zero) → overclaim_lint → zh_ai_style →
             zh_localize (+ zh_term_check if you have the Taiwan add-on)
 
 Usage:

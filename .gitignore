@@ -29,3 +29,6 @@ skeleton.md
 # keep the blank templates and the worked example
 !templates/**
 !examples/**
+
+# Maintainer-only release-check patterns (names the maintainer)
+tools/dev/release_check.local.json

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""pdf_fetch — layered PDF retrieval for reference collection.
+"""pdf_fetch: layered PDF retrieval for reference collection.
 
-**Only download what you are authorized to.** This reaches subscription content
+Only download what you are authorized to. This reaches subscription content
 through *your own* institutional access in a real browser session — the same thing
 you would do by hand. It does not circumvent access controls. Open access first,
 always; anything you are not entitled to is reported as such, not worked around.
@@ -11,54 +11,53 @@ Three layers, cheapest first:
                      falls back to urllib when not installed
   L2 BrowserSession  patchright + a real Chrome (persistent profile) clears
                      Cloudflare's interactive challenge, then finds the PDF link
-                     **on the rendered landing page** (citation_pdf_url meta →
+                     on the rendered landing page (citation_pdf_url meta →
                      anchors → publisher patterns) and fetches it via in-page
                      `fetch(credentials:'include')`, response capture, or a real
                      download event
   L3 cookie handoff  hand the browser-earned cf_clearance back to L1 (optimisation only)
 
-═══ Measured, 2026-08-30 ═══
-                urllib      curl_cffi    real Chrome
-  ACM             403         403(*)      ok — 1,110,725 b, %PDF
-  Wiley           403         403(*)      ok — landing 200
-  T&F             403         200         ok — landing 200
-  SAGE / AIP      403         403(*)      ok — landing 200
-  ScienceDirect   403         403(*)      (Elsevier's own challenge, slower)
+Measured on 2026-08-30 (which client got through):
+  Publisher       urllib   curl_cffi   real Chrome
+  ACM             403      403(*)      ok, 1,110,725 bytes, %PDF
+  Wiley           403      403(*)      ok, landing page 200
+  T&F             403      200         ok, landing page 200
+  SAGE / AIP      403      403(*)      ok, landing page 200
+  ScienceDirect   403      403(*)      Elsevier's own challenge, slower
   (*) response header `cf-mitigated: challenge`, title "Just a moment..."
 
-⚠️ Three findings that cost real time to learn — none of them are guesses:
- 1. **curl_cffi does not clear Cloudflare's interactive challenge.** The blog posts
-    claiming otherwise are not testing academic publishers. It fixes the TLS
-    fingerprint only. Still worth making the default client (strictly better than
-    urllib), but it is not the answer.
- 2. **Cookie handoff is not general.** It works for ACM (cf_clearance travels);
+Three findings from those measurements:
+ 1. curl_cffi does not clear Cloudflare's interactive challenge. It fixes the TLS
+    fingerprint only. It is still worth making the default client (strictly
+    better than urllib), but it does not replace the browser layer.
+ 2. Cookie handoff is not general. It works for ACM (cf_clearance travels);
     Wiley's pdfdirect re-triggers the challenge. Use it as an optimisation only,
-    and **always verify magic bytes**.
- 3. **You cannot build the PDF URL from the DOI.** Guessed URLs for T&F and AIP
-    return the HTML landing page. The link has to be read off the **rendered**
-    page — that is why L2 exists.
+    and always verify magic bytes.
+ 3. You cannot build the PDF URL from the DOI. Guessed URLs for T&F and AIP
+    return the HTML landing page. The link has to be read off the rendered
+    page, which is why L2 exists.
 
-❌ Verified dead end, do not retry:
- **Zotero translation-server cannot give you PDF links.** It is the intuitive
- answer — 700+ publisher translators, exactly the "landing page → PDF" knowledge
+Tested and ruled out:
+ Zotero translation-server cannot give you PDF links. It is the intuitive
+ answer: 700+ publisher translators, exactly the "landing page → PDF" knowledge
  you want. Measured against `docker run -p 1969:1969 zotero/translation-server`:
- metadata for ACM / T&F / Springer / APA all resolved **correctly** (it even titles
- ACM pages that curl cannot reach), but `attachments` is **always null**, across
+ metadata for ACM / T&F / Springer / APA all resolved correctly (it even titles
+ ACM pages that curl cannot reach), but `attachments` is always null, across
  `format=zotero|csljson`. The cause is in the container's item-export module
  (`src/translation/`): ItemSaver is an object-only stub, so the server has no
  attachment-download capability and the attachment info is gone before output.
- ⇒ It is a **bibliographic metadata service**, not a retrieval service.
+ ⇒ It is a bibliographic metadata service, not a retrieval service.
 
-⚠️ cf_clearance is bound to **IP + User-Agent**. If you use an institutional VPN,
-   warm the profile *while connected*, and do not connect/disconnect mid-run —
+cf_clearance is bound to IP + User-Agent. If you use an institutional VPN,
+   warm the profile *while connected*, and do not connect/disconnect mid-run:
    every clearance already earned dies with the IP change.
 
-⚠️ There are two kinds of 403 and they look alike in a log but mean opposite things:
+There are two kinds of 403 and they look alike in a log but mean opposite things:
    - `cf-mitigated: challenge` / "Just a moment" = bot block → the browser layer fixes it
    - a real HTML page showing Get Access / Purchase = paywall → only entitlement fixes it
    is_bot_block() is what tells them apart.
 
-Usage (also importable — see fetch_pdf / http_get / extra_oa_urls):
+Usage (also importable, see fetch_pdf / http_get / extra_oa_urls):
   python3 pdf_fetch.py --out refs-pdf 10.1145/1240624.1240704 10.1002/ece3.5555
   python3 pdf_fetch.py --bib references.bib --out refs-pdf
   python3 pdf_fetch.py --dois dois.txt --out refs-pdf --no-browser
@@ -92,9 +91,9 @@ CAPTCHA_RE = re.compile(
     r"are you a robot|confirm you are a human|complete the captcha|"
     r"unusual traffic", re.I)
 
-# ⚠️ Every phrase here must appear ONLY when you genuinely lack access.
-#    Learned the hard way: "add to cart" is a **site-chrome element on every T&F page**
-#    (open-access articles included) — using it as evidence makes the tool write off
+# Every phrase here must appear ONLY when you genuinely lack access.
+#    "add to cart" is a site-chrome element on every T&F page
+#    (open-access articles included), so using it as evidence makes the tool write off
 #    all of T&F as paywalled. "sign in" is too generic for the same reason.
 #    ⇒ Keep only phrases that mean "you do not have access to *this* item".
 PAYWALL_RE = re.compile(
@@ -166,13 +165,13 @@ except Exception:
     HAVE_PATCHRIGHT = False
 
 # ── Publisher PDF URL patterns ──────────────────────────────────
-# ⚠️ These patterns **only work inside a real browser**: the same URLs return 403 to
+# These patterns only work inside a real browser: the same URLs return 403 to
 #    urllib/curl_cffi. An earlier version of this pipeline had similar patterns bolted
 #    onto urllib and they looked useless — the patterns were fine, the client was wrong.
-# ⚠️ Corrected against live sites:
-#    Wiley's /doi/pdf/ returns an **HTML viewer shell** (49 KB); the file is at /doi/pdfdirect/.
+# Corrected against live sites:
+#    Wiley's /doi/pdf/ returns an HTML viewer shell (49 KB); the file is at /doi/pdfdirect/.
 #    SAGE's /doi/reader/ and /doi/epub/ are shells too — use /doi/pdf/.
-#    T&F's /doi/pdf/ returns the landing page itself: **no constructible PDF URL exists**,
+#    T&F's /doi/pdf/ returns the landing page itself: no constructible PDF URL exists,
 #    it can only be reached by clicking the control (click-download).
 def publisher_patterns(final_url, doi):
     host = urllib.parse.urlparse(final_url).netloc.lower()
@@ -199,8 +198,8 @@ def publisher_patterns(final_url, doi):
         m = re.search(r"/document/(\d+)", final_url)
         if m:
             out += [f"{root}/stamp/stamp.jsp?tp=&arnumber={m.group(1)}"]
-    # ⚠️ The generic `/doi/pdf/` pattern **only applies to publishers actually running
-    #    the Atypon platform**. An earlier version applied it to any host; against a
+    # The generic `/doi/pdf/` pattern only applies to publishers actually running
+    #    the Atypon platform. An earlier version applied it to any host; against a
     #    national journal portal (not Atypon) it produced a URL that does not exist, and
     #    that site neither answers nor closes the connection → the in-page fetch hung
     #    for 193 seconds. ⇒ Allowlist. When unsure, do not guess a URL — let link
@@ -216,9 +215,9 @@ def publisher_patterns(final_url, doi):
 def entitlement_block(final_url):
     """Publisher-specific "you are not entitled to this" signal. Returns a string or None.
 
-    ⚠️ These signals are more reliable than page text. Measured:
-      with entitlement T&F stays on /doi/full/; without it you are **redirected to
-      /doi/abs/**. The "Read this article" link on that page (a.grant-access) is not an
+    These signals are more reliable than page text. Measured:
+      with entitlement T&F stays on /doi/full/; without it you are redirected to
+      /doi/abs/. The "Read this article" link on that page (a.grant-access) is not an
       institutional entry point — it leads to /doi/epdf/?needAccess=true, the purchase
       flow. Fetching /doi/full/ directly also redirects back to /doi/abs/.
       ⇒ Page text alone misjudges this: every T&F page carries "Add to Cart" in the
@@ -239,10 +238,10 @@ _DISCOVER_JS = r"""(DOI) => {
   document.querySelectorAll('meta[name="citation_pdf_url"]').forEach(m => push(m.content));
   document.querySelectorAll('a[href]').forEach(a => {
     const h = a.href, txt = (a.textContent||'').trim().toLowerCase();
-    // ⚠️ All three signals are needed; any one alone has real blind spots:
+    // All three signals are needed; any one alone has real blind spots:
     //   1. URL shape        — the common case
     //   2. link text        — "Download PDF" and friends
-    //   3. **class / aria-label / title** — an icon link has EMPTY textContent!
+    //   3. class / aria-label / title, an icon link has EMPTY textContent!
     //      A national journal portal ships its download control as:
     //        <a href="/submission/api/download?id=..." class="icon pdf"></a>
     //      No text, no ".pdf" in the URL — only "pdf" in the class gives it away.
@@ -254,7 +253,7 @@ _DISCOVER_JS = r"""(DOI) => {
     else if (/\bpdf\b/.test(attrs)) push(h);
     else if (/\/(api\/)?download|getfile|fulltext|attachment|\/file\//i.test(h) && /pdf|download/.test(attrs+' '+txt)) push(h);
   });
-  // ⚠️ Measured: SAGE reference lists contain .pdf links to *other* papers. Without
+  // Measured: SAGE reference lists contain .pdf links to *other* papers. Without
   //    scoping you happily download a completely unrelated file. Keep only candidates
   //    on the same host, or whose URL contains this article's DOI.
   const host = location.hostname;
@@ -266,10 +265,10 @@ _DISCOVER_JS = r"""(DOI) => {
 
 # In-page fetch: uses the browser's own session and TLS, so a fingerprint mismatch
 # is impossible by construction.
-# ⚠️ **The AbortController is mandatory.** The browser's fetch() has no built-in
+# The AbortController is mandatory. The browser's fetch() has no built-in
 #    timeout, and playwright's set_default_timeout does not reach a promise inside
 #    evaluate. Measured: fetching a non-existent URL on a site that neither answers
-#    nor closes the connection hung this single evaluate for **193 seconds** and took
+#    nor closes the connection hung this single evaluate for 193 seconds and took
 #    the whole batch with it. The per-item budget cannot save you — it is only
 #    checked *between* steps.
 _GRAB_JS = r"""async (args) => {
@@ -310,7 +309,7 @@ class BrowserSession:
             user_data_dir=self.profile, channel="chrome", headless=self.headless,
             no_viewport=True, accept_downloads=True, downloads_path=self._dl)
         self._pg = self._ctx.pages[0] if self._ctx.pages else self._ctx.new_page()
-        # ⚠️ Without these two lines a single item can hang for ten minutes or more.
+        # Without these two lines a single item can hang for ten minutes or more.
         #    Playwright defaults to 30 s, but if the page keeps loading after goto,
         #    subsequent title()/evaluate() calls queue up behind it indefinitely.
         self._pg.set_default_timeout(15000)
@@ -321,7 +320,7 @@ class BrowserSession:
     def _arm_page(self, pg):
         """Attach page-level guards.
 
-        🔴 **A dialog freezes the entire page.** Measured: a journal portal popped a
+        A dialog freezes the entire page. Measured: a journal portal popped a
            login dialog during retrieval, after which every CDP operation went
            unanswered — the 100 s per-item budget could not save it, because the
            budget is only checked *between* steps and the thread was stuck inside
@@ -373,14 +372,14 @@ class BrowserSession:
             body = self._pg.evaluate("() => (document.body ? document.body.innerText : '').slice(0, 4000)") or ""
         except Exception:
             return ("challenge", "page not readable yet")
-        # ⚠️ **Check captcha BEFORE challenge.** Measured: ScienceDirect's captcha page
+        # Check captcha BEFORE challenge. Measured: ScienceDirect's captcha page
         #    carries Cloudflare's "Just a moment..." <title> while the body says
         #    "Are you a robot?". With the order reversed it is classified as
         #    "challenge in progress" → waits out the full 50 s → then mis-reports as
         #    NO-LINK, telling the author the tool does not support Elsevier when the
         #    truth is "click the captcha once".
-        #    The distinction: challenge is **transient** (waiting works), captcha is
-        #    **terminal** (only a human clears it).
+        #    The distinction: challenge is transient (waiting works), captcha is
+        #    terminal (only a human clears it).
         m = CAPTCHA_RE.search(body[:1500])
         if m:
             return ("captcha", m.group(0))
@@ -430,10 +429,10 @@ class BrowserSession:
 
         For sites where CORS/CSP blocks the in-page fetch (AIP, for one).
 
-        🔴 **This must open its own page.** Measured: doing `location.href = u` on the
+        This must open its own page. Measured: doing `location.href = u` on the
            main page makes Chrome close that tab for some URLs. Once the main page dies,
-           `self._pg` is permanently invalid and **every remaining item in the batch
-           reports "Target page, context or browser has been closed"** — one bad item
+           `self._pg` is permanently invalid and every remaining item in the batch
+           reports "Target page, context or browser has been closed", one bad item
            killed fifteen good ones. A throwaway page keeps the blast radius at one.
         """
         tmp = None
@@ -454,13 +453,13 @@ class BrowserSession:
                 pass
 
     def _navigate_capture(self, url, wait=8):
-        """Navigate a throwaway page to url and capture **any** response body whose
+        """Navigate a throwaway page to url and capture any response body whose
         content-type is PDF.
 
-        🔴 Elsevier only works this way. Measured: ScienceDirect's PDF link is
+        Elsevier only works this way. Measured: ScienceDirect's PDF link is
            `/pii/{PII}/pdfft?md5=...&pid=...` where md5 is a one-time per-session token
-           (**not constructible** — it can only be read off the rendered page), and that
-           URL returns an **HTML interstitial (51 KB)** that hops once more to the file.
+           (not constructible, it can only be read off the rendered page), and that
+           URL returns an HTML interstitial (51 KB) that hops once more to the file.
            ⇒ An in-page fetch always lands on the interstitial, and a download event may
              never fire either (Chrome can open the PDF in its built-in viewer, which is
              not a download). Capturing the response body handles all three cases.
@@ -516,8 +515,8 @@ class BrowserSession:
     def _click_download(self):
         """Click the real "PDF / Download PDF" control on the landing page.
 
-        ⚠️ T&F needs this path: measured, both /doi/pdf/{doi} and /doi/epdf/{doi} return
-           **the landing page itself** (202 KB of HTML). There is no constructible PDF
+        T&F needs this path: measured, both /doi/pdf/{doi} and /doi/epdf/{doi} return
+           the landing page itself (202 KB of HTML). There is no constructible PDF
            URL and no citation_pdf_url meta tag.
         """
         SEL = ("a[href*='/doi/pdf'], a[href*='pdfdirect'], a[href*='pdfft'], "
@@ -581,22 +580,22 @@ class BrowserSession:
     def fetch_pdf(self, landing_url, doi="", extra_urls=(), budget=100):
         """Open the landing page → clear the challenge → try candidates → fetch.
 
-        Returns (bytes|None, source_url|None, note). The note **starts with a
-        classification tag**, and that tag is the point of this whole function:
+        Returns (bytes|None, source_url|None, note). The note starts with a
+        classification tag, and that tag is the point of this whole function:
 
           OK        got the file
           PAYWALL   no entitlement — no tool fixes this; use ILL, ask the author,
                     or look for an author-hosted copy
           CAPTCHA   a human must clear it once (see warm_profile.py); then re-run
-          NO-LINK   the page rendered but no PDF was found — **this is the only
-                    bucket where the tool itself can still improve**
+          NO-LINK   the page rendered but no PDF was found, this is the only
+                    bucket where the tool itself can still improve
           CHALLENGE / TIMEOUT / ERROR   transient; re-running usually helps
 
         Reporting all of these as one undifferentiated "needs a browser" is what makes
         a reference-collection run useless: the author cannot tell which items are worth
         five more minutes and which are simply not available to them.
 
-        budget = seconds allowed for this item. ⚠️ Non-optional: single items have been
+        budget = seconds allowed for this item. Non-optional: single items have been
         observed hanging past ten minutes, which kills a batch of dozens. On expiry it
         returns TIMEOUT so the batch moves on.
         """
@@ -628,7 +627,7 @@ class BrowserSession:
         except Exception:
             pass
 
-        # ⚠️ Link discovery must **poll**, not scan once. ScienceDirect renders in JS:
+        # Link discovery must poll, not scan once. ScienceDirect renders in JS:
         #    at 2 s only one candidate exists; the real pdfft link carrying the one-time
         #    md5 token appears around 8 s. Scanning once makes the tool flaky — the same
         #    DOI gives different results on different runs.
@@ -655,7 +654,7 @@ class BrowserSession:
             if d:
                 return (d, u, "OK in-page-fetch")
 
-        # ⚠️ Order matters: decide "paywall" BEFORE the expensive download/click stages.
+        # Order matters: decide "paywall" BEFORE the expensive download/click stages.
         #    Before this reordering a single Wiley item cost 224 s and a T&F item 124 s,
         #    all of it spent clicking buttons on a paywall.
         eb = entitlement_block(self._pg.url)
@@ -682,7 +681,7 @@ class BrowserSession:
             if d:
                 return (d, final, "OK click-download")
 
-        # Re-check at the end: the captcha often appears **later** (ScienceDirect only
+        # Re-check at the end: the captcha often appears later (ScienceDirect only
         # shows it after the redirect settles), so the check at page-open misses it.
         # Without this re-check a CAPTCHA is mis-reported as NO-LINK, telling the author
         # the tool does not support that publisher instead of "click it once".
@@ -713,7 +712,7 @@ class BrowserSession:
 #   Europe PMC — biomedical-leaning but far broader in practice; gives a PDF directly
 #                when a PMC full text exists
 #   CORE       — the largest OA full-text aggregator (~32.8 M documents) and, crucially,
-#                it **hosts its own copies**, so it often still has the file when an
+#                it hosts its own copies, so it often still has the file when an
 #                institutional repository has moved or been retired. That is the direct
 #                answer to "the OA flag was true but the link is dead".
 #   OpenAIRE   — EU aggregator, keyless
@@ -799,7 +798,7 @@ def _url_names_other_doi(u, tgt):
     follows it is not itself an alphanumeric character (i.e. not a longer DOI that
     happens to share this one as a prefix).
 
-    🔴 Fixed 2026-09-28: the previous version matched the *whole* DOI-shaped substring,
+    Fixed 2026-09-28: the previous version matched the *whole* DOI-shaped substring,
        including whatever path came after it, and compared that entire string against
        the target. Frontiers' PDF link is `/articles/<doi>/pdf` - the trailing `/pdf`
        made the match fail, so it was rejected as "another paper's DOI" and the open-
@@ -814,7 +813,7 @@ def _url_names_other_doi(u, tgt):
 def _openaire_raw(doi):
     r"""Return (direct PDF urls, landing pages), both pinned to the DOI.
 
-    🔴 Fixed 2026-09-28: switched endpoint. OpenAIRE's old Search API
+    Fixed 2026-09-28: switched endpoint. OpenAIRE's old Search API
        (`api.openaire.eu/search/publications`) was officially retired 2026-05-31
        (see the Deprecation Notice on graph.openaire.eu/docs/apis/search-api); calling
        it now just times out. The exception handler below swallowed that into "no
@@ -823,12 +822,12 @@ def _openaire_raw(doi):
     ⇒ Call Graph API V3 instead (OpenAIRE's own docs mark it current, replacing V1/V2).
        Anonymous rate limit is in the thousands per hour (see the response's
        x-ratelimit-limit header) and a call takes roughly a second.
-    ⚠️ V3's JSON is a clean, structured shape - read `results[].instances[].urls`
+    V3's JSON is a clean, structured shape - read `results[].instances[].urls`
        directly rather than recursing over the whole blob. Walking everything would
        pull in V3's `organizations[].websiteurl` (an author's institution home page)
        and `instances[].license` (a publisher licence-policy page), exactly the junk
        an earlier fix already had to filter out of the legacy JSON.
-    ⚠️ DOI pinning happens twice: (1) drop the whole record if its `pids` list does not
+    DOI pinning happens twice: (1) drop the whole record if its `pids` list does not
        contain the target DOI - OpenAIRE sometimes merges a book chapter and its
        journal version into one record; (2) drop any individual url that embeds a
        *different* DOI. Open-access instances (accessRight=OPEN) are sorted first,
@@ -872,7 +871,7 @@ def openaire_urls(doi):
 
 
 def oa_landing_urls(doi):
-    """Repository / publisher landing pages. **Not** for direct download - fetching
+    """Repository / publisher landing pages. Not for direct download - fetching
     one gives you HTML - but for BrowserSession.fetch_pdf(extra_urls=...), which
     looks for a PDF link on the rendered page. Author-deposited accepted manuscripts
     in institutional repositories are one of the highest-yield routes, and the old
@@ -905,7 +904,7 @@ def _parse_bib(path):
     """Every entry, not just the ones with a DOI. Returns dicts:
     key / doi / arxiv / title / type.
 
-    🔴 No DOI ≠ unobtainable. The previous version kept only entries with a `doi`
+    No DOI ≠ unobtainable. The previous version kept only entries with a `doi`
        field, so an arXiv preprint — whose bib usually carries `eprint` and no DOI —
        was never even attempted. Measured upstream on a 24-entry bib: 13 pure-OA arXiv
        papers all skipped; after the fix 23/24 obtained. Only books / book chapters
@@ -1102,7 +1101,7 @@ def main():
                 data, src, how = bs.fetch_pdf("https://doi.org/" + doi, doi=doi,
                                               extra_urls=land)
                 # Passing extra_urls is not enough on its own: fetch_pdf goes
-                # "in-page fetch -> **return on paywall** -> navigate", and the big
+                # "in-page fetch -> return on paywall -> navigate", and the big
                 # publishers always short-circuit at the paywall, so the navigation
                 # step never sees extra_urls. Retry each repository page as a landing
                 # page in its own right (it has its own link discovery).

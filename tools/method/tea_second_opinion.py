@@ -6,7 +6,7 @@ Why this exists: Tea (Jun et al., UIST 2019; University of Washington, tea-lang-
 still maintained as of 2026) auto-selects a statistical test from your variable types, study
 design, and hypotheses. It only covers classical tests (t-test, Mann-Whitney, chi-square,
 correlation, ANOVA family) -- no mixed models, ordinal regression, or Bayesian models -- so treat
-it strictly as a **second opinion**: compare it against your method decision (`method/METHOD_DECISION.md`)
+it strictly as a second opinion: compare it against your method decision (`method/METHOD_DECISION.md`)
 and what comparable papers actually did; if they disagree, find out why before writing anything
 based on Tea's answer alone.
 

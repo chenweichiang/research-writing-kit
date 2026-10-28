@@ -12,9 +12,9 @@ It does two things:
      distinguishable under greyscale and three CVD simulations
   2. writes the simulated images to <figure>_a11y/ so you can LOOK at them
 
-🔴 Honest limits: the simulation is a linear approximation (LMS daltonization), not a
+Honest limits: the simulation is a linear approximation (LMS daltonization), not a
    medical model of vision. "These two collapse" is reliable; "this figure is fine" is
-   not a guarantee. **Always open the simulated images.** The numbers are evidence,
+   not a guarantee. Always open the simulated images. The numbers are evidence,
    not a verdict.
 
 Requires: numpy, Pillow (+ pymupdf only if you pass a PDF).

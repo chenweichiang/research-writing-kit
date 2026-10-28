@@ -2,13 +2,11 @@
 """台灣慣用語詞表：讀取與比對（零依賴，只用 Python 標準庫）。
 Taiwan-Mandarin term table: loader and matcher (standard library only).
 
-SSoT＝~/Developer/server/services/research-mcp/zh_tw_terms.tsv 與本檔。
-research-writing-kit、deck-template、deck-local 裡的同名檔是同步副本，由
-server/scripts/dev/sync_zh_tw_terms.py 覆寫：改詞表只改 server 那份，改完跑同步。
-Copies in other repos are overwritten by that sync script; edit the server copy only.
+詞表本體是同目錄的 zh_tw_terms.tsv；要新增或修改詞條，請開 issue 附上出處。
+The term list is zh_tw_terms.tsv in this directory; propose additions or changes in an issue, with a source.
 
 TSV 欄位（tab 分隔，# 開頭為註解）：cn  tw  mode  skip_near  need_near  note  source
-  mode       fix＝無歧義，可自動替換（delegate.py 對模型輸出用）；flag＝要看脈絡，只提示；
+  mode       fix＝無歧義，可自動替換；flag＝要看脈絡，只提示；
              allow＝白名單片段（台灣正確詞、既定學術譯名、官方用「台」的專名），比對前先遮掉
   skip_near  命中處前後 WIN 字內出現任一詞（| 分隔）就不報，例：數據 遇到「統計」
   need_near  命中處前後 WIN 字內至少出現一詞才報，例：數組 要有「陣列／索引」

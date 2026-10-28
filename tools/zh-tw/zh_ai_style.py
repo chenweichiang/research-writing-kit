@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
-"""Chinese AI syntax-fingerprint diagnostic (Chinese-calibrated) — local, no upload.
+"""Chinese AI syntax-fingerprint diagnostic (Chinese-calibrated), local, no upload.
 
 English AI-style tools count words by \\b\\w+\\b; Chinese has no spaces, so word
-counts and per-1k rates break. This uses **Han-character count** as the denominator
+counts and per-1k rates break. This uses Han-character count as the denominator
 and Chinese-specific metrics: em-dash / semicolon / rule-of-three (、) density,
 Chinese AI convergence words, sentence length (Han chars) and burstiness, the
-**total density of six "not-X-but-Y" contrast frames** (並非…而是 / 而非 / 而不是 /
+total density of six "not-X-but-Y" contrast frames (並非…而是 / 而非 / 而不是 /
 不在於…而在於 / 與其…不如 / 非…而…), and a list of sentences over 120 Han chars.
 
-🔴 **Contrast frames: judge the TOTAL, never a single frame.** A pattern seen across
+Contrast frames: judge the TOTAL, never a single frame. A pattern seen across
 several drafts, generalized here: an edit that cut 「並非…而是」 in an earlier round
 looked like it fixed the register — but the count simply moved to 「而非」, which
 nothing was counting at the time. The *total* never changed. This tool sums all six
 frames; when the total is high, cut the non-load-bearing ones to a plain, direct
-statement. **Do not respond to a high count by switching to a different one of the
-six frames** — the tool would show the same total either way.
+statement. Do not respond to a high count by switching to a different one of the
+six frames; the tool would show the same total either way.
 
 Two threshold modes:
-  - **Reference mode (default, no --corpus)**: heuristic thresholds. The "high" cutoff
+  - Reference mode (default, no --corpus): heuristic thresholds. The "high" cutoff
     for contrast-frame density (0.40 per 1000 Han characters) is the 90th-percentile
-    value the kit's original author measured across 288 papers from four Taiwan
+    value measured across 288 papers from four Taiwan
     academic journals (design/art/education, 2018–2022, pre-ChatGPT). Treat it as a
     reference point, not a rule for your field.
-  - **Corpus mode (--corpus <dir>)**: real percentiles against a folder of .txt files
+  - Corpus mode (--corpus <dir>): real percentiles against a folder of .txt files
     you assemble yourself (≥30 needed for a stable percentile). Same corpus-hygiene
     rule as the English tool: only OTHER PEOPLE's published writing, never your own
     drafts — comparing your style against a baseline that contains your own writing
@@ -123,7 +123,7 @@ def extract(path: Path) -> str:
                  f"{path}\nLite fallback: 'Save As' / 'Download' plain text (.txt) "
                  "from Word / Google Docs / LibreOffice and point this script at that file.")
     txt = path.read_text(encoding="utf-8", errors="ignore")
-    # 🔴 Use the shared stripping rules (`../common/md_prose.py`). Stripping only code
+    # Use the shared stripping rules (`../common/md_prose.py`). Stripping only code
     #    fences / image links / brackets and missing HTML comments, frontmatter, tables,
     #    headings and emphasis markers is the mistake this shares with the English tool —
     #    see that module's docstring for the measured damage on real drafts.
@@ -181,7 +181,7 @@ def personal_baseline(authored: Path, rebuild=False):
             return json.loads(cache.read_text(encoding="utf-8"))
         except Exception:
             pass
-    # 🔴 Hygiene: the baseline is YOUR OWN writing only. Skip anything that looks like
+    # Hygiene: the baseline is YOUR OWN writing only. Skip anything that looks like
     # an AI/co-authored draft (草稿/draft/ai/claude/gpt/generated) — including those
     # would let the tool treat AI tics as "your real words" and cancel the diagnosis out.
     # "ai" is matched only as a whole delimiter-bounded token (`_ai`, `ai-`, `ai.txt`, or
@@ -331,7 +331,7 @@ def report(text: str, authored: Path, corpus_dir: Path = None) -> str:
          "    Keep load-bearing contrasts; state the rest plainly (say the side that "
          "matters). 🔴 Do NOT switch to a different one of the six frames — that "
          "changes which form carries it, not the total. Reference p90 (see header) "
-         "≈ 0.40/1k; the kit author's own writing runs about 0.1/1k."]
+         "≈ 0.40/1k; with --corpus the percentile comes from the baseline folder you supply."]
     if zhmd_profile:
         r = zhmd_profile(text)
         L.append("\nInteractional metadiscourse markers (zh-metadiscourse-scale, per "
@@ -440,6 +440,9 @@ def selftest() -> int:
 
 def main():
     args = sys.argv[1:]
+    if any(a in ("-h", "--help") for a in args):
+        print(__doc__.strip())
+        sys.exit(0)
     if "--selftest" in args:
         sys.exit(selftest())
     authored_val = _arg_value("--authored")

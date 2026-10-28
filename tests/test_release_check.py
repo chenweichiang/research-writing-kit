@@ -7,10 +7,22 @@ import pytest
 from conftest import ROOT, load_tool, run_tool
 
 rc = load_tool("dev/release_check.py")
-CFG = rc.load_config()
+# Shared config only: a maintainer's release_check.local.json must not change what the tests see.
+CFG = rc.load_config(local=ROOT / "tools" / "dev" / "no-such-local.json")
 EM = chr(0x2014)
 HOME_DIR = "/" + "Users" + "/alice/work"
-EMAIL, HOME, INST_A, INST_B, SITE, DEPT = (p["name"] for p in CFG["privacy_patterns"])
+EMAIL, HOME = (p["name"] for p in CFG["privacy_patterns"])
+# Stand-ins for the personal patterns a maintainer keeps in release_check.local.json.
+INST, SITE = "institution", "own domain"
+LOCAL = {
+    "privacy_patterns": [
+        {"name": INST, "regex": "範例大學|(?i:(?<![A-Za-z0-9])EXU(?![A-Za-z0-9]))"},
+        {"name": SITE, "regex": "(?i:example-lab\\.edu)"},
+    ],
+    "privacy_exempt_allow": ["https://course\\.example-lab\\.edu/kit/"],
+}
+TCFG = dict(CFG, privacy_patterns=CFG["privacy_patterns"] + LOCAL["privacy_patterns"],
+            privacy_exempt_allow=CFG["privacy_exempt_allow"] + LOCAL["privacy_exempt_allow"])
 
 
 def test_frontmatter_problems():
@@ -67,23 +79,31 @@ def test_mainland_hits_uses_kit_table():
     ("placeholder you" + "@" + "example.org", []),
     ("clone git" + "@" + "github.com:org/repo.git", []),
     ("path " + HOME_DIR, [HOME]),
-    ("我在" + "NT" + "UB任教", [INST_A]),
-    ("清" + "大的研究", [INST_B]),
-    ("釐清大綱", []),
-    ("CONTENT" + "UBE", []),
-    ("site course." + "interaction" + ".tw/x", [SITE]),
-    ("創意科技" + "產品設計系", [DEPT]),
+    ("我在範例大學任教", [INST]),
+    ("我在EXU任教", [INST]),
+    ("TEXUS", []),
+    ("site course.example-lab.edu/x", [SITE]),
 ])
 def test_privacy_line_hits(line, names):
-    assert [n for n, _ in rc.privacy_line_hits(line, CFG)] == names
+    assert [n for n, _ in rc.privacy_line_hits(line, TCFG)] == names
 
 
 def test_privacy_exemption_only_in_exempt_files():
-    page = "https://course." + "interaction" + ".tw/research-writing-kit/"
-    assert rc.privacy_line_hits(page, CFG, exempt=True) == []
-    assert rc.privacy_line_hits(page, CFG, exempt=False)
-    other = "https://" + "interaction" + ".tw/elsewhere"
-    assert rc.privacy_line_hits(other, CFG, exempt=True)
+    page = "https://course.example-lab.edu/kit/"
+    assert rc.privacy_line_hits(page, TCFG, exempt=True) == []
+    assert rc.privacy_line_hits(page, TCFG, exempt=False)
+    other = "https://example-lab.edu/elsewhere"
+    assert rc.privacy_line_hits(other, TCFG, exempt=True)
+
+
+def test_local_config_is_appended(tmp_path):
+    import json
+    local = tmp_path / "release_check.local.json"
+    local.write_text(json.dumps(dict(LOCAL, _comment="ignored")), encoding="utf-8")
+    cfg = rc.load_config(local=local)
+    assert [p["name"] for p in cfg["privacy_patterns"]] == [EMAIL, HOME, INST, SITE]
+    assert cfg["privacy_exempt_allow"][-1] == LOCAL["privacy_exempt_allow"][0]
+    assert "_comment" not in cfg
 
 
 def _git(cwd, *args):

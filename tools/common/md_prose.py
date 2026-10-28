@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
-"""md_prose.py — extract the *actual prose* from a markdown / TeX / Quarto draft.
+"""md_prose.py: extract the *actual prose* from a markdown / TeX / Quarto draft.
 
-🔴 **Why this exists** (learned the hard way, six separate times):
-Style diagnostics measure **punctuation density and sentence length**, so any
-**layout syntax** that leaks in corrupts the numbers directly. Measured cases:
+Why this exists:
+Style diagnostics measure punctuation density and sentence length, so any
+layout syntax that leaks in corrupts the numbers directly. Measured cases:
 
   · `text.count("---")` counts YAML frontmatter and table separator rows
-    (`| :--- | :---: |` — six columns counted as six dashes) as em-dashes.
+    (`| :--- | :---: |`, six columns counted as six dashes) as em-dashes.
     Real em-dashes: 56. Reported: 73 (+30%).
   · `<!-- internal note -->` never reaches the submitted paper, yet contributed
     8 semicolons and 10 colons.
   · Semicolons inside pandoc multi-key citations `[@a; @b]` are syntax, not style.
-  · Table rows get glued onto neighbouring sentences, and `**Bold head.**` /
-    `## Heading` / `![Figure]` defeat the "next char must be uppercase" sentence
-    splitter — two or three sentences merge into one. **Mean sentence length was
-    inflated by 50%** (35.99 → 23.97 words; percentile 97th → 36th).
+  · Table rows get glued onto neighbouring sentences, and bold lead-ins
+    (`Bold head.` wrapped in double asterisks) / `## Heading` / `![Figure]`
+    defeat the "next char must be uppercase" sentence splitter, so two or three
+    sentences merge into one. Mean sentence length was inflated by 50% (35.99 → 23.97 words; percentile 97th → 36th).
 
 Both the English and the Chinese diagnostic need the *same* rules, so they live
 here. Change a rule once, here.
 
-⚠️ Scope: this module only strips what is not prose. It makes **no language
-   judgement**. Citation keys become a `[CITES]` placeholder rather than being
+Scope: this module only strips what is not prose. It makes no language
+   judgement. Citation keys become a `[CITES]` placeholder rather than being
    deleted, so sentence structure does not collapse.
 """
 import re
@@ -29,13 +29,13 @@ __all__ = ["strip_markup", "mask_nonprose"]
 
 
 def mask_nonprose(txt: str, *, layout: bool = False) -> str:
-    """把「不進交付版」的內容換成等長空白,**保留行數與行內位移**。
+    """把「不進交付版」的內容換成等長空白,保留行數與行內位移。
 
-    給**逐行報行號**的工具用(`zh_localize` / `zh_term_check` / `voice_lint`):
+    給逐行報行號的工具用(`zh_localize` / `zh_term_check` / `voice_lint`):
     直接刪除會讓行號全錯,所以只遮不刪。
 
     遮的:HTML 註解、code fence。
-    🔴 **不遮表格與標題** —— 那是讀者真的看得到的交付文字,術語與在地化必須查。
+    不遮表格與標題，那是讀者真的看得到的交付文字,術語與在地化必須查。
        (文風指標才要剝表格,走 `strip_markup(drop_tables=True)`。)
 
     2026-08-23 實測動機:註解裡示範用的「軟件/用戶/數據庫」被 zh_localize 當成真的陸用語;
@@ -87,7 +87,7 @@ def strip_markup(txt: str, *, tex: bool = False, drop_tables: bool = True,
     lines = [l for l in lines if not re.fullmatch(r"\s*([-*_])\1{2,}\s*", l)]
     txt = "\n".join(lines)
 
-    # ⑦ 強調標記:`**Bold head.**` 的 `*` 不是大寫字母 → 斷句失效
+    # ⑦ 強調標記:粗體開頭句的 `*` 不是大寫字母 → 斷句失效
     txt = re.sub(r"\*\*|\*|__|(?<=\s)_(?=\w)|(?<=\w)_(?=\s)", "", txt)
     return txt
 

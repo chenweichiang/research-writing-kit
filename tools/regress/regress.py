@@ -6,7 +6,7 @@ The only condition for adding a rule: the error really happened AND it has a cle
 mechanical criterion. Do not build rules for errors you have never made — an
 empty rule has no value and gives false safety.
 
-🔴 Design rules (breaking them creates new errors):
+Design rules (breaking them creates new errors):
   1. Prefer a miss to a false alarm. Unclear criteria -> INFO, never FAIL.
   2. In Chinese, 表 / 式 / 圖 are ordinary morphemes: never grab numbered
      references with r'表\s*\d+'.
@@ -75,7 +75,7 @@ class Ctx:
 
     def deliver_files(self):
         """Delivered body text only.
-        ⚠️ Internal working files legitimately TALK ABOUT internal words and
+        Internal working files legitimately TALK ABOUT internal words and
            non-existent reference numbers; scanning them with body rules is a
            guaranteed false alarm (hit on the very first real run)."""
         src = self.root / self.cfg.get("src_dir", ".")
@@ -87,7 +87,7 @@ class Ctx:
     def clean_text(self, p: Path) -> str:
         """Approximate the delivered version: drop HTML comments, code fences,
         【pending markers】, and sections whose heading contains a skip word.
-        ⚠️ Paragraphs are re-joined with a DOUBLE newline: paragraph-level rules
+        Paragraphs are re-joined with a DOUBLE newline: paragraph-level rules
            split on it; joining with a single newline turns the whole file into one
            paragraph and every paragraph rule passes forever."""
         if p in self._text_cache:
@@ -122,12 +122,10 @@ def split_items(s: str):
     return [x for x in re.split(r"[；;]", re.sub(r"[（(][^）)]*[）)]", "", s)) if x.strip()]
 
 
-# ═════════════════════════════════════════════════════════════════════════════
 # Generic rules (config-driven)
-# ═════════════════════════════════════════════════════════════════════════════
 def r1_citations_numeric(ctx):
     """Citation integrity, numeric style: dangling citation = FAIL, orphan entry = INFO.
-    ⚠️ If the document is split across files sharing ONE numbering, the scan must
+    If the document is split across files sharing ONE numbering, the scan must
        cover all of them — scanning half flags entries cited elsewhere as orphans."""
     ref_list = ctx.cfg.get("ref_list")
     if not ref_list:
@@ -154,7 +152,7 @@ def r1_citations_numeric(ctx):
 def r1_citations_bibtex(ctx):
     """Citation integrity, BibTeX / pandoc @key style: dangling = FAIL, orphan = INFO.
 
-    🔴 Why this exists: the numeric rule returns immediately when `ref_list` is
+    Why this exists: the numeric rule returns immediately when `ref_list` is
     unset. A BibTeX project that only registered the numeric rule had a rule that
     ran, raised nothing, reported FAIL 0 — and never checked a single citation.
     Verify EXECUTION, not registration (see dead_rule_check.py)."""
@@ -241,7 +239,7 @@ def ledger_rows(ctx):
     if not path:
         return []
     if not (ctx.root / path).exists():
-        # 🔴 The old code folded "not configured" and "configured but the file is
+        # The old code folded "not configured" and "configured but the file is
         # gone" into the same empty list, so a moved or renamed ledger surfaced as
         # "point `ledger` at your numbers ledger" - advice for a problem you do not
         # have, while both ledger rules quietly stopped guarding anything.
@@ -291,16 +289,16 @@ def _find_value(val, text):
 def r_stale_values(ctx):
     """R-STALE: a corrected OLD value must not reappear.
 
-    🔴 Stale-value format: `value~anchor-regex`, several separated by `;` (`|` is
+    Stale-value format: `value~anchor-regex`, several separated by `;` (`|` is
        reserved for the anchor's OR). The first version used `|` for both and
        scanned anchor fragments as stale values: 70 false alarms in one run.
-    🔴 Bare small integers (32 / 48 / 64) MUST carry an anchor or they hit model
+    Bare small integers (32 / 48 / 64) MUST carry an anchor or they hit model
        numbers and other groups' correct values.
-    🔴 Anchor = a distinctive fragment right next to the target. One anchor sat 65
+    Anchor = a distinctive fragment right next to the target. One anchor sat 65
        chars from its value with a ±60 window: the rule never fired."""
     rows = ledger_rows(ctx)
     if not rows:
-        # 🔴 Three different states end up here; each needs its own message. The
+        # Three different states end up here; each needs its own message. The
         # old code said "not configured" for all three, so a ledger that had been
         # moved or renamed was reported as if nobody had ever set one up.
         path = ctx.cfg.get("ledger")
@@ -394,12 +392,12 @@ def r_fact_ledger(ctx):
     """Fact ledger: known WRONG values FAIL when they appear on the same line as
     the fact's keyword. Config `fact_ledger`:
       [{"name": ..., "anchor": regex, "wrong": [[regex, why], ...]}, ...]
-    ⚠️ Register only known-wrong values. Do not generalise to "anything outside
+    Register only known-wrong values. Do not generalise to "anything outside
        the allowed set is suspicious" — in timeline prose that produced 12 false
        alarms out of 12.
-    ⚠️ Write the wrong value as a regex covering every spelling; registering one
+    Write the wrong value as a regex covering every spelling; registering one
        format missed the fourth recurrence.
-    ⚠️ Window = same line only. Comparing across table rows always misfires."""
+    Window = same line only. Comparing across table rows always misfires."""
     facts = ctx.cfg.get("fact_ledger") or []
     if not facts:
         return ctx.unconfigured("R-FACT", "fact_ledger", "register known-wrong values per fact")
@@ -420,7 +418,6 @@ RULES = [r1_citations_numeric, r1_citations_bibtex, r2_pii, r6_internal_language
          r_entity_attribution, r_corrected_claims, r_fact_ledger]
 
 
-# ═════════════════════════════════════════════════════════════════════════════
 def load_config(path, root=None):
     path = Path(path).resolve()
     cfg = json.loads(path.read_text(encoding="utf-8"))

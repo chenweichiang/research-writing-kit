@@ -10,9 +10,11 @@ Five checks, each one a thing that has to be true before a change ships:
   3 dashes       lines added relative to the base ref contain no em dash
   4 localize     added lines with Chinese in them carry no mainland-Mandarin term,
                  using the kit's own tools/zh-tw/zh_localize.py table
-  5 privacy      no e-mail address, /Users/ home path, or institution name anywhere in
-                 the tracked tree; NOTICE and README keep the author credit and the
-                 repository URL (patterns live in release_check.json)
+  5 privacy      no e-mail address or /Users/ home path anywhere in the tracked tree;
+                 NOTICE and README keep the author credit and the repository URL
+                 (patterns live in release_check.json). A maintainer can add personal
+                 patterns, such as their own institution's name, in an untracked
+                 release_check.local.json next to it; see load_config.
 
 "Added lines" = the diff from merge-base(base, HEAD) to the working tree, plus every
 line of untracked, non-ignored files. Check 5 scans whole files, not just added lines.
@@ -40,8 +42,20 @@ HAN = re.compile(r"[㐀-鿿]")
 MAX_SHOWN = 40
 
 
-def load_config(path=CONFIG):
-    cfg = json.loads(Path(path).read_text(encoding="utf-8"))
+def load_config(path=CONFIG, local=None):
+    """Read release_check.json, then merge release_check.local.json if it exists.
+
+    The local file is git-ignored and holds patterns that would name the maintainer
+    (institution, department, own domain). Its list values are appended to the shared
+    ones, so it can add privacy_patterns, privacy_exempt_allow and the like."""
+    path = Path(path)
+    cfg = json.loads(path.read_text(encoding="utf-8"))
+    local = Path(local) if local else path.with_name(path.stem + ".local.json")
+    if local.exists():
+        for k, v in json.loads(local.read_text(encoding="utf-8")).items():
+            if k.startswith("_"):
+                continue
+            cfg[k] = cfg.get(k, []) + v if isinstance(v, list) else v
     return {k: v for k, v in cfg.items() if not k.startswith("_")}
 
 

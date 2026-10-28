@@ -8,10 +8,9 @@ human can decide what each one is:
   - a specification list (values, settings)  → may stay
   - pure restatement                          → delete
 
-Why it exists: a senior co-author's verdict on a grant proposal was "too many
-parenthetical asides, not academic enough". The fix that read best was NOT a
-collected glossary at the end (harder to read) but defining each term once, where
-it first appears — one sentence, then the term is used bare. This tool only finds
+Why it exists: too many parenthetical asides make a proposal read as less academic.
+The fix that reads best is NOT a collected glossary at the end (harder to read) but
+defining each term once, where it first appears: one sentence, then the term is used bare. This tool only finds
 the candidates; the decision is yours.
 
 No dependencies (Python 3 standard library). Markdown / Typst / plain text.

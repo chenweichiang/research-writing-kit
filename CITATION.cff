@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this method or toolkit, please cite it as below."
+title: "Research Writing Kit"
+abstract: "A method for writing research papers and grant proposals with an AI, and a self-installing toolkit for Claude Code."
+type: software
+authors:
+  - family-names: Chiang
+    given-names: Chenwei
+version: 1.11.1
+date-released: 2026-10-28
+license:
+  - MIT
+  - CC-BY-4.0
+repository-code: "https://github.com/chenweichiang/research-writing-kit"
+url: "https://course.interaction.tw/research-writing-kit/"
+keywords:
+  - academic writing
+  - research writing
+  - citation verification
+  - grant writing
+  - Claude Code

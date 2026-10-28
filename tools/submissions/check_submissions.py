@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """check_submissions.py — duplicate-submission guard + submission status overview.
 
-Why a central ledger: simultaneous submission is a **cross-project** problem and is
+Why a central ledger: simultaneous submission is a cross-project problem and is
 therefore invisible inside any one project folder. The same manuscript under a
 slightly different title, sent to a second venue, looks perfectly clean from inside
 either folder. Nearly every journal and conference forbids it explicitly, and the

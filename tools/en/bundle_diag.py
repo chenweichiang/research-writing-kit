@@ -2,7 +2,7 @@
 """Lexical-bundle overuse diagnostic (English + Traditional Chinese) — local, no upload.
 
 Why this exists: research on LLM vs. human academic writing finds systematic
-differences at the level of multi-word **bundles** (Jiang & Hyland's stance bundles,
+differences at the level of multi-word bundles (Jiang & Hyland's stance bundles,
 Kobak-style excess vocabulary), and the fixed-word-list tools in this kit only look
 at single words or fixed phrases. This tool derives its comparison from your own
 baseline corpus instead: it lists bundles your draft repeats that are ALSO common in
