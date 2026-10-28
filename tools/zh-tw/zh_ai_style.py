@@ -37,14 +37,6 @@ Optional personal baseline: --authored <folder of YOUR OWN .txt writing> — a
 convergence word you genuinely use at your own normal rate is not flagged as an AI
 tell; only words you don't normally use are. Independent of --corpus.
 
-Optional: if zh-metadiscourse-scale (MIT license,
-https://github.com/chenweichiang/zh-metadiscourse-scale) is installed and importable
-— or pointed at with the ZHMD_PATH environment variable (its `src/` directory) — its
-interactional metadiscourse markers are reported alongside these metrics for extra
-signal. That project says explicitly it "is not a detector"; it's used here only to
-compare density against a reference, never to judge authorship. Not installed →
-this section is silently skipped, no error, no hard dependency.
-
 No required dependencies (Python 3 stdlib). PDF input needs `pdftotext` on PATH;
 .docx input needs `textutil` (built into macOS) or `pandoc` — without either, convert
 the file to plain text yourself first (Word/Google Docs/LibreOffice "Save As" .txt).
@@ -59,7 +51,6 @@ Usage:
 """
 import hashlib
 import json
-import os
 import re
 import statistics
 import sys
@@ -135,7 +126,9 @@ def profile(text: str):
     n = len(han)
     if n < 200:  # section drafts are often short; below this, rates are too noisy
         return None
-    k = lambda c: round(c / n * 1000, 1)
+    def k(c):
+        return round(c / n * 1000, 1)
+
     emdash = text.count("——") + len(re.findall(r"(?<!—)—(?!—)", text))
     semi = text.count("；") + text.count(";")
     triplet = len(re.findall(HAN + r"{1,6}、" + HAN + r"{1,6}、", text))  # A、B、C
@@ -179,7 +172,7 @@ def personal_baseline(authored: Path, rebuild=False):
     if cache.exists() and not rebuild:
         try:
             return json.loads(cache.read_text(encoding="utf-8"))
-        except Exception:
+        except (OSError, ValueError):
             pass
     # Hygiene: the baseline is YOUR OWN writing only. Skip anything that looks like
     # an AI/co-authored draft (草稿/draft/ai/claude/gpt/generated) — including those
@@ -207,49 +200,32 @@ def personal_baseline(authored: Path, rebuild=False):
             base[w] = round(c / n * 1000, 3)
     try:
         cache.write_text(json.dumps(base, ensure_ascii=False), encoding="utf-8")
-    except Exception:
-        pass
+    except OSError:
+        pass  # best-effort cache write; a failure only means a rebuild next run
     return base
 
 
 BASE_KEYS = ("emdash", "semi", "triplet", "contrast", "slen", "burst")
 
-# Optional: zh-metadiscourse-scale. Purely additive — never a hard dependency.
-# The six interactional markers below are the subset that project's own reference
-# data (reference.csv in that repo) reports as most robust between machine and human
-# writing; see its README for the full framework and the "not a detector" caveat.
-_ZHMD_PATH = os.environ.get("ZHMD_PATH")
-zhmd_profile = None
-try:
-    if _ZHMD_PATH and Path(_ZHMD_PATH).expanduser().is_dir():
-        sys.path.insert(0, str(Path(_ZHMD_PATH).expanduser()))
-    from zhmd import profile as zhmd_profile  # type: ignore
-except Exception:
-    zhmd_profile = None
-MD_INTERACTIVE = ["累加轉折", "視角框架", "引據標記", "語碼註解", "對比重述", "框架標記"]
-MD_ROBUST = {"累加轉折", "視角框架", "引據標記"}
-
 
 def corpus_baseline(corpus_dir: Path, rebuild=False):
-    """Percentile distributions for BASE_KEYS (+ each AI_WORD, + zhmd markers if
-    available) from a corpus dir you point --corpus at. Cached beside the corpus
-    dir, keyed by the file list. Returns None if fewer than 30 usable files."""
+    """Percentile distributions for BASE_KEYS (+ each AI_WORD) from a corpus dir you
+    point --corpus at. Cached beside the corpus dir, keyed by the file list. Returns None if fewer than 30 usable files."""
     files = sorted(corpus_dir.glob("*.txt")) if corpus_dir.is_dir() else []
     files = [f for f in files if f.exists()]
     if len(files) < 30:
         return None
     cache = corpus_dir / ".zh_style_baseline.json"
-    key = hashlib.md5(("\n".join(f.name for f in files) + f"|zhmd={bool(zhmd_profile)}").encode()).hexdigest()
+    key = hashlib.md5("\n".join(f.name for f in files).encode()).hexdigest()
     if not rebuild and cache.exists():
         try:
             c = json.loads(cache.read_text(encoding="utf-8"))
             if c.get("_key") == key:
                 return c
-        except Exception:
+        except (OSError, ValueError, AttributeError):
             pass
     dist = {k: [] for k in BASE_KEYS}
     words = {w: [] for w in AI_WORDS}
-    md = {m: [] for m in MD_INTERACTIVE}
     n_used = 0
     for f in files:
         t = strip_markup(f.read_text(encoding="utf-8", errors="ignore"))
@@ -261,19 +237,14 @@ def corpus_baseline(corpus_dir: Path, rebuild=False):
             dist[k].append(pr[k])
         for w in AI_WORDS:
             words[w].append(round(len(re.findall(re.escape(w), t)) / pr["n"] * 1000, 3))
-        if zhmd_profile:
-            r = zhmd_profile(t)
-            for m in MD_INTERACTIVE:
-                md[m].append(round(r["per15k"][m], 3))
     if n_used < 30:
         return None
     out = {"_key": key, "_n": n_used, "dist": {k: sorted(v) for k, v in dist.items()},
-           "words": {w: sorted(v) for w, v in words.items()},
-           "md": {m: sorted(v) for m, v in md.items() if v}}
+           "words": {w: sorted(v) for w, v in words.items()}}
     try:
         cache.write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
-    except Exception:
-        pass
+    except OSError:
+        pass  # best-effort cache write; a failure only means a rebuild next run
     return out
 
 
@@ -332,32 +303,6 @@ def report(text: str, authored: Path, corpus_dir: Path = None) -> str:
          "matters). 🔴 Do NOT switch to a different one of the six frames — that "
          "changes which form carries it, not the total. Reference p90 (see header) "
          "≈ 0.40/1k; with --corpus the percentile comes from the baseline folder you supply."]
-    if zhmd_profile:
-        r = zhmd_profile(text)
-        L.append("\nInteractional metadiscourse markers (zh-metadiscourse-scale, per "
-                 "15,000 Han chars; installed — see module docstring for how to add this):")
-        for m in MD_INTERACTIVE:
-            v = r["per15k"][m]
-            ref = r["reference"].get(m, {})
-            irr = ref.get("irr_machine_vs_human", "")
-            line = f"  {m:<6}{v:>7.1f}"
-            if cb and cb.get("md", {}).get(m):
-                vals = cb["md"][m]
-                pc = _pct(vals, v)
-                fl = ((" [HIGH]" if m in MD_ROBUST else " [notice]")
-                      if pc > 90 and r["counts"][m] >= MIN_RAW else "")
-                line += f"  corpus median {vals[len(vals)//2]:>5.1f}  p{pc:>3.0f}{fl}"
-            line += f"  (machine/human {irr}{', robust' if m in MD_ROBUST else ''})"
-            L.append(line)
-        if r["han"] < 3000:
-            L.append("  [notice] Draft is under 3,000 Han chars — read these as "
-                     "'present or absent', not as reliable densities (see that "
-                     "project's README).")
-    elif not zhmd_profile:
-        L.append("\n(Optional: install zh-metadiscourse-scale — MIT, "
-                 "https://github.com/chenweichiang/zh-metadiscourse-scale — for "
-                 "interactional-metadiscourse markers alongside these metrics. Not "
-                 "required.)")
     if p["long_sents"]:
         L.append(f"\nSentences over {LONG_SENT} Han chars (enumerations exempt): "
                  f"{len(p['long_sents'])} — split each, or re-punctuate into a running sentence")

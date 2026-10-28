@@ -153,8 +153,8 @@ def mainland_terms(t):
 
 def sentences(t, lang):
     t = strip_comments(t)
-    body = "\n".join(l for l in t.split("\n")
-                     if l.strip() and not l.lstrip().startswith(("|", "#", "!", ":::", "\\begin", "\\end")))
+    body = "\n".join(ln for ln in t.split("\n")
+                     if ln.strip() and not ln.lstrip().startswith(("|", "#", "!", ":::", "\\begin", "\\end")))
     if lang == "zh":
         return [x for x in re.split(r"(?<=[。！？])", body) if re.search(r"[一-鿿]", x)]
     return [x for x in re.split(r"(?<=[.!?])\s+(?=[A-Z])", body) if re.search(r"[A-Za-z]{3}", x)]
@@ -238,8 +238,8 @@ def check(text, E, lang, ranges=None, locks=(), allow_grow=False, max_len=None, 
     rep, ok = [], True
     lines = text.split("\n")
     starts = [0]
-    for l in lines:
-        starts.append(starts[-1] + len(l) + 1)
+    for ln in lines:
+        starts.append(starts[-1] + len(ln) + 1)
     spans = [(starts[a - 1], starts[min(b, len(lines))]) for a, b in parse_ranges(ranges, len(lines))]
     max_len = max_len or (120 if lang == "zh" else 45)
 
@@ -307,7 +307,9 @@ def check(text, E, lang, ranges=None, locks=(), allow_grow=False, max_len=None, 
             rep.append(f"{'FAIL' if ma > mb else 'ok  '} mainland-Mandarin terms (zh_tw_terms.tsv) {mb} -> {ma}")
 
     ib, ia = indicators(text, lang), indicators(after, lang)
-    fmt = lambda x, v: f"{v:.1f}" if "per 1k" in x else f"{v}"
+    def fmt(x, v):
+        return f"{v:.1f}" if "per 1k" in x else f"{v}"
+
     rep.append("indicators (report only): " + "; ".join(f"{x} {fmt(x, ib[x])}->{fmt(x, ia[x])}" for x in ib))
 
     sb, sa = sentences(text, lang), sentences(after, lang)
@@ -387,7 +389,9 @@ def selftest():
     t = not check(zh, [("受試者作為對象", "受試者作為" + term)], "zh", allow_grow=True)[0]
     good &= t
     print(f"{'PASS' if t else 'FAIL'} zh: a new mainland term is blocked")
-    g = lambda b: check(zh, [("本研究對樣本進行比較", "本研究針對所有樣本進行比較")], "zh", grow_budget=b)[0]
+    def g(b):
+        return check(zh, [("本研究對樣本進行比較", "本研究針對所有樣本進行比較")], "zh", grow_budget=b)[0]
+
     t = (not g(0)) and (not g(2)) and g(4)
     good &= t
     print(f"{'PASS' if t else 'FAIL'} --grow-budget: net +4 chars, budget 0 and 2 block, 4 passes")
@@ -416,8 +420,10 @@ def selftest():
         Path(bad).write_text('# number: deliberate error\nE = [("共 72 則", "共 70 則")]\n', encoding="utf-8")
         Path(fine).write_text(json.dumps([["本研究對樣本進行比較", "本研究比較樣本"]], ensure_ascii=False),
                               encoding="utf-8")
-        run = lambda e: subprocess.run([sys.executable, __file__, "--draft", draft, "--edits", e,
-                                        "--lang", "zh", "--apply"], capture_output=True, text=True).returncode
+        def run(e):
+            return subprocess.run([sys.executable, __file__, "--draft", draft, "--edits", e,
+                                   "--lang", "zh", "--apply"], capture_output=True, text=True).returncode
+
         rc_bad = run(bad)
         kept = Path(draft).read_text(encoding="utf-8") == zh
         rc_ok = run(fine)
@@ -468,8 +474,8 @@ def main():
         ap.error("needs --draft, --edits and --lang (or --selftest)")
     locks = [x.strip() for x in a.lock.split(",") if x.strip()]
     if a.lock_file:
-        locks += [l.strip() for l in Path(a.lock_file).expanduser().read_text(encoding="utf-8").splitlines()
-                  if l.strip() and not l.startswith("#")]
+        locks += [ln.strip() for ln in Path(a.lock_file).expanduser().read_text(encoding="utf-8").splitlines()
+                  if ln.strip() and not ln.startswith("#")]
     corpus = a.corpus or os.environ.get("ZH_CORPUS_DIR" if a.lang == "zh" else "CORPUS_DIR")
     text = Path(a.draft).read_text(encoding="utf-8")
     ok, rep, after = check(text, load_edits(a.edits), a.lang, a.lines, locks, a.allow_grow, a.max_len,

@@ -3,6 +3,17 @@
 版號採語意化版本（主版號．次版號．修訂號）：次版號加一表示方法、skill 或工具有新增或行為改變，修訂號加一表示只改文字、詞表或修正。
 Versions follow semantic versioning (major.minor.patch): a minor bump adds or changes a method, skill or tool; a patch bump changes only wording, term tables or fixes.
 
+## v1.11.2（2026-10-28）
+
+- `zh_ai_style.py` 拿掉選配的外部後設論述量表整合（該專案已不公開）；`setup/TOOLS.md` 與繁中選配包裡的說明一併移除。
+  `zh_ai_style.py` drops the optional external metadiscourse-scale integration (that project is no longer public); the matching notes in `setup/TOOLS.md` and the zh-TW add-on are removed.
+- `pdf_fetch.py` 加上負責任使用的限制：瀏覽器層每篇之間暫停（`--pause`，預設 5 秒）、單次最多 100 篇（`--max-browser`），也不再自動點「確認你是人類」。說明文件寫明出版社條款允許為自己的研究下載單篇，不允許大量下載。
+  `pdf_fetch.py` adds responsible-use limits: the browser layer pauses between items (`--pause`, default 5 s), handles at most 100 per run (`--max-browser`) and no longer clicks a "verify you are human" check. The docs state that publishers' terms allow single articles for your own research, not bulk downloading.
+- `citation-skeptic` 與 `verify-citations` 不再引用未發表的模型比較數字，改成文字說明。
+  `citation-skeptic` and `verify-citations` no longer quote unpublished model-comparison figures.
+- 新增 `pyproject.toml`（ruff 設定），CI 加上 ruff 檢查；`except Exception: pass` 改成捕捉具體的例外，無法確定例外種類的地方註明為何可以忽略。
+  Added `pyproject.toml` with ruff settings and a ruff step in CI; `except Exception: pass` blocks now catch specific exceptions, or say why ignoring is safe where the exception types cannot be known.
+
 ## v1.11.1（2026-10-28）
 
 - 版本紀錄從兩份 README 移到這份 CHANGELOG.md，README 本文精簡。

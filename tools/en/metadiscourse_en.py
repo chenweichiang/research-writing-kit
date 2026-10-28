@@ -117,7 +117,7 @@ def baseline(corpus_dir: pathlib.Path, venues=None, rebuild=False):
             c = json.loads(CACHE.read_text())
             if c.get("_key") == key and "docs" in c:
                 return c
-        except Exception:
+        except (OSError, ValueError, AttributeError):
             pass
     docs = []
     for name, raw in kept:

@@ -34,7 +34,8 @@ Exit code 1 if any hard-rule flags remain (usable in a pre-delivery gate).
 """
 import json
 import re
-import sys as _sys, pathlib as _pl
+import sys as _sys
+import pathlib as _pl
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parent.parent / "common"))
 from md_prose import mask_nonprose
 import sys
@@ -141,12 +142,12 @@ def main():
     hard, soft, report, headings = load_rules(rules_path, paper)
 
     lines_all = raw.split("\n")
-    prose = [(i + 1, l) for i, l in enumerate(lines_all) if is_prose(l)]
+    prose = [(i + 1, ln) for i, ln in enumerate(lines_all) if is_prose(ln)]
     flags = 0
     if headings:
         hrx = re.compile(headings)
-        title_hits = [(i + 1, l.strip()) for i, l in enumerate(lines_all)
-                      if re.match(r"\s*(#{1,6}|={1,4})\s*\S", l) and hrx.search(l)]
+        title_hits = [(i + 1, ln.strip()) for i, ln in enumerate(lines_all)
+                      if re.match(r"\s*(#{1,6}|={1,4})\s*\S", ln) and hrx.search(ln)]
         if title_hits:
             flags += len(title_hits)
             print(f"[X] Sentence-form headings (rewrite as noun phrases): {len(title_hits)}")
@@ -154,25 +155,25 @@ def main():
                 print(f"      L{n}  {tline[:50]}")
     for label, pat in hard:
         rx = re.compile(pat)
-        hits = [(n, m.group()) for n, l in prose for m in rx.finditer(l)]
+        hits = [(n, m.group()) for n, ln in prose for m in rx.finditer(ln)]
         if hits:
             flags += len(hits)
             print(f"[X] {label}: {len(hits)}")
             for n, g in hits[:6]:
                 print(f"      L{n}  …{g}…")
-    chars = sum(len(l) for _, l in prose) or 1
+    chars = sum(len(ln) for _, ln in prose) or 1
     for entry in soft:
         label, pat = entry[0], entry[1]
         thr = entry[2] if len(entry) > 2 else 4.0
         rx = re.compile(pat)
-        s_hits = [(n, m.group()) for n, l in prose for m in rx.finditer(l)]
+        s_hits = [(n, m.group()) for n, ln in prose for m in rx.finditer(ln)]
         dens = len(s_hits) / chars * 1000
         note = "(high — check each for removal)" if dens > thr else "(ok)"
         print(f"[.] {label}: {len(s_hits)}  ({dens:.1f}/1k chars) {note}")
     for label, pat in report:
         rx = re.compile(pat)
-        r_hits = [(n, l[max(0, m.start() - 12):m.end() + 12].strip())
-                  for n, l in prose for m in rx.finditer(l)]
+        r_hits = [(n, ln[max(0, m.start() - 12):m.end() + 12].strip())
+                  for n, ln in prose for m in rx.finditer(ln)]
         print(f"[?] {label}: {len(r_hits)}  (report-only, not counted)")
         for n, ctx in r_hits[:20]:
             print(f"      L{n}  …{ctx}…")

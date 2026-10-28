@@ -54,13 +54,13 @@ def local_tz():
     if tzenv:
         try:
             return ZoneInfo(tzenv)
-        except Exception:
+        except (KeyError, ValueError, OSError):
             pass
     try:
         link = os.path.realpath("/etc/localtime")
         if "zoneinfo/" in link:
             return ZoneInfo(link.split("zoneinfo/", 1)[1])
-    except Exception:
+    except (KeyError, ValueError, OSError):
         pass
     return datetime.now().astimezone().tzinfo
 

@@ -396,7 +396,7 @@ def _lines_arg(s):
 
 
 def _scope_text(raw, lines):
-    return "\n".join(l for i, l in enumerate(raw.split("\n"), 1) if any(a <= i <= b for a, b in lines))
+    return "\n".join(ln for i, ln in enumerate(raw.split("\n"), 1) if any(a <= i <= b for a, b in lines))
 
 
 def _scope_size(raw, lang, lines):
@@ -683,8 +683,10 @@ def selftest():
         good &= bool(cond)
         print(("PASS " if cond else "FAIL ") + name)
 
-    mk = lambda st, v, c=None, pol="band": {"policy": pol, "status": st, "value": v, "count": c,
-                                            "pct": 50, "p10": 1.0, "p90": 2.0}
+    def mk(st, v, c=None, pol="band"):
+        return {"policy": pol, "status": st, "value": v, "count": c,
+                "pct": 50, "p10": 1.0, "p90": 2.0}
+
     B = {"feats": {"a": mk("high", 3.0, 30), "b": mk("low", 0.5, 5), "c": mk("ok", 1.5, 15),
                    "d": mk("ok", 1.0, 10, "locked"), "e": mk("ok", 1.5, 15, "report")}}
     A2 = {"feats": {"a": mk("high", 3.1, 31), "b": mk("low", 0.4, 4), "c": mk("high", 2.5, 25),

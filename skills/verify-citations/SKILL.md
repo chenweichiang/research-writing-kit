@@ -180,8 +180,8 @@ foundational works (→ the presumption-of-correctness rules in the template).
 - **Model choice:** the two halves of this skill want different models. Reading a PDF
   and returning a quote is mechanical, so the per-source readers run fine on a cheaper,
   faster model. The skeptic second review is not mechanical: it decides whether a
-  source contradicts a claim, and on the author's own citation set the strongest tier
-  was right 0.95 of the time against 0.75 for the mid tier. Run the second review, the
+  source contradicts a claim, and in a small comparison on the author's own citation set
+  the strongest tier made clearly fewer wrong calls than the mid tier. Run the second review, the
   whole-draft synthesis and the final report on the strongest model available. If
   subagents are used, set the model explicitly on each rather than inheriting, so the
   split survives whatever the main session happens to be running.

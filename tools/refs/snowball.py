@@ -22,7 +22,16 @@ Gotchas: OpenAlex 429 = daily quota wall (resets midnight UTC). forward falls
     back to Semantic Scholar automatically (fewer fields; seed_hits still works);
     backward/related need OpenAlex itself — on 429 report "quota", never "no results".
 """
-import argparse, csv, json, os, re, sys, time, urllib.error, urllib.parse, urllib.request
+import argparse
+import csv
+import json
+import os
+import re
+import sys
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
 
 OA = "https://api.openalex.org"
 S2 = "https://api.semanticscholar.org/graph/v1"
@@ -52,12 +61,14 @@ def oa_get(url, email, retries=2):
         except urllib.error.HTTPError as e:
             if e.code == 429:
                 if i < retries:
-                    time.sleep(3 * (i + 1)); continue
+                    time.sleep(3 * (i + 1))
+                    continue
                 return None, "429"
             return None, f"http {e.code}"
         except Exception as e:  # noqa: BLE001
             if i < retries:
-                time.sleep(2); continue
+                time.sleep(2)
+                continue
             return None, str(e)
     return None, "unreachable"
 
@@ -152,7 +163,8 @@ def bib_dois(path):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--doi"); src.add_argument("--bib")
+    src.add_argument("--doi")
+    src.add_argument("--bib")
     ap.add_argument("--direction", choices=["forward", "backward", "related"], default="forward")
     ap.add_argument("--limit", type=int, default=100, help="per-seed cap (default 100)")
     ap.add_argument("--out", help="CSV output path (omit = print top 30 to terminal)")
@@ -210,7 +222,9 @@ def main():
     cols = ["seed_hits", "cited_by_count", "year", "venue", "title", "doi", "oa_url", "seeds"]
     if a.out:
         with open(a.out, "w", newline="", encoding="utf-8") as f:
-            w = csv.DictWriter(f, fieldnames=cols); w.writeheader(); w.writerows(out)
+            w = csv.DictWriter(f, fieldnames=cols)
+            w.writeheader()
+            w.writerows(out)
         print(f"{len(out)} rows → {a.out}", file=sys.stderr)
     for r in out[: 30 if not a.out else 10]:
         print(f"[{r['seed_hits']} seed|cited {r['cited_by_count']:>5}] {r['year']} {r['title'][:70]}  {r['doi']}")

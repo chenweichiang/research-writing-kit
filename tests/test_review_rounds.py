@@ -1,7 +1,5 @@
 """tools/review/review_rounds: the review-round convergence ledger."""
 import json
-import shutil
-from pathlib import Path
 
 from conftest import ROOT, load_tool, run_tool
 

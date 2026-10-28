@@ -99,7 +99,9 @@ def mask(text: str) -> str:
     command lines are not prose you are accountable for — flagging "critical" in
     a code comment wastes the reader's attention and erodes trust in the report.
     """
-    blank = lambda m: "".join("\n" if c == "\n" else " " for c in m.group(0))
+    def blank(m):
+        return "".join("\n" if c == "\n" else " " for c in m.group(0))
+
     text = re.sub(r"<!--.*?-->", blank, text, flags=re.S)
     text = re.sub(r"```.*?```", blank, text, flags=re.S)
     text = re.sub(r"\A\s*---\n.*?\n---[ \t]*(?=\n)", blank, text, flags=re.S)

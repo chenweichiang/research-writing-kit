@@ -6,11 +6,19 @@ through *your own* institutional access in a real browser session — the same t
 you would do by hand. It does not circumvent access controls. Open access first,
 always; anything you are not entitled to is reported as such, not worked around.
 
+Responsible use: publishers' terms generally allow downloading individual articles
+for your own research and prohibit systematic or bulk downloading, even with valid
+access. Keep a run to the references of one paper. The browser layer pauses between
+items (--pause, default 5 s) and stops after --max-browser items per run (default
+100). It never clicks a "verify you are human" check: if one appears in the window,
+you click it yourself or the item is reported as CHALLENGE or CAPTCHA.
+
 Three layers, cheapest first:
   L1 http_get()      curl_cffi (impersonate=chrome) fixes the TLS/JA3 fingerprint;
                      falls back to urllib when not installed
-  L2 BrowserSession  patchright + a real Chrome (persistent profile) clears
-                     Cloudflare's interactive challenge, then finds the PDF link
+  L2 BrowserSession  patchright drives your installed Chrome (persistent profile),
+                     so a publisher page behind a browser check loads as it does
+                     when you open it by hand; then it finds the PDF link
                      on the rendered landing page (citation_pdf_url meta →
                      anchors → publisher patterns) and fetches it via in-page
                      `fetch(credentials:'include')`, response capture, or a real
@@ -61,14 +69,22 @@ Usage (also importable, see fetch_pdf / http_get / extra_oa_urls):
   python3 pdf_fetch.py --out refs-pdf 10.1145/1240624.1240704 10.1002/ece3.5555
   python3 pdf_fetch.py --bib references.bib --out refs-pdf
   python3 pdf_fetch.py --dois dois.txt --out refs-pdf --no-browser
-Options: --no-browser (open-access sources only, fast) / --headless (Cloudflare is
-  more suspicious of headless; only for machines with no display) / --profile PATH.
+Options: --no-browser (open-access sources only, fast) / --headless (browser checks
+  are stricter with headless; only for machines with no display) / --profile PATH /
+  --pause SECONDS between browser items (default 5) / --max-browser N per run (default 100).
 
 Install for the browser layer: `pip install curl_cffi patchright`. patchright drives
 your installed Chrome via channel="chrome" — it does not download a second browser.
 Without them this degrades to urllib + open-access sources and says so.
 """
-import base64, json, os, re, time, urllib.error, urllib.parse, urllib.request
+import base64
+import json
+import os
+import re
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
 
 # ---------- L1: HTTP ----------
 try:
@@ -149,7 +165,7 @@ def http_get(url, timeout=45, cookies=None, referer=None, impersonate="chrome"):
         try:
             body = ex.read()
         except Exception:
-            pass
+            pass  # best-effort body read; the status code is already captured
         return (code, "", body, {"x-error": "%s: %s" % (type(ex).__name__, ex)})
 
 
@@ -333,28 +349,28 @@ class BrowserSession:
             pg.on("dialog", lambda d: self._dismiss(d))
             pg.on("popup", lambda pop: self._kill_popup(pop))
         except Exception:
-            pass
+            pass  # page already closed or driver gone; the handlers are optional
 
     @staticmethod
     def _dismiss(d):
         try:
             d.dismiss()
         except Exception:
-            pass
+            pass  # dialog already dismissed or page closed; nothing left to do
 
     @staticmethod
     def _kill_popup(pop):
         try:
             pop.close()
         except Exception:
-            pass
+            pass  # popup already closed; nothing left to do
 
     def __exit__(self, *a):
         for close in (getattr(self._ctx, "close", None), getattr(self._pw, "stop", None)):
             try:
                 close and close()
             except Exception:
-                pass
+                pass  # teardown is best-effort; the browser may already be gone
         return False
 
     # -- internals --
@@ -389,23 +405,15 @@ class BrowserSession:
         return ("paywall", m.group(0)) if m else ("ok", "")
 
     def _clear_challenge(self, timeout=50):
-        """Wait out the Cloudflare challenge, clicking the Turnstile checkbox if needed."""
+        """Wait for a browser check to finish on its own. The tool never clicks a
+        "verify you are human" box; if the check wants a click, the person at the
+        window gives it, or the wait runs out and the item is reported."""
         end = time.time() + timeout
-        clicked = False
         state = "challenge"
         while time.time() < end:
             state, _ = self.page_state()
             if state != "challenge":
                 return state
-            if not clicked:
-                try:
-                    for fr in self._pg.frames:
-                        if "challenges.cloudflare.com" in (fr.url or ""):
-                            fr.locator("input[type=checkbox]").first.click(timeout=3000)
-                            clicked = True
-                            break
-                except Exception:
-                    pass
             time.sleep(1.5)
         return state
 
@@ -450,7 +458,7 @@ class BrowserSession:
                 if tmp and not tmp.is_closed():
                     tmp.close()
             except Exception:
-                pass
+                pass  # temp page may already be closed by the driver
 
     def _navigate_capture(self, url, wait=8):
         """Navigate a throwaway page to url and capture any response body whose
@@ -472,7 +480,7 @@ class BrowserSession:
                 if "pdf" in (r.headers or {}).get("content-type", "").lower():
                     hits.append(r)
             except Exception:
-                pass
+                pass  # missing or odd headers just mean this is not a PDF response
 
         try:
             tmp = self._ctx.new_page()
@@ -482,7 +490,7 @@ class BrowserSession:
             try:
                 tmp.goto(url, wait_until="commit", timeout=30000)
             except Exception:
-                pass
+                pass  # goto may time out or be cut short by a download; the response hook has run
             end = time.time() + wait
             while time.time() < end and not hits:
                 time.sleep(0.5)
@@ -501,7 +509,7 @@ class BrowserSession:
                     if b:
                         return b
             except Exception:
-                pass
+                pass  # the page may navigate away mid-check; fall through to the next strategy
             return None
         except Exception:
             return None
@@ -510,7 +518,7 @@ class BrowserSession:
                 if tmp and not tmp.is_closed():
                     tmp.close()
             except Exception:
-                pass
+                pass  # temp page may already be closed by the driver
 
     def _click_download(self):
         """Click the real "PDF / Download PDF" control on the landing page.
@@ -545,7 +553,7 @@ class BrowserSession:
             try:
                 os.unlink(path)
             except Exception:
-                pass
+                pass  # temp download already removed; a leftover only wastes disk
             return data if looks_pdf(data) else None
         except Exception:
             return None
@@ -559,7 +567,7 @@ class BrowserSession:
             if self._pg is not None and not self._pg.is_closed():
                 return True
         except Exception:
-            pass
+            pass  # page state unreadable; fall through and reopen it below
         try:
             self._pg = self._ctx.new_page()
             self._pg.set_default_timeout(15000)
@@ -586,7 +594,7 @@ class BrowserSession:
           OK        got the file
           PAYWALL   no entitlement — no tool fixes this; use ILL, ask the author,
                     or look for an author-hosted copy
-          CAPTCHA   a human must clear it once (see warm_profile.py); then re-run
+          CAPTCHA   a human must clear it once in the browser window; then re-run
           NO-LINK   the page rendered but no PDF was found, this is the only
                     bucket where the tool itself can still improve
           CHALLENGE / TIMEOUT / ERROR   transient; re-running usually helps
@@ -625,7 +633,7 @@ class BrowserSession:
                 if d:
                     return (d, final, "OK landing-is-pdf")
         except Exception:
-            pass
+            pass  # page may have navigated or closed; continue with the usual landing logic
 
         # Link discovery must poll, not scan once. ScienceDirect renders in JS:
         #    at 2 s only one candidate exists; the real pdfft link carrying the one-time
@@ -687,7 +695,7 @@ class BrowserSession:
         # the tool does not support that publisher instead of "click it once".
         state, ev = self.page_state()
         if state == "captcha":
-            return (None, None, "CAPTCHA needs a human (%s) — see warm_profile.py" % ev[:30])
+            return (None, None, "CAPTCHA needs a human (%s), clear it once in the browser window" % ev[:30])
         if state == "paywall":
             return (None, None, "PAYWALL no entitlement (page says \"%s\")" % ev[:34])
         return (None, None, "NO-LINK tried %d candidates, none were PDFs" % len(cands))
@@ -770,9 +778,9 @@ def core_urls(doi, api_key=None):
             continue     # CORE matches loosely; without pinning the DOI you get other papers
         if w.get("downloadUrl"):
             out.append(w["downloadUrl"])
-        for l in (w.get("links") or []):
-            if l.get("type") == "download" and l.get("url"):
-                out.append(l["url"])
+        for lnk in (w.get("links") or []):
+            if lnk.get("type") == "download" and lnk.get("url"):
+                out.append(lnk["url"])
     return out
 
 
@@ -860,7 +868,9 @@ def _openaire_raw(doi):
             if _url_names_other_doi(u, tgt):
                 continue                  # url carries a different DOI - not our paper
             (pdfs if _PDFISH.search(u) else landings).append(u)
-    ded = lambda xs: list(dict.fromkeys(xs))
+    def ded(xs):
+        return list(dict.fromkeys(xs))
+
     _OPENAIRE_CACHE[tgt] = (ded(pdfs)[:3], ded(landings)[:4])
     return _OPENAIRE_CACHE[tgt]
 
@@ -889,7 +899,7 @@ def extra_oa_urls(doi):
         try:
             out += fn(doi) or []
         except Exception:
-            pass
+            pass  # one source failing must not affect the others
     seen = set()
     return [u for u in out if u and not (u in seen or seen.add(u))]
 
@@ -1032,7 +1042,12 @@ def main():
     ap.add_argument("--dois", dest="doi_file", help="text file, one DOI per line")
     ap.add_argument("--out", default="refs-pdf", help="output directory (default: refs-pdf)")
     ap.add_argument("--no-browser", action="store_true",
-                    help="open-access sources only; fast, but Cloudflare publishers will all miss")
+                    help="open-access sources only; fast, but publishers that need a real browser will all miss")
+    ap.add_argument("--pause", type=float, default=5.0,
+                    help="seconds to wait between browser-layer items (default 5)")
+    ap.add_argument("--max-browser", type=int, default=100,
+                    help="most items the browser layer handles in one run (default 100); "
+                         "publishers' terms prohibit bulk downloading")
     ap.add_argument("--headless", action="store_true",
                     help="no browser window (Cloudflare is more suspicious of headless)")
     ap.add_argument("--profile", default=DEFAULT_PROFILE, help="persistent Chrome profile path")
@@ -1092,13 +1107,22 @@ def main():
             print("  [MISS] %-34s arXiv %s gave no PDF" % (key[:34], arx), flush=True)
 
     if pending and not a.no_browser and HAVE_PATCHRIGHT:   # L2: real browser
-        print("\nbrowser layer: %d item(s) - a Chrome window will open; leave it alone"
-              % len(pending), flush=True)
+        if len(pending) > a.max_browser:
+            for key, doi, _land, _cands in pending[a.max_browser:]:
+                print("  [SKIP] %-34s over --max-browser %d (doi %s)"
+                      % (key[:34], a.max_browser, doi), flush=True)
+            pending = pending[:a.max_browser]
+        print("\nbrowser layer: %d item(s) - a Chrome window will open. It uses your own "
+              "access; if a 'verify you are human' check appears, click it yourself (the "
+              "tool never does). Publishers' terms allow single articles for your own "
+              "research, not bulk downloading." % len(pending), flush=True)
         with BrowserSession(profile=a.profile, headless=a.headless, verbose=False) as bs:
-            for key, doi, land, cands in pending:
+            for i, (key, doi, land, cands) in enumerate(pending):
+                if i:
+                    time.sleep(max(0.0, a.pause))
                 # fetch_pdf has always accepted extra_urls; nothing ever passed any,
                 # so the whole repository route was unused.
-                data, src, how = bs.fetch_pdf("https://doi.org/" + doi, doi=doi,
+                data, _src, how = bs.fetch_pdf("https://doi.org/" + doi, doi=doi,
                                               extra_urls=land)
                 # Passing extra_urls is not enough on its own: fetch_pdf goes
                 # "in-page fetch -> return on paywall -> navigate", and the big
@@ -1110,7 +1134,7 @@ def main():
                     for alt in land:
                         d2, s2, h2 = bs.fetch_pdf(alt, doi=doi, budget=60)
                         if d2:
-                            data, src, how = d2, s2, "repo | " + h2
+                            data, _src, how = d2, s2, "repo | " + h2
                             break
                 # L3 cookie handoff: the browser may have earned a cf_clearance and
                 # still found no link on the page. Retry the L0 candidates with those
@@ -1124,7 +1148,7 @@ def main():
                         st, _ct, body, _h = http_get(u, cookies=ck,
                                                      referer="https://doi.org/" + doi)
                         if 200 <= st < 300 and looks_pdf(body):
-                            data, src, how = body, u, "cookie-handoff | OK"
+                            data, _src, how = body, u, "cookie-handoff | OK"
                             break
                 if data:
                     open(os.path.join(a.out, _safe(key) + ".pdf"), "wb").write(data)

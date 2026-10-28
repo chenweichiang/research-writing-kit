@@ -21,7 +21,11 @@ Usage:
   (or set SUBMISSIONS_TSV in the environment)
 Exit code 1 if anything FAILs.
 """
-import argparse, os, pathlib, re, sys
+import argparse
+import os
+import pathlib
+import re
+import sys
 from datetime import date
 
 ACTIVE = {"submitted", "under_review", "revision"}

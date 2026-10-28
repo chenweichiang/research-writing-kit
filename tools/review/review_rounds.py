@@ -59,7 +59,7 @@ def norm_disp(v):
 def load(path):
     rows = []
     with open(path, encoding="utf-8") as f:
-        lines = [l for l in f if l.strip() and not l.startswith("#")]
+        lines = [ln for ln in f if ln.strip() and not ln.startswith("#")]
     for r in csv.DictReader(lines, delimiter="\t"):
         row = {k: (r.get(k) or "").strip() for k in FIELDS}
         row["disposition"] = norm_disp(row["disposition"])

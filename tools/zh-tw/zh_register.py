@@ -165,8 +165,8 @@ def _manifest(corpus: Path):
     f = corpus / "manifest.tsv"
     if not f.exists():
         return {}
-    rows = [l.rstrip("\n").split("\t") for l in f.read_text(encoding="utf-8").splitlines()
-            if l.strip() and not l.startswith("#")]
+    rows = [ln.rstrip("\n").split("\t") for ln in f.read_text(encoding="utf-8").splitlines()
+            if ln.strip() and not ln.startswith("#")]
     if not rows:
         return {}
     head = rows[0]

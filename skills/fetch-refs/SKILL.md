@@ -90,8 +90,8 @@ python3 tools/refs/pdf_fetch.py --no-browser --out refs-pdf   # OA sources only,
 ```
 
 It layers three ways of getting a file: open-access resolvers (incl. **Europe PMC,
-CORE, OpenAIRE**, which the usual four miss), then a TLS-impersonating HTTP client,
-then a **real Chrome on a persistent profile**.
+CORE, OpenAIRE**, which the usual four miss), then a browser-like HTTP client,
+then **your own Chrome on a persistent profile**, using your own access.
 
 🔴 **No DOI is not "unobtainable".** Bib entries without a `doi` field used to be
 skipped before any source was tried, and arXiv preprints, whose bib carries only an
@@ -113,17 +113,18 @@ unsupported. Note the page count against the book's length in the manifest, mark
 above stays mandatory either way. Only fetch what you are entitled to: this uses
 *your own* access in a real browser session, exactly as you would by hand.
 
-### Cloudflare is not a dead end (measured, 2026-08-30)
-A previous version of this file said Cloudflare-fronted publishers "block automated
-fetch even on VPN, fall back to browser view". The observation was right; the
-conclusion was premature.
-
-- **A TLS-impersonating client does not clear it.** curl_cffi fixes the JA3/TLS
-  fingerprint and rescues edge-403s (T&F), but ACM / Wiley / SAGE / AIP / Elsevier
-  still answer `cf-mitigated: challenge` + "Just a moment...". Blog posts claiming
-  otherwise are not testing academic publishers.
-- **A real browser does.** Driving your installed Chrome on a persistent profile
-  clears the challenge on all of them; ACM yields the PDF directly.
+### Publisher pages behind a browser check (measured, 2026-08-30)
+- **The HTTP client alone does not open them.** curl_cffi rescues edge-403s (T&F),
+  but ACM / Wiley / SAGE / AIP / Elsevier still answer `cf-mitigated: challenge` +
+  "Just a moment...".
+- **Your own browser does.** The same pages load in your installed Chrome on a
+  persistent profile, as they do when you open them by hand; ACM yields the PDF
+  directly.
+- **Responsible use.** Publishers' terms allow downloading single articles for your own
+  research and prohibit systematic or bulk downloading, even with valid access. Keep a
+  run to one paper's references. The browser layer pauses between items (`--pause`,
+  default 5 s), stops at `--max-browser` (default 100) and never clicks a "verify you
+  are human" check; if one appears, you click it in the window or the item is reported.
 
 ### The part that matters more than the hit rate: say *why* it failed
 Reporting everything unobtained as one "needs a browser" bucket is what makes a

@@ -33,7 +33,7 @@ English version below.
 
 在論文、教材或衍生工具裡用到本方法時，請註明出處，例如：
 
-> Chiang, C. (2026). *Research Writing Kit* (v1.11.1) [Method and toolkit].
+> Chiang, C. (2026). *Research Writing Kit* (v1.11.2) [Method and toolkit].
 > https://github.com/chenweichiang/research-writing-kit
 
 機器可讀的引用資訊在 [`CITATION.cff`](CITATION.cff)。
@@ -111,7 +111,7 @@ in a derived version that it is adapted from this project.
 
 When you use this method in a paper, teaching material or a derived tool, please cite it, for example:
 
-> Chiang, C. (2026). *Research Writing Kit* (v1.11.1) [Method and toolkit].
+> Chiang, C. (2026). *Research Writing Kit* (v1.11.2) [Method and toolkit].
 > https://github.com/chenweichiang/research-writing-kit
 
 Machine-readable citation metadata is in [`CITATION.cff`](CITATION.cff).

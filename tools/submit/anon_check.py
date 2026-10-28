@@ -221,11 +221,14 @@ def eval_exif(r, area, where, tags, terms):
             continue
         flagged = False
         if low.startswith("gps") and low != "gpsversionid":
-            r.add(RED, label, f"contains GPS location data \"{short}\""); flagged = True
+            r.add(RED, label, f"contains GPS location data \"{short}\"")
+            flagged = True
         elif low in AUTHOR_TAGS:
-            r.add(RED, label, f'author / copyright field has a value "{short}"'); flagged = True
+            r.add(RED, label, f'author / copyright field has a value "{short}"')
+            flagged = True
         elif low in SOFT_TAGS:
-            r.add(ORG, label, f'identifying field has a value "{short}"'); flagged = True
+            r.add(ORG, label, f'identifying field has a value "{short}"')
+            flagged = True
         if hits and not flagged:
             for kind, term, snip in hits:
                 r.hit(label, kind, term, snip)

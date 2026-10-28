@@ -184,7 +184,8 @@ def main():
     if args.check:
         ref = read_tsv(args.check)
         got = {h: (n, m) for h, n, m in rows}
-        missing = sorted(set(ref) - set(got)); extra = sorted(set(got) - set(ref))
+        missing = sorted(set(ref) - set(got))
+        extra = sorted(set(got) - set(ref))
         diff = [h for h in ref if h in got and ref[h] != got[h]]
         print(f"families: fetched {len(got)} / reference {len(ref)}; missing {len(missing)}, extra {len(extra)}, differing {len(diff)}")
         for h in diff[:10]:

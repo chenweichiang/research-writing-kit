@@ -49,14 +49,16 @@ def row(out, item):
 
 
 def test_identical_exit0(pair):
-    make(pair[0]); make(pair[1])
+    make(pair[0])
+    make(pair[1])
     r = run_cli(pair)
     assert r.returncode == 0, r.stdout + r.stderr
     assert r.stdout.strip().splitlines()[-1] == "Mismatches: 0"
 
 
 def test_margin_differs(pair):
-    make(pair[0], margin=2.0); make(pair[1], margin=2.54)
+    make(pair[0], margin=2.0)
+    make(pair[1], margin=2.54)
     r = run_cli(pair)
     assert r.returncode == 1
     line = row(r.stdout, "Section 1 top margin")
@@ -65,15 +67,17 @@ def test_margin_differs(pair):
 
 
 def test_mismatches_sorted_first(pair):
-    make(pair[0], margin=2.0); make(pair[1])
+    make(pair[0], margin=2.0)
+    make(pair[1])
     r = run_cli(pair)
-    rows = [l for l in r.stdout.splitlines() if l.startswith("| ") and not l.startswith("| Item")]
-    flags = [l.rstrip().endswith("yes |") for l in rows]
+    rows = [ln for ln in r.stdout.splitlines() if ln.startswith("| ") and not ln.startswith("| Item")]
+    flags = [ln.rstrip().endswith("yes |") for ln in rows]
     assert flags == sorted(flags)     # False (mismatch) rows all come before True rows
 
 
 def test_eastasia_font_differs(pair):
-    make(pair[0], ea_font="標楷體"); make(pair[1], ea_font="新細明體")
+    make(pair[0], ea_font="標楷體")
+    make(pair[1], ea_font="新細明體")
     r = run_cli(pair)
     assert r.returncode == 1
     line = row(r.stdout, 'Style "Normal" font (eastAsia)')
@@ -82,7 +86,8 @@ def test_eastasia_font_differs(pair):
 
 
 def test_size_differs(pair):
-    make(pair[0], size=12); make(pair[1], size=10)
+    make(pair[0], size=12)
+    make(pair[1], size=10)
     r = run_cli(pair)
     assert r.returncode == 1
     line = row(r.stdout, 'Style "Normal" font size')
@@ -90,7 +95,8 @@ def test_size_differs(pair):
 
 
 def test_both_unset_is_consistent(pair):
-    make(pair[0]); make(pair[1])
+    make(pair[0])
+    make(pair[1])
     r = run_cli(pair)
     line = row(r.stdout, 'Style "Normal" first-line indent')
     assert "not set (Word default applies)" in line
@@ -99,7 +105,8 @@ def test_both_unset_is_consistent(pair):
 
 
 def test_set_vs_unset_is_mismatch(pair):
-    make(pair[0], bold=True); make(pair[1])
+    make(pair[0], bold=True)
+    make(pair[1])
     r = run_cli(pair)
     line = row(r.stdout, 'Style "Normal" bold')
     assert "not set" in line and line.endswith("no |")
@@ -108,7 +115,8 @@ def test_set_vs_unset_is_mismatch(pair):
 def test_inherits_through_basedon(pair):
     # Heading 1 sets no eastAsia font itself: it must resolve through docDefaults' theme font,
     # and identical sides must come out consistent
-    make(pair[0]); make(pair[1])
+    make(pair[0])
+    make(pair[1])
     r = run_cli(pair)
     line = row(r.stdout, 'Style "Heading 1" font (eastAsia)')
     assert line.endswith("yes |"), line
@@ -116,7 +124,8 @@ def test_inherits_through_basedon(pair):
 
 
 def test_style_missing_in_template(pair):
-    make(pair[0]); make(pair[1])
+    make(pair[0])
+    make(pair[1])
     d = Document(str(pair[0]))
     d.add_paragraph("Quoted", style="Quote")
     d.save(str(pair[0]))
@@ -130,7 +139,8 @@ def test_style_missing_in_template(pair):
 
 
 def test_page_field_and_json(pair):
-    make(pair[0]); make(pair[1])
+    make(pair[0])
+    make(pair[1])
     r = run_cli(pair, "--json")
     j = json.loads(r.stdout)
     assert j["mismatch"] == 0
@@ -138,5 +148,6 @@ def test_page_field_and_json(pair):
 
 
 def test_read_error_exit2(pair):
-    pair[0].write_bytes(b"junk"); make(pair[1])
+    pair[0].write_bytes(b"junk")
+    make(pair[1])
     assert run_cli(pair).returncode == 2

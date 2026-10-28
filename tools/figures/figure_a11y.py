@@ -24,7 +24,9 @@ Usage:
   figure_a11y.py --no-render fig1.png      # numbers only
 Exit code 1 if any pair collapses under a CVD simulation.
 """
-import argparse, pathlib, sys
+import argparse
+import pathlib
+import sys
 import numpy as np
 
 RGB2LMS = np.array([[17.8824, 43.5161, 4.11935],

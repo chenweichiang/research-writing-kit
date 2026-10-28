@@ -22,7 +22,8 @@ Usage:
 """
 import re
 import sys
-import sys as _sys, pathlib as _pl
+import sys as _sys
+import pathlib as _pl
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parent.parent / "common"))
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parent))
 from md_prose import mask_nonprose

@@ -148,8 +148,7 @@ def main():
     if lang == "zh":
         print("⚠️ Chinese 3–4 character bundles often reflect your TOPIC (a paper about "
               "users will legitimately repeat 使用者) — use this to find repeated PHRASING, "
-              "not as an AI-style signal by itself. For the metadiscourse layer, see "
-              "zh_ai_style.py's optional zh-metadiscourse-scale integration.")
+              "not as an AI-style signal by itself.")
 
 
 if __name__ == "__main__":

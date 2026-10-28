@@ -134,8 +134,8 @@ def r1_citations_numeric(ctx):
     rp = ctx.root / ref_list
     if not rp.exists():
         return ctx.rec("FAIL", "R1", f"ref_list not found: {ref_list}")
-    refs = {int(m.group(1)) for l in rp.read_text(encoding="utf-8").split("\n")
-            if (m := re.match(r"^\[(\d+)\]", l))}
+    refs = {int(m.group(1)) for ln in rp.read_text(encoding="utf-8").split("\n")
+            if (m := re.match(r"^\[(\d+)\]", ln))}
     cites = set()
     for f in ctx.deliver_files():
         if f.resolve() == rp.resolve():

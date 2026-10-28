@@ -255,7 +255,7 @@ def clean(txt: str) -> str:
     counted as punctuation and inflates every number. See that module for the
     measured damage."""
     txt = strip_markup(txt)
-    lines = [l for l in txt.split("\n") if not re.fullmatch(r"\s*\d+\s*", l)]
+    lines = [ln for ln in txt.split("\n") if not re.fullmatch(r"\s*\d+\s*", ln)]
     body = "\n".join(lines)
     m = re.search(r"\bREFERENCES\b|\bReferences\s*\n", body)
     if m and m.start() > len(body) * 0.5:
@@ -293,7 +293,9 @@ def profile(text: str, name: str, min_words: int = 800):
     n = len(words)
     if n < min_words:
         return None
-    per1k = lambda c: c / n * 1000
+    def per1k(c):
+        return c / n * 1000
+
     sents = [s for s in re.split(r"(?<=[.!?])\s+(?=[A-Z])", re.sub(r"\s+", " ", text))
              if len(s.split()) >= 3]
     slens = [len(s.split()) for s in sents]

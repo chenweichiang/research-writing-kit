@@ -15,8 +15,6 @@
 - `zh_gloss_scan.py` → 第 4 點的括號夾註盤點（術語首現該怎麼處理）
 - 子代理範本 `agents/zh-tw-native-editor.md` → 台灣學術中文母語潤稿（本選配包的一部分，只交改動清單），
   搭配 `tools/register/register_profile.py` 與 `tools/register/polish_check.py`
-- 選配：**zh-metadiscourse-scale**，一份量表，不是判定器，用來對照中文後設論述標記（值得注意的是／
-  本研究認為…之類）夠不夠自然，不是拿它當通過／不通過的門檻；讀它自己的說明文件再決定怎麼用。
 
 ## 這個選配包加了什麼
 

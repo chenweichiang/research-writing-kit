@@ -130,7 +130,7 @@ def resolve(ids, email):
             try:
                 out[x] = get(f"{OA}/works/{x.rsplit('/', 1)[-1]}?select={SELECT}", email)
             except Exception:
-                pass
+                pass  # a work that cannot be fetched is simply left out of the map
     return out
 
 
@@ -196,7 +196,7 @@ def main():
         scope = f"title_and_abstract.search \"{a.query}\"" + (
             f", {a.from_year}-{a.to_year or ''}" if a.from_year or a.to_year else "")
     else:
-        dois = [l.strip().removeprefix("https://doi.org/") for l in open(a.dois, encoding="utf-8") if l.strip()]
+        dois = [ln.strip().removeprefix("https://doi.org/") for ln in open(a.dois, encoding="utf-8") if ln.strip()]
         works = fetch_dois(dois, a.email)
         scope = f"{len(dois)} DOI(s) (found {len(works)})"
     if not works:

@@ -34,7 +34,12 @@ Requires: pymupdf.
 Usage: figure_check.py paper.pdf [--out figcheck/] [--min-pt 6] [--min-dpi 200] [--json]
 Exit code: 0 = no red findings; 1 = at least one red finding; 2 = pymupdf missing
 """
-import argparse, json, os, re, statistics, sys
+import argparse
+import json
+import os
+import re
+import statistics
+import sys
 
 try:
     import pymupdf as fitz
@@ -88,11 +93,11 @@ NAME = {"圖": "Figure", "表": "Table"}   # kind key -> word used in messages
 def lines_of(page):
     out = []
     for b in page.get_text("dict")["blocks"]:
-        for l in b.get("lines", []):
-            spans = l["spans"]
+        for tx in b.get("lines", []):
+            spans = tx["spans"]
             text = "".join(s["text"] for s in spans).strip()
             if text:
-                out.append({"text": text, "bbox": fitz.Rect(l["bbox"]),
+                out.append({"text": text, "bbox": fitz.Rect(tx["bbox"]),
                             "size": max(s["size"] for s in spans)})
     return out
 
@@ -102,12 +107,12 @@ def body_column(doc, page_lines=None):
     body font size (mode) wider than 40% of the page, taking the mode of their left and right
     edges. Estimating page by page gets pulled off by narrow text (captions beside figures,
     table cells) and flagged a full-width figure as 196 pt too wide."""
-    lines = [l for pl in (page_lines or [lines_of(p) for p in doc]) for l in pl]
+    lines = [tx for pl in (page_lines or [lines_of(p) for p in doc]) for tx in pl]
     if not lines:
         return None
-    body = statistics.mode(round(l["size"], 1) for l in lines)
+    body = statistics.mode(round(tx["size"], 1) for tx in lines)
     w = doc[0].rect.width
-    wide = [l["bbox"] for l in lines if round(l["size"], 1) == body and l["bbox"].width > w * 0.4]
+    wide = [tx["bbox"] for tx in lines if round(tx["size"], 1) == body and tx["bbox"].width > w * 0.4]
     if len(wide) < 5:
         return None
     return (statistics.mode(round(r.x0) for r in wide), statistics.mode(round(r.x1) for r in wide), body)
@@ -220,7 +225,7 @@ def check(pdf, out=None, min_pt=6.0, min_dpi=200):
         for m3 in REF_PL.finditer(text):
             for n in expand_nums(m3.group(2)):
                 refs.setdefault((KIND[m3.group(1)], n), []).append(pno + 1)
-        page_caps = [(c[0], l) for l in lines for c in [caption(l["text"])] if c]
+        page_caps = [(c[0], tx) for tx in lines for c in [caption(tx["text"])] if c]
         for kind, ln in page_caps:
             if kind != "圖":
                 continue
@@ -250,14 +255,14 @@ def check(pdf, out=None, min_pt=6.0, min_dpi=200):
                        + (f", and it spans only {r.width / (col[1] - col[0]):.0%} of the column width" if narrow else "") + "; check it visually")
                 (red if info["dpi"] >= 900 and narrow else warn).append(msg)
             if kind == "vector":
-                inside = [l["size"] for l in lines if r.contains(l["bbox"].tl) and r.contains(l["bbox"].br)]
+                inside = [tx["size"] for tx in lines if r.contains(tx["bbox"].tl) and r.contains(tx["bbox"].br)]
                 if inside and min(inside) < min_pt:
                     body = col[2] if col else None
                     red.append(f"{tag} has smallest font {min(inside):.1f} pt (< {min_pt})"
                                + (f", body text is {body} pt" if body else "") + ": the figure was shrunk too far; change the layout instead of shrinking")
             if out:
-                cap = next((l for k, l in page_caps
-                            if l["bbox"].y0 >= r.y1 - 2 and l["bbox"].y0 - r.y1 < 80), None)
+                cap = next((tx for k, tx in page_caps
+                            if tx["bbox"].y0 >= r.y1 - 2 and tx["bbox"].y0 - r.y1 < 80), None)
                 clip = fitz.Rect(r) | cap["bbox"] if cap else fitz.Rect(r)
                 clip = (clip + (-12, -12, 12, 12)) & page.rect
                 fn = os.path.join(out, f"p{pno + 1:03d}_y{int(r.y0):04d}.png")
@@ -275,7 +280,7 @@ def check(pdf, out=None, min_pt=6.0, min_dpi=200):
             if k[0] == kind and len(occ) > 1:
                 pages = [p for p, _ in occ]
                 msg = f"{nm} {k[1]} caption appears {len(occ)} times (p.{', '.join(map(str, pages))})"
-                if max(pages) - min(pages) <= len(occ) - 1 or any("續" in l["text"] or "continued" in l["text"].lower() for _, l in occ):
+                if max(pages) - min(pages) <= len(occ) - 1 or any("續" in tx["text"] or "continued" in tx["text"].lower() for _, tx in occ):
                     warn.append(msg + ": adjacent pages, probably a table split across pages or a continuation; check")
                 else:
                     red.append(msg)

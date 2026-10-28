@@ -2,7 +2,7 @@
 
 [![版本](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![最近更新](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![程式 MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![文件 CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**版本 `v1.11.1`**（2026-10-28）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
+**版本 `v1.11.2`**（2026-10-28）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
 **English → [README.en.md](README.en.md)**
 
@@ -77,7 +77,7 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 | 「我要再投一個地方，可以吧？」 | 查投稿狀態表，確認同一份稿件沒有同時在別處審查中 | `tools/submissions/check_submissions.py` |
 | 「這張圖印成黑白會不會看不懂？」 | 圖表色覺可及性：色盲模擬＋灰階對比，並產生模擬圖給你看 | `/paper-review` → `tools/figures/figure_a11y.py` |
 | 「別再犯同樣的錯」「改 A 又弄壞 B」 | 文件回歸：把抓到的錯寫成一條常駐檢查，改完全庫重掃，復發就擋下 | `/doc-regress` → `tools/regress/regress.py` |
-| 「把引用的 PDF 抓齊」 | 分層取檔：OA 源 → TLS 偽裝 → 真實瀏覽器；拿不到的標明原因（沒訂閱／要人過驗證／工具還沒支援） | `/fetch-refs` → `tools/refs/pdf_fetch.py` |
+| 「把引用的 PDF 抓齊」 | 分層取檔：OA 源 → 一般 HTTP 連線 → 用你自己存取權的真實瀏覽器；拿不到的標明原因（沒訂閱／要人過驗證／工具還沒支援） | `/fetch-refs` → `tools/refs/pdf_fetch.py` |
 | 「有沒有哪篇被撤稿了？」 | 撤稿掃描：整份書目對 Crossref＋OpenAlex 查撤稿，每次交付前重跑 | `tools/refs/retraction_scan.py` |
 | 「這句沒掛引用，站得住嗎？」 | 無引用宣稱掃描：找出沒有引用的量化／因果／最高級句子，逐筆補引用、指出自家資料、或降級措辭 | `tools/claims/uncited_claims_scan.py` |
 | 「這句話說得太滿了嗎？」 | 過度宣稱掃描：找出「完全／永遠／唯一／證明了」這類資料撐不起的字眼；去 AI 味的另一半，中英文都適用 | `tools/claims/overclaim_lint.py` |
@@ -184,7 +184,7 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 | `register/polish_check.py` | 潤稿改動清單套進稿子之前的檢查：數字、引用、引文與鎖定術語不得變動，字數增幅不超過預算，不得新增禁用寫法，語域特徵不得往錯的方向移；全部通過才用 `--apply` 寫回。改動清單只當資料讀，不執行 | 不用 |
 | `figures/figure_a11y.py` | 圖表色覺可及性：三種色盲模擬＋灰階對比，寫出模擬圖供目檢 | `pip install numpy pillow`（PDF 另需 `pymupdf`） |
 | `figures/figure_check.py` | 排好的 PDF 圖表機械檢查：圖說編號跳號重號、正文提到的圖表有沒有圖說（跨行與複數引用都認）、圖超出版心（黃）或頁面（紅）、向量圖內字太小、點陣圖縮到字看不清（由等效 dpi 推估字級）；每張圖裁成 PNG 供目檢 | `pip install pymupdf` |
-| `refs/pdf_fetch.py` | 取檔分三層：OA 源（增補 Europe PMC／CORE／OpenAIRE）→ curl_cffi TLS 偽裝 → 真實 Chrome 持久 profile。最後一層才是 Cloudflare 出版社（ACM／Wiley／SAGE／AIP／Elsevier）能到手的原因，只做 TLS 偽裝不夠。拿不到的一律分類成 `PAYWALL`／`CAPTCHA`／`NO-LINK`；沒有 DOI 的條目讀 arXiv `eprint`，再不行以標題在 arXiv／OpenAlex 精確比對，只有專書才交回人工 | `pip install curl_cffi patchright`（沒裝則退回 stdlib＋OA 源） |
+| `refs/pdf_fetch.py` | 取檔分三層：OA 源（增補 Europe PMC／CORE／OpenAIRE）→ 模擬瀏覽器連線的 HTTP 用戶端（curl_cffi）→ 你電腦上的 Chrome（持久 profile，用你自己的存取權）。ACM／Wiley／SAGE／AIP／Elsevier 這類會擋程式連線的出版社頁面，要到最後一層才打得開。瀏覽器層每篇之間暫停、單次最多 100 篇，不會替你點「確認你是人類」；出版社條款允許為自己的研究下載單篇，不允許大量下載。拿不到的一律分類成 `PAYWALL`／`CAPTCHA`／`NO-LINK`；沒有 DOI 的條目讀 arXiv `eprint`，再不行以標題在 arXiv／OpenAlex 精確比對，只有專書才交回人工 | `pip install curl_cffi patchright`（沒裝則退回 stdlib＋OA 源） |
 | `refs/snowball.py` | 引用滾雪球：誰引用了這篇／這篇引了誰／相近研究，多種子聚合排序 | 不用（需網路） |
 | `refs/retraction_scan.py` | 撤稿掃描：`.bib` 或 DOI 清單對 Crossref 更新關係＋OpenAlex `is_retracted` 雙源查核；無 DOI 條目另列不算已掃 | 不用（需網路） |
 | `refs/lit_map.py` | 文獻地圖：一批同主題文獻彼此共同引用誰的排行（不看全球被引數），當「這個領域的經典」候選；結果要人工判定 | 不用（需網路） |

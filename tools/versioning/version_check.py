@@ -77,7 +77,7 @@ def pdf_meta(path):
         out = subprocess.run(["pdfinfo", path], capture_output=True, text=True, timeout=30).stdout
     except Exception:
         return None            # pdfinfo missing: the caller reports it once
-    return " ".join(l for l in out.splitlines() if l.split(":")[0] in ("Title", "Subject", "Keywords"))
+    return " ".join(ln for ln in out.splitlines() if ln.split(":")[0] in ("Title", "Subject", "Keywords"))
 
 
 def pdf_text(path):

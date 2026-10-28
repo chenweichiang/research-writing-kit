@@ -477,7 +477,9 @@ def cmd_build(a):
         raise Fail("code columns do not match:\n  " + "\n  ".join(errs))
     privacy_gate(a.out, a.allow_tracked)
     h = pack_hash(loaded)
-    by_name = lambda q: {c["name"]: c for c in q["codes"]}
+    def by_name(q):
+        return {c["name"]: c for c in q["codes"]}
+
     questions = []
     for q, d in zip(qs, loaded):
         cm = by_name(q)
@@ -881,7 +883,7 @@ def main(argv=None):
     for stream in (sys.stdout, sys.stderr):
         try:
             stream.reconfigure(encoding="utf-8")
-        except Exception:
+        except (AttributeError, ValueError, OSError):
             pass
     ap = build_parser()
     a = ap.parse_args(argv)

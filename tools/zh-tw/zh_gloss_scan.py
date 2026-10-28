@@ -51,25 +51,25 @@ def scan_en(lines):
     bare_where = {}
     in_code = in_cmt = False
     in_fm = bool(lines) and lines[0].strip() == "---"   # YAML front matter and HTML comments are not prose
-    for i, l in enumerate(lines, 1):
+    for i, ln in enumerate(lines, 1):
         if in_fm:
-            if i > 1 and l.strip() == "---":
+            if i > 1 and ln.strip() == "---":
                 in_fm = False
             continue
         if in_cmt:
-            in_cmt = "-->" not in l
+            in_cmt = "-->" not in ln
             continue
-        if l.lstrip().startswith("<!--"):
-            in_cmt = "-->" not in l
+        if ln.lstrip().startswith("<!--"):
+            in_cmt = "-->" not in ln
             continue
-        if re.match(r"^#+\s*(參考文獻|引用文獻|References|Bibliography)", l):
+        if re.match(r"^#+\s*(參考文獻|引用文獻|References|Bibliography)", ln):
             break                                       # English titles in a bibliography are not stray English
-        if l.startswith("```"):
+        if ln.startswith("```"):
             in_code = not in_code
             continue
-        if in_code or l.startswith("|") or l.startswith("#") or not CJK.search(l):
+        if in_code or ln.startswith("|") or ln.startswith("#") or not CJK.search(ln):
             continue
-        body = re.sub(r"`[^`]*`|https?://\S+|\[[^\]]*\]\([^)]*\)|@[A-Za-z0-9_:-]+", " ", l)
+        body = re.sub(r"`[^`]*`|https?://\S+|\[[^\]]*\]\([^)]*\)|@[A-Za-z0-9_:-]+", " ", ln)
         spans = []
         for m in EN_GLOSS.finditer(body):
             t = m.group(1).strip()
@@ -128,14 +128,14 @@ def main():
         return
     in_code = False
     hits = 0
-    for i, l in enumerate(lines, 1):
-        if l.startswith("```"):
+    for i, ln in enumerate(lines, 1):
+        if ln.startswith("```"):
             in_code = not in_code
             continue
         # skip code, tables, definition lists, headings, blank lines
-        if in_code or l.startswith("|") or l.startswith(": ") or l.startswith("#") or not l.strip():
+        if in_code or ln.startswith("|") or ln.startswith(": ") or ln.startswith("#") or not ln.strip():
             continue
-        for m in re.finditer(r"（([^（）]{%d,})）" % n_min, l):
+        for m in re.finditer(r"（([^（）]{%d,})）" % n_min, ln):
             t = m.group(1)
             # citation: has a year, plus an author-ish token; short; no 「；」 chain
             if re.search(r"\d{4}", t) and re.search(r"[A-Za-z]|等人|與", t) and "；" not in t and len(t) < 60:
@@ -145,7 +145,7 @@ def main():
                 continue
             hits += 1
             s = max(0, m.start() - 16)
-            print(f"L{i}: …{l[s:m.start()]}【{t}】")
+            print(f"L{i}: …{ln[s:m.start()]}【{t}】")
     print(f"\n{hits} gloss candidate(s) of ≥{n_min} chars (citations and cross-references skipped).")
     print("Plain-language notes → a defining sentence at first mention, in place; "
           "do not collect them into a glossary.")

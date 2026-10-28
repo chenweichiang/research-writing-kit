@@ -17,7 +17,10 @@ Usage:
   check_response.py --points points.tsv --revisions revisions.tsv --letter letter.md
 Exit code 1 if anything must be fixed before sending.
 """
-import argparse, pathlib, re, sys
+import argparse
+import pathlib
+import re
+import sys
 
 ACCEPTISH = {"ACCEPT", "PARTIAL"}
 VALID_VERDICT = ACCEPTISH | {"DECLINE"}

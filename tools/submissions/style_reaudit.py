@@ -48,7 +48,7 @@ NEEDS_TARGET = {"drafting", "submitted", "under_review", "revision"}
 def read_tsv(path: pathlib.Path):
     rows = []
     with open(path, encoding="utf-8") as f:
-        lines = [l for l in f if l.strip() and not l.startswith("#")]
+        lines = [ln for ln in f if ln.strip() and not ln.startswith("#")]
     for r in csv.DictReader(lines, delimiter="\t"):
         rows.append(r)
     return rows

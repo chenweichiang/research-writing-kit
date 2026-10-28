@@ -80,11 +80,11 @@ def strip_markup(txt: str, *, tex: bool = False, drop_tables: bool = True,
 
     lines = txt.split("\n")
     if drop_tables:      # 表格整列(分隔列與內容列都不是散文)
-        lines = [l for l in lines if not l.lstrip().startswith("|")]
+        lines = [ln for ln in lines if not ln.lstrip().startswith("|")]
     if drop_headings:    # 標題行:留著會讓「下一字大寫」的斷句規則黏住句子
-        lines = [l for l in lines if not l.lstrip().startswith("#")]
+        lines = [ln for ln in lines if not ln.lstrip().startswith("#")]
     # 水平分隔線
-    lines = [l for l in lines if not re.fullmatch(r"\s*([-*_])\1{2,}\s*", l)]
+    lines = [ln for ln in lines if not re.fullmatch(r"\s*([-*_])\1{2,}\s*", ln)]
     txt = "\n".join(lines)
 
     # ⑦ 強調標記:粗體開頭句的 `*` 不是大寫字母 → 斷句失效

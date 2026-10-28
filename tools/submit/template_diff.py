@@ -30,7 +30,6 @@ import json
 import re
 import sys
 import xml.etree.ElementTree as ET
-import xml.etree.ElementTree as ET
 
 W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 A = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
@@ -97,7 +96,7 @@ class Doc:
                             e = f.find(A + tag)
                             out[(grp, k)] = (e.get("typeface") or "") if e is not None else ""
         except Exception:
-            pass
+            pass  # python-docx/XML internals vary by file; theme fonts are optional extras
         return out
 
     def name_of(self, s):
@@ -355,7 +354,9 @@ def compare(ms, tp):
         R.add(f"{lab} font size", ms.size(sm_), tp.size(st_))
         for tag, k in (("b", "bold"), ("i", "italic")):
             va, vb = ms.toggle(sm_, tag), tp.toggle(st_, tag)
-            show = lambda v: UNSET if v is None else ("yes" if v else "no")
+            def show(v):
+                return UNSET if v is None else ("yes" if v else "no")
+
             R.add(f"{lab} {k}", show(va), show(vb), bool(va) == bool(vb))
         R.add(f"{lab} line spacing", ms.line(sm_), tp.line(st_))
         for which, k in (("before", "space before"), ("after", "space after")):
@@ -364,7 +365,9 @@ def compare(ms, tp):
         ia, ib = ms.indent(sm_), tp.indent(st_)
         R.add(f"{lab} first-line indent", ia[0], ib[0], ia[1] == ib[1])
         ja, jb = ms.jc(sm_), tp.jc(st_)
-        norm = lambda v: "left" if v in (None, "left", "start") else v
+        def norm(v):
+            return "left" if v in (None, "left", "start") else v
+
         R.add(f"{lab} alignment", UNSET if ja is None else ja, UNSET if jb is None else jb, norm(ja) == norm(jb))
     R.add("styles used by the manuscript but missing from the template", ", ".join(missing) if missing else "none", "n/a", not missing)
 
