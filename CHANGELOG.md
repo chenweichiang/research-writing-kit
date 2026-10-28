@@ -3,6 +3,13 @@
 版號採語意化版本（主版號．次版號．修訂號）：次版號加一表示方法、skill 或工具有新增或行為改變，修訂號加一表示只改文字、詞表或修正。
 Versions follow semantic versioning (major.minor.patch): a minor bump adds or changes a method, skill or tool; a patch bump changes only wording, term tables or fixes.
 
+## v1.11.5（2026-10-29）
+
+- `zh_gloss_scan.py` 遇到一長串用 and 連起來的英文（例如引述的英文原句）而後面沒有年份時，處理時間會隨 and 的數量成倍增加，十幾個就要好幾秒，再多就像當掉；已改寫，判斷結果不變。`md_prose.py` 的多鍵引用與 `figure_check.py` 的複數圖表引用也照同樣方式改寫。這幾處是 GitHub 程式碼掃描（CodeQL）標出來的。
+  `zh_gloss_scan.py` slowed down exponentially on a long run of English joined by "and" with no year after it (a quoted English sentence, for example): a dozen took seconds, more looked like a hang. Rewritten with the same results. The multi-key citation pattern in `md_prose.py` and the plural figure reference in `figure_check.py` are rewritten the same way. GitHub code scanning (CodeQL) flagged these.
+- `pdf_fetch.py` 判斷出版社改看網址的主機名稱，不再只要網址裡出現網域字串就算；`refs_common.py` 從 bib 的 url 欄位讀 DOI 時也一樣，沒寫 `https://` 的 DOI 網址現在也認得。
+  `pdf_fetch.py` recognises a publisher by the URL's host name rather than by the domain appearing anywhere in the URL; `refs_common.py` does the same when it reads a DOI from a bib entry's url field, and now also accepts DOI URLs written without `https://`.
+
 ## v1.11.4（2026-10-29）
 
 - `tools/regress/dead_rule_check.py` 在 Python 3.9 上會出錯，已修正。CI 改在 Python 3.9 與 3.13 上各跑一次，並裝齊所有選配套件與程式；有任何測試被略過就算失敗。兩份 README 寫明需要 Python 3.9 或更新。

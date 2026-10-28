@@ -71,7 +71,7 @@ def strip_markup(txt: str, *, tex: bool = False, drop_tables: bool = True,
     txt = re.sub(r"\A\s*---\n.*?\n---\s*\n", "\n", txt, flags=re.S)
     # ④ pandoc 多鍵引用 [@a; @b] → 佔位(分號是語法不是文風)
     if cite_placeholder is not None:
-        txt = re.sub(r"\[(?:-?@[^\];]+)(?:\s*;\s*-?@[^\];]+)+\]", cite_placeholder, txt)
+        txt = re.sub(r"\[-?@[^\];]+(?:;\s*-?@[^\];]+)+\]", cite_placeholder, txt)
     # ⑤ 圖片與連結(連結保留文字,圖片整個丟)
     txt = re.sub(r"!\[[^\]]*\]\([^)]*\)(\{[^}]*\})?", " ", txt)
     txt = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", txt)

@@ -2,7 +2,7 @@
 
 [![version](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![updated](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![code MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![docs CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**Version `v1.11.4`** (2026-10-29) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
+**Version `v1.11.5`** (2026-10-29) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
 
 **中文版 → [README.md](README.md)**
 

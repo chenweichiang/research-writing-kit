@@ -45,6 +45,13 @@ EN_WORD = re.compile(r"(?<![A-Za-z0-9_./@#-])[A-Za-z][A-Za-z'-]{2,}(?![A-Za-z0-9
 CJK = re.compile(r"[\u4e00-\u9fff]")
 
 
+# A name is words joined by spaces; a bare "and" is never part of a name, only a separator
+# between names. If "and" could be read both ways, a long run of "x and y and z" with no
+# year after it would take exponential time to reject.
+_NAME = r"[A-Za-z][A-Za-z'-]*(?: +(?!and(?![A-Za-z'-]))[A-Za-z'-]+)*"
+NARRATIVE_CITE = re.compile(_NAME + r"(?:\s*(?:與|和|、|&|and)\s*" + _NAME + r")*(?: +and)?\s*(?:等人|等)?\s*[（(]\s*(?:19|20)\d{2}")
+
+
 def is_citation(t):
     return bool(re.search(r"(19|20)\d{2}", t)) or bool(re.search(r"\bet al\b|\bpp?\.", t))
 
@@ -85,7 +92,7 @@ def scan_en(lines):
         rest = "".join(ch if not any(a <= k < b for a, b in spans) else " " for k, ch in enumerate(body))
         rest = re.sub(r"[（(][^（）()]*(19|20)\d{2}[^（）()]*[）)]", " ", rest)   # citation parentheses
         # narrative citations: author names before "(2004)" ("Borsboom 等人(2004)", "A 與 B(2004)")
-        rest = re.sub(r"[A-Za-z][A-Za-z' -]*(?:\s*(?:與|和|、|&|and)\s*[A-Za-z][A-Za-z' -]*)*\s*(?:等人|等)?\s*[（(]\s*(?:19|20)\d{2}", " ", rest)
+        rest = NARRATIVE_CITE.sub(" ", rest)
         rest = re.sub(r"[A-Za-z][A-Za-z' -]*\s*等人", " ", rest)
         for w in EN_WORD.findall(rest):
             bare[w] += 1

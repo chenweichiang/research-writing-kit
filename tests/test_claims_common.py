@@ -1,5 +1,6 @@
 """tools/claims (overclaim_lint, uncited_claims_scan) and tools/common/md_prose."""
 import json
+import time
 
 from conftest import load_tool, run_tool
 
@@ -93,3 +94,11 @@ def test_overclaim_lint_undated_official_document(tmp_path):
         tmp_path, "UNESCO guidance on generative AI in education stresses age limits.", "en")
     assert "official-doc-undated" not in _cats(
         tmp_path, "UNESCO (2023) guidance on generative AI in education stresses age limits.", "en")
+
+
+def test_md_prose_multi_key_citation_is_fast():
+    mp = load_tool("common/md_prose.py")
+    assert mp.strip_markup("見 [@a; @b ; -@c] 一文。") == "見 [CITES] 一文。"
+    t = time.monotonic()
+    mp.strip_markup("[@a" + " ; @a" * 40 + " x")  # unterminated: used to backtrack exponentially
+    assert time.monotonic() - t < 2

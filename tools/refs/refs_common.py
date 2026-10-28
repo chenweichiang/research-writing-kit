@@ -18,6 +18,7 @@ import re
 import shutil
 import subprocess
 import unicodedata
+import urllib.parse
 
 DEFAULT_PDFDIR = "refs-pdf"          # same default folder as pdf_fetch.py --out
 TITLE_GATE = 0.55                    # third gate: minimum title similarity
@@ -89,7 +90,7 @@ def delatex(s):
 
 def norm_doi(s):
     s = (s or "").strip().lower()
-    s = re.sub(r"^https?://(dx\.)?doi\.org/", "", s)
+    s = re.sub(r"^(?:https?://)?(?:dx\.|www\.)?doi\.org/", "", s)
     return s.rstrip(".,;)]}")
 
 
@@ -241,7 +242,7 @@ def parse_bib(path):
         year = re.search(r"\d{4}", fl.get("year") or fl.get("date") or "")
         url = fl.get("url", "")
         doi = norm_doi(fl.get("doi", ""))
-        if not doi and "doi.org/" in url:
+        if not doi and urllib.parse.urlparse(url if "://" in url else "//" + url).hostname in ("doi.org", "dx.doi.org", "www.doi.org"):
             doi = norm_doi(url)
         entries.append({"key": key, "type": etype,
                         "author": fl.get("author") or fl.get("editor", ""),

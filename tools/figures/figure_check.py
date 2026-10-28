@@ -88,7 +88,7 @@ def caption(text):
 
 
 REF = re.compile(r"(?<![附續錄])(圖|表|Figure|Fig\.|Table)\s*([0-9]+(?:\s*[-–]\s*[0-9]+)?)(?!\s*[,，]\s*pp?\.)")  # "Table 1, p. 318" cites another work's table
-REF_PL = re.compile(r"\b(Figs\.|Figures|Tables)\s*(\d+(?:(?:\s*(?:,|and|&|–|-)\s*)+\d+)*)")  # "Figs. 1 and 2", "Figures 1, 2, and 5", "Tables 2–4"
+REF_PL = re.compile(r"\b(Figs\.|Figures|Tables)\s*(\d+(?:(?:\s*(?:,|and|&|–|-))+\s*\d+)*)")  # "Figs. 1 and 2", "Figures 1, 2, and 5", "Tables 2–4"
 KIND = {"圖": "圖", "Figure": "圖", "Fig.": "圖", "表": "表", "Table": "表",
         "Figs.": "圖", "Figures": "圖", "Tables": "表"}
 NAME = {"圖": "Figure", "表": "Table"}   # kind key -> word used in messages

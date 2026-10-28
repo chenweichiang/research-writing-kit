@@ -1,4 +1,6 @@
 """tools/zh-tw: zh_localize, zh_tw_terms, voice_lint, zh_ai_style, zh_gloss_scan."""
+import time
+
 from conftest import load_tool, run_tool
 
 SENTENCE = "本研究的{}很重要。"
@@ -145,3 +147,16 @@ def test_zh_gloss_scan_en(tmp_path):
     # the default mode is unchanged
     assert "gloss candidate(s)" not in out
     assert "gloss candidate(s)" in run_tool("zh-tw/zh_gloss_scan.py", f).stdout
+
+
+def test_zh_gloss_scan_long_and_run_is_fast(tmp_path):
+    # A long English run joined by "and" with no year after it used to take exponential time.
+    f = tmp_path / "draft.md"
+    f.write_text("本段引用英文原句：" + "design and " * 40 + "art，沒有年份。\n"
+                 "Lave 與 Wenger（1991）提出實踐社群；Smith and Jones (2020) 也有討論。\n", encoding="utf-8")
+    t = time.monotonic()
+    r = run_tool("zh-tw/zh_gloss_scan.py", f)
+    assert r.returncode == 0
+    assert time.monotonic() - t < 10
+    for name in ("Lave", "Wenger", "Smith", "Jones"):
+        assert name not in r.stdout, f"{name} is part of a citation, not a bare English word"

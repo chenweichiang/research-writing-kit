@@ -193,28 +193,34 @@ except Exception:
 #    SAGE's /doi/reader/ and /doi/epub/ are shells too — use /doi/pdf/.
 #    T&F's /doi/pdf/ returns the landing page itself: no constructible PDF URL exists,
 #    it can only be reached by clicking the control (click-download).
+def on_domain(url, domain):
+    """True when the URL's host is `domain` or one of its subdomains (not merely contains it)."""
+    host = (urllib.parse.urlparse(url).hostname or "").lower()
+    return host == domain or host.endswith("." + domain)
+
+
 def publisher_patterns(final_url, doi):
     host = urllib.parse.urlparse(final_url).netloc.lower()
     root = "https://" + host
     d = doi or ""
     out = []
-    if "onlinelibrary.wiley.com" in host and d:
+    if on_domain(final_url, "onlinelibrary.wiley.com") and d:
         out += [f"{root}/doi/pdfdirect/{d}?download=true", f"{root}/doi/pdfdirect/{d}"]
-    if "journals.sagepub.com" in host and d:
+    if on_domain(final_url, "journals.sagepub.com") and d:
         out += [f"{root}/doi/pdf/{d}", f"{root}/doi/pdf/{d}?download=true"]
-    if "link.springer.com" in host and d:
+    if on_domain(final_url, "link.springer.com") and d:
         out += [f"{root}/content/pdf/{d}.pdf"]
-    if "dl.acm.org" in host and d:
+    if on_domain(final_url, "dl.acm.org") and d:
         out += [f"{root}/doi/pdf/{d}"]
-    if "tandfonline.com" in host and d:
+    if on_domain(final_url, "tandfonline.com") and d:
         out += [f"{root}/doi/epdf/{d}?needAccess=true"]
-    if "pnas.org" in host and d:
+    if on_domain(final_url, "pnas.org") and d:
         out += [f"{root}/doi/pdf/{d}"]
-    if "sciencedirect.com" in host:
+    if on_domain(final_url, "sciencedirect.com"):
         m = re.search(r"/pii/([A-Z0-9]+)", final_url, re.I)
         if m:
             out += [f"{root}/science/article/pii/{m.group(1)}/pdfft?download=true"]
-    if "ieeexplore.ieee.org" in host:
+    if on_domain(final_url, "ieeexplore.ieee.org"):
         m = re.search(r"/document/(\d+)", final_url)
         if m:
             out += [f"{root}/stamp/stamp.jsp?tp=&arnumber={m.group(1)}"]
@@ -227,7 +233,7 @@ def publisher_patterns(final_url, doi):
     ATYPON = ("journals.aps.org", "www.pnas.org", "pubs.acs.org", "www.science.org",
               "royalsocietypublishing.org", "journals.aom.org", "www.emerald.com",
               "asmedigitalcollection.asme.org", "pubs.aip.org", "www.worldscientific.com")
-    if d and any(h in host for h in ATYPON) and not any(u.endswith(f"/doi/pdf/{d}") for u in out):
+    if d and any(on_domain(final_url, h) for h in ATYPON) and not any(u.endswith(f"/doi/pdf/{d}") for u in out):
         out += [f"{root}/doi/pdf/{d}"]
     return out
 
@@ -243,8 +249,7 @@ def entitlement_block(final_url):
       ⇒ Page text alone misjudges this: every T&F page carries "Add to Cart" in the
       header and an "Open access" item in the nav.
     """
-    u = (final_url or "").lower()
-    if "tandfonline.com" in u and "/doi/abs/" in u:
+    if on_domain(final_url or "", "tandfonline.com") and "/doi/abs/" in urllib.parse.urlparse(final_url).path.lower():
         return "T&F redirected to /doi/abs/ (no full-text entitlement)"
     return None
 
