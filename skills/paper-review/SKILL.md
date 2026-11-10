@@ -1,6 +1,6 @@
 ---
 name: paper-review
-description: Five-layer quality check for an academic draft (any language). Use when the author says "check this paper", "proofread", "catch typos", "look at this as a reviewer", "check before I submit"; asks whether the reported statistics are self-consistent or the numbers look suspicious; wants a reporting-guideline check (COREQ / SRQR / TREND / CONSORT / STROBE / PRISMA) or asks which declarations are missing; asks whether figures still read for colour-blind readers or in black and white (`tools/figures/figure_a11y.py`), whether figure and table numbers in the typeset PDF are right or a figure is shrunk past legibility or runs off the column (`tools/figures/figure_check.py`); or whether a Chinese draft carries too much English or too many parenthetical glosses (`zh_gloss_scan.py --en`). Reads the project's `ADJUDICATED.md` first (settled items are not re-raised); logs each round's fatal and major findings in `docs/review-rounds.tsv`, and `tools/review/review_rounds.py` separates new from repeated findings and recommends stopping after two rounds with nothing new ("how many more rounds", "is the review converging"). Mechanical layers run local tools when available (statistics recomputed with statcheck + scrutiny when R is installed); semantic and logic layers are done by Claude under an anti-bias rubric. Unpublished drafts never go to third-party services. Minimal edits only; a rewrite-style native polish → co-author Phase 5.5.
+description: Five-layer quality check for an academic draft (any language). Use when the author says "check this paper", "proofread", "catch typos", "look at this as a reviewer", "check before I submit"; asks whether a draft reads as AI-written (Layer 3, change list only); asks whether the reported statistics are self-consistent or the numbers look suspicious; wants a reporting-guideline check (COREQ / SRQR / TREND / CONSORT / STROBE / PRISMA) or asks which declarations are missing; asks whether figures still read for colour-blind readers or in black and white (`tools/figures/figure_a11y.py`), whether figure and table numbers in the typeset PDF are right or a figure is shrunk past legibility or runs off the column (`tools/figures/figure_check.py`); or whether a Chinese draft carries too much English or too many parenthetical glosses (`zh_gloss_scan.py --en`). Reads the project's `ADJUDICATED.md` first (settled items are not re-raised); logs each round's fatal and major findings in `docs/review-rounds.tsv`, and `tools/review/review_rounds.py` separates new from repeated findings and recommends stopping after two rounds with nothing new ("how many more rounds", "is the review converging"). Mechanical layers run local tools when available (statistics recomputed with statcheck + scrutiny when R is installed); semantic and logic layers are done by Claude under an anti-bias rubric. Unpublished drafts never go to third-party services. Minimal edits only; a rewrite-style native polish → co-author Phase 5.5.
 ---
 
 # Paper Review: five-layer quality check
@@ -194,6 +194,14 @@ author; put the total edit count at the top.
    and object-language in quotation marks are out of scope**: the scanner cannot tell
    whose words they are, so skip them by hand. Minimal edit, with a quote, as elsewhere
    in this layer.
+6. **English drafts: a human-eye cadence review.** The fingerprint tools in step 4 can
+   be all green while the prose still reads as machine-polished to a person, because
+   rhythm is not something they measure. After they run, dispatch the named agent
+   `de-cadencing-scholar` (template `agents/de-cadencing-scholar.md`, strongest model
+   tier) with only the draft path, the venue group and where to write its list. **Ask
+   it for a change list, not edits** (this skill makes minimal edits only). The main
+   conversation rules on each entry and folds the accepted ones into "Wording
+   suggestions". Chinese drafts skip this step.
 
 ## Layer 4: Logic / argument / RQ (reviewer simulation, anti-bias rubric)
 **Dispatch:** the named agent `clean-reviewer` (template `agents/clean-reviewer.md`). This
@@ -244,11 +252,16 @@ Rubric (score each 🔴fatal / 🟡major / 🟢minor):
 7. **Submission declarations, six items.** Missing ones are desk-reject or
    post-publication-accountability problems, not formatting. Check each for *required /
    present / accurate*:
-   - 🔴 **Generative-AI use disclosure**: tools and tasks listed per the venue's policy
-     (most ACM venues and journals now require it). Check it **matches reality**: a draft
-     co-written with an LLM that declares "language polishing only" is a false
-     disclosure. The same policies forbid uploading a manuscript to a public LLM for
-     review, the external basis for this skill's "no third-party uploads" rule.
+   - 🔴 **Generative-AI use disclosure**: venues differ, so read the venue's row in
+     `method/AI_DISCLOSURE.md` and re-check the official page before relying on it. ACM
+     (policy version of 2026-05-14) no longer requires disclosure of AI used for
+     writing, but AI used in the research itself (design, data, code, analysis, figures
+     that depend on it) must be described in the methods section; other publishers set
+     their own rules. Check the statement **matches reality**: a draft co-written with
+     an LLM that declares "language polishing only" is a false disclosure.
+     Reviewer-confidentiality rules at most venues forbid uploading a manuscript to a
+     public LLM for review, the external basis for this skill's "no third-party
+     uploads" rule.
    - **Research ethics**: approval or exemption number and institution in the Method;
      consent and identifiable-data handling stated.
    - **Data and code availability**: present, and true? ("available" with no link, or a
@@ -275,7 +288,9 @@ back and forth showed up in several projects within a month). So:
   (repetition, detail that can move to an appendix). The author decides the trade.
 - Open the report with one fixed line: **"Simulated review, not a requirement from the
   journal or the funder."** When the author forwards it or shows it to a co-author, it
-  must not be mistaken for a real review. Real reviews go to `rebuttal`.
+  must not be mistaken for a real review. Real reviews go to `rebuttal`. Once the
+  check is done, sending the paper (readiness, Word version, template and
+  anonymization checks, upload) is the `submit` skill.
 
 ## Layer 5: Citation check (optional)
 1. List all "claim + citation" pairs for human checking (citation hallucination is real).

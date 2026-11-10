@@ -3,6 +3,15 @@
 版號採語意化版本（主版號．次版號．修訂號）：次版號加一表示方法、skill 或工具有新增或行為改變，修訂號加一表示只改文字、詞表或修正。
 Versions follow semantic versioning (major.minor.patch): a minor bump adds or changes a method, skill or tool; a patch bump changes only wording, term tables or fixes.
 
+## v1.11.6（2026-11-11）
+
+- `paper-review` 第 4 層的生成式 AI 揭露檢查改成照 `method/AI_DISCLOSURE.md` 的場域對照表：ACM（2026-05-14 版）寫作用途已不要求揭露，研究過程用到 AI 則要寫進方法段。舊說法寫成多數 ACM 場域都要求揭露，和對照表不一致。
+  The generative-AI disclosure check in `paper-review` Layer 4 now follows the venue table in `method/AI_DISCLOSURE.md`: ACM (policy version of 2026-05-14) no longer requires disclosure of AI used for writing, while AI used in the research itself must be described in the methods section. The old wording said most ACM venues require disclosure, which disagreed with the table.
+- `paper-review` 第 3 層加一步英文稿的人眼節奏複查：指紋工具都過了之後，派 `de-cadencing-scholar` 出修改清單，不直接改稿。問稿子讀起來像不像 AI 寫的，也由這個 skill 接。
+  `paper-review` Layer 3 gains a human-eye cadence review for English drafts: after the fingerprint tools pass, `de-cadencing-scholar` returns a change list and does not edit the draft. Asking whether a draft reads as AI-written now triggers this skill.
+- `paper-review` 與 `rebuttal` 補上指向 `submit` 的說明：檢查完或回應信寫完要送出時，接著用 `submit`。
+  `paper-review` and `rebuttal` now point to `submit` for sending the paper or the revision once the check or the response letter is done.
+
 ## v1.11.5（2026-10-29）
 
 - `zh_gloss_scan.py` 遇到一長串用 and 連起來的英文（例如引述的英文原句）而後面沒有年份時，處理時間會隨 and 的數量成倍增加，十幾個就要好幾秒，再多就像當掉；已改寫，判斷結果不變。`md_prose.py` 的多鍵引用與 `figure_check.py` 的複數圖表引用也照同樣方式改寫。這幾處是 GitHub 程式碼掃描（CodeQL）標出來的。

@@ -128,5 +128,7 @@ Track B writes), so the next revision round doesn't rediscover them:
 
 ## Not this skill
 
-Quality of the revised prose → `paper-review`. Finding literature a reviewer asked for
+Quality of the revised prose → `paper-review`. Sending the revision and the letter
+(Word version, template and anonymization checks, upload, filing the confirmation) →
+`submit`. Finding literature a reviewer asked for
 → `fetch-refs`. Checking that your citations say what you claim → `verify-citations`.
