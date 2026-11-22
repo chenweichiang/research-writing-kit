@@ -93,6 +93,16 @@ For each "claim + citation" pair in the draft:
    as a bibliography problem. A checker that treated every exception as "not found"
    reported 2, then 5, then 1 missing DOIs on three runs of the same `.bib`, while every
    one of them resolved when queried directly.
+   🔴 **A Crossref 404 does not prove the DOI is fake: not every DOI is registered with
+   Crossref.** Taiwan's Airiti (華藝) registers its own DOIs (prefixes such as 10.6129,
+   10.6381, 10.7007, 10.7014, 10.29833), and DataCite, mEDRA, JaLC and other agencies
+   register others; Crossref answers 404 for every one of them. On a Crossref 404, ask
+   `https://doi.org/doiRA/<doi>` which agency registered it (it answers with JSON such as
+   `"RA": "Airiti"`). If it names a non-Crossref agency, report "DOI exists, registered with
+   <agency>; title, authors and year not checked" and check those against the agency's own
+   record or the PDF. Only when doiRA also says the DOI does not exist is it "DOI not found".
+   A checker that skipped this step reported every Airiti DOI in a Chinese reference list
+   as nonexistent.
    🔴 **OpenLibrary endpoints (checked 2026-09-19, rechecked 2026-10-04).** Use
    `https://openlibrary.org/isbn/<isbn>.json`: it is exact and 404s only when the
    book really is absent. Do not build on `…/api/books?bibkeys=ISBN:…`. On

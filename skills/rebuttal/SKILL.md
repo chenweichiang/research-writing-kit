@@ -38,7 +38,7 @@ Record in `rebuttal/points.tsv` (template in `tools/rebuttal/`).
 
 | Verdict | When | Requires |
 |---|---|---|
-| `ACCEPT` | The point is right | Say what you will actually change, not "this will be corrected" |
+| `ACCEPT` | The point is right | Say what you will actually change, not "this will be corrected". When the point rests on a paper or a fact, check it against the source (the PDF, Crossref, your own library) before accepting: a reviewer can misremember a paper too |
 | `PARTIAL` | Right direction, too big an ask (e.g. a whole new experiment) | How far you went, why not further, and what you offer instead |
 | `DECLINE` | Misread, out of scope, or it would make the paper worse | **Evidence**: where the manuscript already answers it, or the methodological reason |
 
@@ -112,7 +112,13 @@ orphan point numbers (the classic renumbering slip). Non-zero exit = not ready t
 - the response letter (or the venue's required format)
 - the revision table, if the venue asks for one
 - **clean** manuscript, plus a **marked** one where required
-  (`latexdiff old.tex new.tex > diff.tex`, or tracked changes in Word)
+  (`latexdiff old.tex new.tex > diff.tex`, or tracked changes in Word). Check that
+  `latexdiff` is installed before promising a marked PDF (`which latexdiff`; it ships with
+  TeX Live and is in Homebrew), and ask before installing it. Without it: Word manuscripts
+  use tracked changes, and two `.docx` versions can be compared with
+  `tools/collab/docx_diff.py`; Typst or Markdown sources have no dedicated tool, so run
+  `git diff --word-diff` on the two versions of the source and turn the result into the
+  revision table
 
 ## Venue differences, check the current cycle, don't assume
 
@@ -130,5 +136,9 @@ Track B writes), so the next revision round doesn't rediscover them:
 
 Quality of the revised prose → `paper-review`. Sending the revision and the letter
 (Word version, template and anonymization checks, upload, filing the confirmation) →
-`submit`. Finding literature a reviewer asked for
-→ `fetch-refs`. Checking that your citations say what you claim → `verify-citations`.
+`submit`. Literature a reviewer asked for: specific papers named → `fetch-refs` gets the
+full texts; "you missed work on X" with nothing named → search for it the way co-author
+Phase 1 Track A does (your own library first, then OpenAlex and Semantic Scholar searches
+and citation snowballing with `tools/refs/snowball.py`), read each candidate in full before
+citing it, and add this round's searches to `search-log.md`. Checking that your citations
+say what you claim → `verify-citations`.

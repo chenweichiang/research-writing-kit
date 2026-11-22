@@ -18,10 +18,18 @@ A `.bib` file, a reference list, or a list of DOIs/titles.
 
 ## Lite mode (no installs, Claude + web)
 For each reference:
-1. Resolve identity: title + authors + year + DOI (Crossref lookup).
+1. Resolve identity: title + authors + year + DOI (Crossref lookup). An entry that has
+   only a DOI must get its title and first author from Crossref
+   (`https://api.crossref.org/works/<doi>`) before anything else: without them there is
+   nothing to verify a downloaded file against, and an automated check rejects every
+   candidate. A title filled in this way still gets a look at the first page.
 2. Find an **open-access** full text: Unpaywall / OpenAlex / Semantic Scholar /
    arXiv / the author's own page. Prefer the publisher's OA version, then a
    preprint.
+   Unpaywall's API wants the author's real e-mail address in the `email` parameter and
+   refuses placeholders such as `you@example.com` with HTTP 422 ("Please use your own
+   email address"). A 422 means the source was never queried, not that no open-access
+   copy exists; ask the author whether to use their address.
 3. **Verify the file matches the citation** before trusting it: open it, confirm
    title/authors/year line up (guards against "right link, wrong file"). Compare
    **phrase sequences, not bags of words**: in HCI/design, titles are full of
@@ -240,6 +248,14 @@ python3 tools/refs/snowball.py --bib references.bib --direction forward --limit 
 - Primary source OpenAlex; on 429 (daily quota, resets midnight UTC) forward falls
   back to Semantic Scholar automatically. backward/related need OpenAlex itself:
   a 429 there means **quota, not "no results"**; rerun after the reset.
+- forward and backward also query **OpenCitations** (keyless, open CC0 citation data),
+  independently of OpenAlex, so one source failing does not hide the other. It returns
+  DOIs only: rows that only OpenCitations knows have an empty title. The `sources`
+  column says which services returned each row; a source that failed is listed as
+  "not checked" at the end, never counted as zero.
+- Semantic Scholar's shared keyless pool is often full. A free key (`S2_API_KEY` in the
+  environment) gives you your own limit; the script spaces calls about a second apart
+  and backs off on 429/503 either way.
 - Passing `--email you@example.org` is optional but polite (OpenAlex's faster pool).
 - Once candidates are chosen, add their DOIs to the `.bib` and run the collection
   flow above, discovery and fetching chain into one line.

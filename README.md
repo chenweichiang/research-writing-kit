@@ -2,7 +2,7 @@
 
 [![版本](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![最近更新](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![程式 MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![文件 CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**版本 `v1.11.6`**（2026-11-11）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
+**版本 `v1.12.0`**（2026-11-22）· 專案頁：<https://course.interaction.tw/research-writing-kit/>
 
 **English → [README.en.md](README.en.md)**
 
@@ -185,7 +185,7 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 | `figures/figure_a11y.py` | 圖表色覺可及性：三種色盲模擬＋灰階對比，寫出模擬圖供目檢 | `pip install numpy pillow`（PDF 另需 `pymupdf`） |
 | `figures/figure_check.py` | 排好的 PDF 圖表機械檢查：圖說編號跳號重號、正文提到的圖表有沒有圖說（跨行與複數引用都認）、圖超出版心（黃）或頁面（紅）、向量圖內字太小、點陣圖縮到字看不清（由等效 dpi 推估字級）；每張圖裁成 PNG 供目檢 | `pip install pymupdf` |
 | `refs/pdf_fetch.py` | 取檔分三層：OA 源（增補 Europe PMC／CORE／OpenAIRE）→ 模擬瀏覽器連線的 HTTP 用戶端（curl_cffi）→ 你電腦上的 Chrome（持久 profile，用你自己的存取權）。ACM／Wiley／SAGE／AIP／Elsevier 這類會擋程式連線的出版社頁面，要到最後一層才打得開。瀏覽器層每篇之間暫停、單次最多 100 篇，不會替你點「確認你是人類」；出版社條款允許為自己的研究下載單篇，不允許大量下載。拿不到的一律分類成 `PAYWALL`／`CAPTCHA`／`NO-LINK`；沒有 DOI 的條目讀 arXiv `eprint`，再不行以標題在 arXiv／OpenAlex 精確比對，只有專書才交回人工 | `pip install curl_cffi patchright`（沒裝則退回 stdlib＋OA 源） |
-| `refs/snowball.py` | 引用滾雪球：誰引用了這篇／這篇引了誰／相近研究，多種子聚合排序 | 不用（需網路） |
+| `refs/snowball.py` | 引用滾雪球：誰引用了這篇／這篇引了誰／相近研究，多種子聚合排序；OpenAlex、Semantic Scholar、OpenCitations 三個來源合併去重，每列標明來源 | 不用（需網路） |
 | `refs/retraction_scan.py` | 撤稿掃描：`.bib` 或 DOI 清單對 Crossref 更新關係＋OpenAlex `is_retracted` 雙源查核；無 DOI 條目另列不算已掃 | 不用（需網路） |
 | `refs/lit_map.py` | 文獻地圖：一批同主題文獻彼此共同引用誰的排行（不看全球被引數），當「這個領域的經典」候選；結果要人工判定 | 不用（需網路） |
 | `refs/missing_refs.py` | 缺件清單：書目裡還沒有 PDF 的條目，先扣掉你自己文獻庫已有的（年份＋第一作者姓＋標題相似度三道關卡），剩下的才列 DOI／網址／ISBN 給你下載；資料夾裡已經有的檔也重驗一次內容，可疑的寫進 `_check_present.md`，只標記不搬也不刪（`--no-check-present` 關掉） | 不用（驗內容需 `pdftotext`） |
@@ -311,11 +311,13 @@ field, language, and target journals. See `CLAUDE.md` (the installer) and `metho
 | 服務 | 哪裡用到 | 送出什麼 |
 |------|----------|----------|
 | Crossref | `retraction_scan.py`（撤稿更新關係）、`verify-citations` DOI／書目查驗 | 只送 DOI |
+| doi.org（doiRA） | `verify-citations`：Crossref 查無的 DOI 改問是哪個機構註冊的（例如華藝） | 只送 DOI |
 | OpenAlex | `retraction_scan.py`（`is_retracted`）、`snowball.py`、`lit_map.py`、無 DOI 條目的標題補查（可選免費金鑰 `OPENALEX_API_KEY`：沒設每天 $0.10 額度、設了 $1，標題搜尋一次 $0.001、DOI 單筆免費） | DOI 或標題 |
-| Semantic Scholar | `snowball.py` 後備線、引用補查 | DOI 或標題 |
+| Semantic Scholar | `snowball.py` 後備線、引用補查（可選免費金鑰 `S2_API_KEY`：沒設走大家共用的額度，常被擠滿） | DOI 或標題 |
+| OpenCitations | `snowball.py` 的第二個引用來源（向前、向後；資料 CC0，免金鑰） | 只送 DOI |
 | Europe PMC／CORE／OpenAIRE | `pdf_fetch.py` 的 OA 源（CORE 需免費金鑰 `CORE_API_KEY`，沒設就跳過） | DOI |
 | 出版社網站 | `pdf_fetch.py` 的瀏覽器層，用你自己的存取權在真實瀏覽器 session 取檔 | 就是你手動開網頁會送的東西 |
-| Unpaywall、arXiv | `fetch-refs` 抓開放取用的 PDF | DOI |
+| Unpaywall、arXiv | `fetch-refs` 抓開放取用的 PDF | DOI（Unpaywall 另要一個真實信箱，會先問你） |
 
 上表的線上服務只拿到書目資料（DOI、標題、作者）。稿件內容會送出去的地方只有 Claude Code 本身（見〈隱私〉）。
 

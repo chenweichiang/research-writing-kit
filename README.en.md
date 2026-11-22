@@ -2,7 +2,7 @@
 
 [![version](https://img.shields.io/github/v/tag/chenweichiang/research-writing-kit?label=version&sort=semver&color=blue)](https://github.com/chenweichiang/research-writing-kit/tags) [![updated](https://img.shields.io/github/last-commit/chenweichiang/research-writing-kit/main?label=updated&color=green)](https://github.com/chenweichiang/research-writing-kit/commits/main) [![code MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE) [![docs CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**Version `v1.11.6`** (2026-11-11) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
+**Version `v1.12.0`** (2026-11-22) · Project page: <https://course.interaction.tw/research-writing-kit/en/>
 
 **中文版 → [README.md](README.md)**
 
@@ -189,7 +189,7 @@ Once installed, each one triggers either by saying what you want or by typing `/
 | `register/polish_check.py` | Checks an editor's change list before it touches the draft: numbers, citations, quotations and locked terms unchanged, growth within the word budget, no new forbidden forms, no register feature moving the wrong way; writes back with `--apply` only when everything passes. The change list is read as data, never executed | none |
 | `figures/figure_a11y.py` | Figure colour accessibility: three colour-blindness simulations plus grayscale contrast; writes the simulated images for visual inspection | `pip install numpy pillow` (PDF figures also need `pymupdf`) |
 | `figures/figure_check.py` | Figures and tables in the typeset PDF: caption numbering gaps and duplicates, mentions without a caption (across line breaks and plural forms), figures past the text column (yellow) or off the page (red), small text in vector figures, rasters shrunk until their text is unreadable (font size estimated from the effective dpi); writes a PNG crop of each figure for a visual pass | `pip install pymupdf` |
-| `refs/snowball.py` | Citation snowballing: who cited this, what it cites, related work; aggregates and ranks across several seeds | none (needs internet) |
+| `refs/snowball.py` | Citation snowballing: who cited this, what it cites, related work; aggregates and ranks across several seeds; merges OpenAlex, Semantic Scholar and OpenCitations and marks each row's source | none (needs internet) |
 | `refs/retraction_scan.py` | Retraction scan: a `.bib` or a DOI list checked against Crossref update relations and OpenAlex `is_retracted`, two sources; entries without a DOI are listed separately and not counted as scanned | none (needs internet) |
 | `refs/lit_map.py` | Literature map: who a batch of same-topic papers co-cite, ranked within the batch (global citation counts are ignored), as candidates for "the classics here"; the result still needs a human call | none (network) |
 | `refs/missing_refs.py` | The missing list: bibliography entries with no PDF yet, minus what your own library already holds (year + first-author surname + title similarity), with DOI / URL / ISBN for the rest. Files already in the folder are re-verified too; doubtful ones go into `_check_present.md`, flagged only, never moved or deleted (`--no-check-present` turns this off) | none (content checks need `pdftotext`) |
@@ -315,9 +315,13 @@ The Python packages below can be installed with `pip install`, or, with [uv](htt
 | Service | Used where | What is sent |
 |---------|------------|--------------|
 | Crossref | `retraction_scan.py` (retraction update relations), `verify-citations` DOI and bibliographic checks | DOI only |
+| doi.org (doiRA) | `verify-citations`: for a DOI Crossref does not know, asks which agency registered it (Airiti, DataCite and others) | DOI only |
 | OpenAlex | `retraction_scan.py` (`is_retracted`), `snowball.py`, `lit_map.py`, title lookup for entries without a DOI (optional free key `OPENALEX_API_KEY`: $0.10/day of usage without it, $1/day with it; a title search costs $0.001, a single DOI lookup is free) | DOI or title |
-| Semantic Scholar | `snowball.py` fallback, citation lookups | DOI or title |
-| Unpaywall, arXiv | `fetch-refs` fetching open-access PDFs | DOI |
+| Semantic Scholar | `snowball.py` fallback, citation lookups (optional free key `S2_API_KEY`; without it you share a public pool that is often full) | DOI or title |
+| OpenCitations | `snowball.py` second citation source (forward and backward; CC0 data, no key) | DOI only |
+| Europe PMC / CORE / OpenAIRE | `pdf_fetch.py` open-access sources (CORE needs a free key `CORE_API_KEY` and is skipped without it) | DOI |
+| Publisher websites | `pdf_fetch.py` browser layer, fetching with your own access in a real browser session | What you would send opening the page by hand |
+| Unpaywall, arXiv | `fetch-refs` fetching open-access PDFs | DOI (Unpaywall also wants a real e-mail address, so you are asked first) |
 
 The online services above receive only bibliographic data (DOIs, titles, author names). The one place manuscript text is sent is Claude Code itself (see "Privacy").
 

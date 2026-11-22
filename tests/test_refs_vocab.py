@@ -88,6 +88,8 @@ def test_snowball_forward(monkeypatch, tmp_path, capsys):
     sb = load_tool("refs/snowball.py")
 
     def fake(url, email):
+        if "opencitations" in url:
+            return []   # OpenCitations has nothing for this seed
         if "/works/doi:" in url:
             return SEED
         assert "filter=cites:W1" in url
@@ -107,6 +109,8 @@ def test_snowball_backward_from_bib(monkeypatch, tmp_path, capsys):
     bib.write_text("@article{a,\n  title = {A},\n  doi = {10.1000/seed}\n}\n", encoding="utf-8")
 
     def fake(url, email):
+        if "opencitations" in url:
+            return []   # OpenCitations has nothing for this seed
         if "/works/doi:" in url:
             return SEED
         assert "openalex_id:W7" in url

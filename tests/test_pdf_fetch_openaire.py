@@ -191,3 +191,24 @@ def test_an_exception_returns_two_empty_lists_not_an_empty_string(monkeypatch):
 
     monkeypatch.setattr(pf.urllib.request, "urlopen", fail_urlopen)
     assert pf._openaire_raw("10.1000/whatever") == ([], [])
+
+
+def test_jget_counts_429_and_4xx_instead_of_hiding_them(monkeypatch, capsys):
+    import urllib.error
+    pf = load_tool("refs/pdf_fetch.py")
+    monkeypatch.setattr(pf, "QUOTA_HIT", {})
+    monkeypatch.setattr(pf, "HTTP_ERRORS", {})
+    monkeypatch.setattr(pf, "_WARNED", set())
+    codes = iter([429, 422, 422, 404])
+
+    def fake(req, timeout=None):
+        raise urllib.error.HTTPError(req.full_url, next(codes), "err", {}, None)
+    monkeypatch.setattr(pf.urllib.request, "urlopen", fake)
+    for _ in range(4):
+        assert pf._jget("https://api.example.org/x") == {}
+    assert pf.QUOTA_HIT == {"api.example.org": 1}
+    assert pf.HTTP_ERRORS == {("api.example.org", 422): 2, ("api.example.org", 404): 1}
+    err = capsys.readouterr().err
+    assert err.count("HTTP 422") == 1 and "HTTP 404" not in err   # warned once; 404 is a plain miss
+    report = "\n".join(pf.source_failure_report())
+    assert "429" in report and "HTTP 422: 2" in report

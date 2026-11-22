@@ -78,7 +78,14 @@ review and has confirmed that the venue allows it.
   APA-style test report (`t(28)=2.20, p=.03`) and flags rows where the p value doesn't
   match: `decision_error=TRUE` (the significance conclusion flips) is the serious kind.
   `scrutiny`'s GRIM test checks whether a reported mean is mathematically possible given
-  N (integer scales): `consistency=FALSE` means ask for the raw data. Limits: statcheck
+  N (integer scales): `consistency=FALSE` means ask for the raw data. Since scrutiny 1.0
+  the mean is a number, not a string, and the decimal places, the number of items
+  averaged and the data type have no defaults: `grim_map(tibble::tibble(x = 3.40, n = 28),
+  digits_x = 2, items_averaged = 1, data_type = "integer")`. Take `digits_x` from how the
+  paper printed the mean (3.40 is 2, even though R keeps it as 3.4), and `items_averaged`
+  is the number of scale items averaged into the score, not the number of scale points
+  (1 for a single item). Older examples that quote `x` fail with an error asking for
+  `digits_x`. Limits: statcheck
   only parses APA-style reporting; mixed-model / CLMM tables escape it, so check those
   by hand against the stated method. **Don't hand-roll the recomputation when the
   packages are available.**

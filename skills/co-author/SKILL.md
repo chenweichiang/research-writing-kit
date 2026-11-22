@@ -132,8 +132,10 @@ stage**, and report once at the end. The order has reasons; do not swap stages.
   done this" claim needs a search trail and a stated boundary, not an
   impression. (A) literature via citation graphs + web, holdings
   are a convenience sample not the canon. **Keep a `search-log.md`** in the project:
-  which databases (OpenAlex / Semantic Scholar / web / own library), the query strings,
-  the date run, inclusion/exclusion criteria, hits per step. Three reasons: a reviewer
+  which databases (OpenAlex / Semantic Scholar / OpenCitations / web / own library), the
+  query strings, the date run, inclusion/exclusion criteria, hits per step. **A failed
+  query is not zero hits**: a 429, a timeout or a refused request is logged as "not
+  checked", separately from a search that ran and found nothing, and rerun later. Three reasons: a reviewer
   asking "why did you miss X" gets an answer (a strategy boundary vs. an oversight);
   retargeting the paper six months later doesn't start from zero; and any draft with a
   review-like component will be asked for exactly this table. (B) the venue's

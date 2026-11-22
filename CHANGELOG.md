@@ -3,6 +3,23 @@
 版號採語意化版本（主版號．次版號．修訂號）：次版號加一表示方法、skill 或工具有新增或行為改變，修訂號加一表示只改文字、詞表或修正。
 Versions follow semantic versioning (major.minor.patch): a minor bump adds or changes a method, skill or tool; a patch bump changes only wording, term tables or fixes.
 
+## v1.12.0（2026-11-22）
+
+- `snowball.py` 新增第二個引用來源 OpenCitations（免金鑰、資料 CC0）：向前、向後滾雪球時會跟 OpenAlex 和 Semantic Scholar 各自獨立查詢，哪一邊失敗都不會連帶讓另一邊的結果消失，失敗的來源會列成「未能查核」，不當成零筆。輸出新增 `sources` 欄，標明每一列由哪些來源提供；同一篇以 DOI 合併，同一顆種子從兩個來源找到只算一次（舊版會重複計算 `seed_hits`）。
+  `snowball.py` adds OpenCitations (keyless, CC0 data) as a second citation source: forward and backward snowballing query it independently of OpenAlex and Semantic Scholar, so one source failing no longer hides the others' results, and a failed source is listed as "not checked" rather than counted as zero. A new `sources` column names the services behind each row; the same paper is merged on its DOI, and one seed reaching it through two sources counts once (the old version could count `seed_hits` twice).
+- `snowball.py` 對 Semantic Scholar 的呼叫改成至少間隔約一秒、遇到 429 或 503 會等一陣子再試（2、4、8 秒，或照伺服器的 Retry-After），並可用免費金鑰 `S2_API_KEY`；金鑰被限流時，這一輪改走共用額度。
+  `snowball.py` spaces Semantic Scholar calls about a second apart and retries 429 and 503 answers with exponential backoff (2, 4, 8 s, or the server's Retry-After), and accepts an optional free key `S2_API_KEY`; if the key is rate-limited, the rest of the run uses the shared pool.
+- `pdf_fetch.py` 的開放取用來源回 429（額度用完）或其他 4xx（請求被拒）時，不再默默當成「沒有開放版本」：第一次出現就警告，跑完列出每個來源被拒幾次。
+  When an open-access source in `pdf_fetch.py` answers 429 (quota) or another 4xx (request refused), it is no longer silently treated as "no open-access copy": the first occurrence prints a warning and the end of the run lists how often each source refused.
+- `verify-citations`：Crossref 查無的 DOI 不一定是假的。華藝（Airiti）、DataCite 等機構註冊的 DOI 在 Crossref 一律 404，現在先問 `doi.org/doiRA` 是哪個機構註冊的，再決定是報「查無」還是「DOI 存在、書目未核」。
+  `verify-citations`: a DOI Crossref does not know is not necessarily fake. DOIs registered with Airiti, DataCite and other agencies always get a 404 from Crossref; the skill now asks `doi.org/doiRA` which agency registered it before reporting "not found" or "DOI exists, bibliographic details not checked".
+- `rebuttal`：審稿意見建立在某篇文獻或某個事實上時，先回原文核對再接受；審稿人只說「漏了某方向的研究」時，照 co-author 的文獻檢索步驟找並補進 `search-log.md`；沒裝 `latexdiff` 時，Word 稿用追蹤修訂或 `docx_diff.py`，Typst 與 Markdown 稿用 `git diff --word-diff`。
+  `rebuttal`: a reviewer point that rests on a paper or a fact is checked against the source before it is accepted; "you missed work on X" with nothing named is searched the way co-author Phase 1 Track A searches, and logged in `search-log.md`; without `latexdiff`, Word manuscripts use tracked changes or `docx_diff.py`, and Typst or Markdown sources use `git diff --word-diff`.
+- `co-author` 的檢索紀錄把「查詢失敗」和「查了沒有結果」分開記，資料庫清單加入 OpenCitations；`fetch-refs` 補兩點：只有 DOI 的條目先從 Crossref 補標題與作者，Unpaywall 不收 example.com 這類佔位信箱（回 422）；`submit` 遇到官方頁網址失效時重新找官方頁，舊版用 Wayback Machine 對照；`paper-review` 寫明 scrutiny 1.0 的 `grim_map` 新寫法（平均數給數字、小數位數要明寫）。
+  `co-author`'s search log records a failed query separately from a search that found nothing, and lists OpenCitations among the databases; `fetch-refs` adds two notes: an entry with only a DOI gets its title and author from Crossref first, and Unpaywall refuses placeholder addresses such as example.com (HTTP 422); `submit` searches for the official page again when its link is dead and uses the Wayback Machine for earlier versions; `paper-review` gives the scrutiny 1.0 form of `grim_map` (the mean as a number, decimal places stated explicitly).
+- `doc-regress` 的鐵則由五條改為七條：「錨點視窗要量過」與「更正事實後連同自測案例一起改」從校準說明升為鐵則。`method/AI_DISCLOSURE.md` 的 Taylor & Francis 一列依 2026-11-22 的官方頁更新（聲明四項、方法與資料分析的用法、graphical abstract）。英文 README 補上中文版已有的 Europe PMC／CORE／OpenAIRE 與出版社網站兩列。
+  `doc-regress` now has seven iron rules instead of five: "measure the anchor window" and "correct the self-test case along with the fact" move up from calibration notes. The Taylor & Francis row in `method/AI_DISCLOSURE.md` is updated from the official page as read on 2026-11-22 (the four-point statement, AI in methods and data analysis, graphical abstracts). The English README gains the Europe PMC / CORE / OpenAIRE and publisher-website rows the Chinese one already had.
+
 ## v1.11.6（2026-11-11）
 
 - `paper-review` 第 4 層的生成式 AI 揭露檢查改成照 `method/AI_DISCLOSURE.md` 的場域對照表：ACM（2026-05-14 版）寫作用途已不要求揭露，研究過程用到 AI 則要寫進方法段。舊說法寫成多數 ACM 場域都要求揭露，和對照表不一致。

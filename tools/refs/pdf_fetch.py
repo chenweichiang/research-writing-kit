@@ -85,6 +85,7 @@ import base64
 import json
 import os
 import re
+import sys
 import time
 import urllib.error
 import urllib.parse
@@ -743,12 +744,45 @@ def oa_headers(url):
     return {"Authorization": "Bearer " + k} if k and urllib.parse.urlsplit(url).netloc == "api.openalex.org" else {}
 
 
+# A source that answers 429 (quota) or another 4xx (request refused) yields no candidates,
+# which looks exactly like "no open-access copy". Count them and report at the end of the run
+# so a dead source is visible. 404 is a plain miss: counted, never warned about.
+QUOTA_HIT = {}      # host -> count of 429
+HTTP_ERRORS = {}    # (host, status) -> count of other 4xx
+_WARNED = set()
+
+
 def _jget(url, timeout=20, headers=None):
     try:
         req = urllib.request.Request(url, headers={"User-Agent": UA, **oa_headers(url), **(headers or {})})
         return json.load(urllib.request.urlopen(req, timeout=timeout))
+    except urllib.error.HTTPError as ex:
+        host = urllib.parse.urlsplit(url).netloc
+        if ex.code == 429:
+            QUOTA_HIT[host] = QUOTA_HIT.get(host, 0) + 1
+        elif 400 <= ex.code < 500:
+            HTTP_ERRORS[(host, ex.code)] = HTTP_ERRORS.get((host, ex.code), 0) + 1
+            if ex.code != 404 and (host, ex.code) not in _WARNED:
+                _WARNED.add((host, ex.code))
+                print("  warning: %s answered HTTP %d (request refused, not 'no results'); "
+                      "this source may be out for the whole run" % (host, ex.code), file=sys.stderr)
+        return {}
     except Exception:
         return {}
+
+
+def source_failure_report():
+    """Lines summarising 429s and 4xx answers from the open-access sources, or [] if none."""
+    lines = []
+    if QUOTA_HIT:
+        lines.append("Quota walls (HTTP 429): the items these sources should have covered are "
+                     "incomplete, not 'no open-access copy'. Rerun later; files already obtained are kept.")
+        lines += ["   - %s: %d" % (h, n) for h, n in sorted(QUOTA_HIT.items())]
+    if HTTP_ERRORS:
+        lines.append("Sources that answered 4xx (anything other than 404 means the source may be "
+                     "out for the whole run):")
+        lines += ["   - %s HTTP %d: %d" % (h, c, n) for (h, c), n in sorted(HTTP_ERRORS.items())]
+    return lines
 
 
 def europepmc_urls(doi):
@@ -1175,6 +1209,9 @@ def main():
 
     for key, why in manual:
         print("  [MANUAL] %-32s %s" % (key[:32], why), flush=True)
+    report = source_failure_report()
+    if report:
+        print("\n" + "\n".join(report), flush=True)
     print("\n%d/%d obtained -> %s%s" % (got, len(entries), a.out,
           ("  (+%d left for a human)" % len(manual)) if manual else ""))
     print("Verify every file's content against its citation before trusting it - "

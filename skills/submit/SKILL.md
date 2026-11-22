@@ -33,7 +33,9 @@ which degrade with a clear message instead of failing silently:
 
 1. **Re-read the official page every time; never trust memory or an old copy in
    `venue-notes.md`.** Deadlines, word-count method, file formats, anonymization rules and
-   AI-disclosure fields change. Read the official page, compare it with the project's
+   AI-disclosure fields change. Read the official page (if the link is dead or the site
+   was reorganized, search for the current official page again; for what an earlier
+   version said, use the Internet Archive's Wayback Machine), compare it with the project's
    `venue-notes.md`, and if anything changed, fix `venue-notes.md` first, then continue,
    and tell the author what changed.
 2. **Never self-score.** "Can I submit?" and "what score would it get?" go to the named

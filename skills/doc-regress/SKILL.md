@@ -144,13 +144,8 @@ removed from `RULES` **and recorded in `RULES_DEREGISTERED = {"rule_name": "why"
 Left in place, it prints the same red forever; removed without the record, it keeps
 being reported as unregistered. Either way everyone learns to ignore the red.
 
-Two more calibrations:
-- **Measure the anchor window; don't guess it.** An anchor 65 characters from its
-  number with a ±60 window never fires, and silent looks identical to passing. Take
-  the anchor from the fragment *adjacent* to the number and confirm in the self-test.
-- **When a fact is corrected, correct its test case too.** The test injects the "old"
-  value; once the old value turns out to be right, the injection is a no-op and the
-  rule looks broken. Fix the case, not the rule.
+Two calibrations apply here: measure the anchor window, and correct a test case when its
+fact is corrected (iron rules 4 and 5 below).
 
 ### 5. Hook into the existing verification
 Attach to `verify.sh` / `make check` / CI / a pre-commit hook so it runs on every
@@ -170,7 +165,7 @@ run (it judges nothing; it makes them visible). Reopening an entry requires stat
 new evidence. `paper-review` reads this file at Step 0; `co-author` hands it to the
 clean final reviewer.
 
-## Five iron rules (each bought with a real error)
+## Seven iron rules (each bought with a real error)
 
 1. **Miss rather than mis-flag.** Unclear criteria → INFO, never FAIL. A false alarm's
    cost is "edited the correct thing into a wrong one", which is worse than a miss.
@@ -185,10 +180,20 @@ clean final reviewer.
    ordinary morphemes (形式, 代表, 圖像); a naive pattern reports phantom equation
    numbers from table-of-contents page numbers and recognizes zero of the real
    references.
-4. **After correcting a fact, re-check by concept, not by the string you just
+4. **Measure the anchor window; don't guess it.** An anchor too far from its target
+   means the rule never fires, and a silent rule looks exactly like a passing one. An
+   anchor 65 characters from its number with a ±60 window never fired; the original and
+   the injected copy both showed 0 FAIL. Take the anchor from the fragment *adjacent* to
+   the target and confirm in the self-test that the rule actually fires.
+5. **When a fact is corrected, correct its test case too.** The self-test injects the
+   "old" value; once the old value turns out to be the right one, the injection changes
+   nothing, the rule stays quiet and looks broken. (A case injected 7.5 as the wrong
+   value; 7.5 was later shown to be correct, and the self-test dropped from 9/9 to 8/9.)
+   Fix the case, not the rule.
+6. **After correcting a fact, re-check by concept, not by the string you just
    replaced.** One date error took four rounds to clear because each round found
    another format or wording. Register wrong values as a regex covering the variants.
-5. **Your own additions are the audit blind spot; they get a separate pass.** Attention
+7. **Your own additions are the audit blind spot; they get a separate pass.** Attention
    naturally goes to existing text. A sentence added to fill a widened date range
    passed every mechanical check and seven review rounds before the author caught it.
    **Structural fixes may not be made with facts**: if the range can't be filled,
